@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,9 +14,14 @@ public class
     public Transform originPoint;
     public Canvas mainCanvas;
 
+    private static Dictionary<string, Material> _materialDic = new Dictionary<string, Material>();
+    private static Dictionary<string, KeyValuePair<int, int>> _sizeDic = new Dictionary<string, KeyValuePair<int, int>>();
+
     void Start() {
-        // Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(0f, 0f));
+#if UNITY_EDITOR
+        // Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f));
         Load("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f));
+#endif
     }
 
     public static Texture2D LoadTexture2DByIO(string imageUrl)
@@ -34,16 +42,32 @@ public class
     public void Load(string imageUrl, Vector2 pos)
     {
         if (!displayObject || !mainContainer || string.IsNullOrEmpty(imageUrl)) return;
-        Texture2D texture2 = LoadTexture2DByIO(imageUrl);
-
-        Transform imageItem = Instantiate(displayObject, mainContainer);
+        Material material = null;
+        KeyValuePair<int, int> sizePair;
+        if (_materialDic.ContainsKey(imageUrl))
+        {
+            material = _materialDic[imageUrl];
+            sizePair = _sizeDic[imageUrl];
+        }
+        else
+        {
+            Texture2D texture2 = LoadTexture2DByIO(imageUrl);
+            material = new Material(Shader.Find("UI/Default")) {
+                mainTexture = texture2
+            };
+            sizePair = new KeyValuePair<int, int>(texture2.width, texture2.height);
+            _materialDic[imageUrl] = material;
+            _sizeDic[imageUrl] = sizePair;
+        }
         
-        Image image = imageItem.GetComponent<Image>();
-        image.material = new Material(Shader.Find("UI/Default")) {
-            mainTexture = texture2
-        };
-        RectTransform rect = imageItem.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(texture2.width, texture2.height);
+        Transform imageElement = Instantiate(displayObject, mainContainer);
+        imageElement.name = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+        Image image = imageElement.GetComponent<Image>();
+        image.material = material;
+        RectTransform rect = imageElement.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(sizePair.Key, sizePair.Value);
+        pos.y = - pos.y;
         rect.anchoredPosition = pos - mainContainer.GetComponent<RectTransform>().anchoredPosition;
+        Debug.Log($"pos: {pos}, anchoredPosition: {mainContainer.GetComponent<RectTransform>().anchoredPosition}");
     }
 }

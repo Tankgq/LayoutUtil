@@ -2,6 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveCanvasHandler : MonoBehaviour
+public class RightMenuManager : MonoBehaviour
 {
 }
