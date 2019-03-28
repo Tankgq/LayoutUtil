@@ -5,10 +5,6 @@ using UnityEngine.EventSystems;
 
 public class WorkSpaceManager : MonoBehaviour, IPointerDownHandler
 {
-    public GameObject createDisplayObjectPanel;
-    public Transform displayObjectContainer;
-
-
     public void OnPointerDown(PointerEventData eventData)
     {
         if(Input.GetMouseButtonDown(0))

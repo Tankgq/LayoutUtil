@@ -1,73 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class 
     LoadImageHandler : MonoBehaviour
 {
-    public Transform displayObject;
-    public Transform mainContainer;
-    public Vector2 containerPos;
-    public Transform originPoint;
-    public Canvas mainCanvas;
+    public Transform DisplayObject;
+    public Transform MainContainer;
 
-    private static Dictionary<string, Material> _materialDic = new Dictionary<string, Material>();
-    private static Dictionary<string, KeyValuePair<int, int>> _sizeDic = new Dictionary<string, KeyValuePair<int, int>>();
+    private static readonly Dictionary<string, Material> MaterialDic = new Dictionary<string, Material>();
+    private static readonly Dictionary<string, Vector2> SizeDic = new Dictionary<string, Vector2>();
 
-    void Start() {
+    private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
+
+    private Transform GetDisplayObject()
+    {
+        int length = DisplayObjectPool.Count;
+        if (length == 0) return Instantiate(DisplayObject, MainContainer);
+        Transform result = DisplayObjectPool[length - 1];
+        DisplayObjectPool.RemoveAt(length - 1);
+        return result;
+    }
+    
+    public void RecycleDisplayObject(Transform displayObject) {
+        if (!displayObject) return;
+        DisplayObjectManager.DeSelectDisplayObject(displayObject);
+        displayObject.SetParent(null);
+        DisplayObjectPool.Add(displayObject);
+    }
+
+    private void Start() {
 #if UNITY_EDITOR
-        // Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f));
+#if UNITY_EDITOR_WIN
+        Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f));
+#else
         Load("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f));
+#endif
 #endif
     }
 
-    public static Texture2D LoadTexture2DByIO(string imageUrl)
+    public static Texture2D LoadTexture2DbyIo(string imageUrl)
     {
-        byte[] bytes;
-        using (FileStream fs = new FileStream(imageUrl, FileMode.Open, FileAccess.Read)) {
-            fs.Seek(0, SeekOrigin.Begin);
-            bytes = new byte[fs.Length];
-            fs.Read(bytes, 0, (int)fs.Length);
-            fs.Close();
-            fs.Dispose();
-        }
-        Texture2D texture2D = new Texture2D(1, 1);
+        byte[] bytes = Utils.ReadFile(imageUrl);
+        Texture2D texture2D = new Texture2D((int) GlobalData.DefaultSize.x, (int) GlobalData.DefaultSize.y);
         texture2D.LoadImage(bytes);
         return texture2D;
     }
 
     public void Load(string imageUrl, Vector2 pos)
     {
-        if (!displayObject || !mainContainer || string.IsNullOrEmpty(imageUrl)) return;
+        if (!DisplayObject || !MainContainer) return;
         Material material = null;
-        KeyValuePair<int, int> sizePair;
-        if (_materialDic.ContainsKey(imageUrl))
+        Vector2 size;
+        if (string.IsNullOrEmpty(imageUrl))
         {
-            material = _materialDic[imageUrl];
-            sizePair = _sizeDic[imageUrl];
+            size = GlobalData.DefaultSize;
         }
         else
         {
-            Texture2D texture2 = LoadTexture2DByIO(imageUrl);
-            material = new Material(Shader.Find("UI/Default")) {
-                mainTexture = texture2
-            };
-            sizePair = new KeyValuePair<int, int>(texture2.width, texture2.height);
-            _materialDic[imageUrl] = material;
-            _sizeDic[imageUrl] = sizePair;
+            if (MaterialDic.ContainsKey(imageUrl)) {
+                material = MaterialDic[imageUrl];
+                size = SizeDic[imageUrl];
+            } else {
+                Texture2D texture2 = LoadTexture2DbyIo(imageUrl);
+                material = new Material(Shader.Find("UI/Default")) {
+                    mainTexture = texture2
+                };
+                size = new Vector2(texture2.width, texture2.height);
+                MaterialDic[imageUrl] = material;
+                SizeDic[imageUrl] = size;
+            }
         }
         
-        Transform imageElement = Instantiate(displayObject, mainContainer);
-        imageElement.name = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+        Transform imageElement = GetDisplayObject();
+        imageElement.SetParent(MainContainer);
+        int instanceId = imageElement.GetInstanceID();
+        GlobalData.DisplayObjectPaths[instanceId] = imageUrl;
+        GlobalData.DisplayObjects.Add(imageElement);
+        Debug.Log($"Load Image: {instanceId}, name: {imageElement.name}");
+
+        imageElement.name = $"{(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds}";
         Image image = imageElement.GetComponent<Image>();
         image.material = material;
+        image.color = (material ? Color.white : Color.clear);
         RectTransform rect = imageElement.GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(sizePair.Key, sizePair.Value);
+        rect.sizeDelta = new Vector2(size.x, size.y);
         pos.y = - pos.y;
-        rect.anchoredPosition = pos - mainContainer.GetComponent<RectTransform>().anchoredPosition;
-        Debug.Log($"pos: {pos}, anchoredPosition: {mainContainer.GetComponent<RectTransform>().anchoredPosition}");
+        rect.anchoredPosition = pos - MainContainer.GetComponent<RectTransform>().anchoredPosition;
     }
 }

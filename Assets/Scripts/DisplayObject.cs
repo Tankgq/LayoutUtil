@@ -1,33 +1,58 @@
-﻿public class DisplayObject {
-	private string _name;
-	private float _x;
-	private float _y;
-	private float _width;
-	private float _height;
+﻿using UnityEngine;
 
-	public string name {
-		get { return _name; }
-		set { _name = value; }
-	}
+public class DisplayObject
+{
+    public string Name { get; set; }
+    
+    public float X { get; set; }
+    
+    public float Y { get; set; }
+    
+    public float Width { get; set; }
+    
+    public float Height { get; set; }
 
-	public float x {
-		get { return _x; }
-		set { _x = value; }
-	}
-	
+    public static DisplayObject ConvertTo(Transform displayObject)
+    {
+        if (!displayObject) return null;
 
-	public float y {
-		get { return _y; }
-		set { _y = value; }
-	}
+        var rect = displayObject.GetComponent<RectTransform>();
+        var pos = rect.anchoredPosition;
+        var size = rect.sizeDelta;
 
-	public float width {
-		get { return _width; }
-		set { _width = value; }
-	}
+        var result = new DisplayObject
+        {
+            Name = displayObject.name,
+            X = pos.x,
+            Y = -pos.y,
+            Width = size.x,
+            Height = size.y
+        };
+        return result;
+    }
 
-	public float height {
-		get { return _height; }
-		set { _height = value; }
-	}
+    public static Vector2 ConvertTo(Vector2 pos)
+    {
+        return new Vector2(pos.x, -pos.y);
+    }
+
+    public static float ConvertX(float x)
+    {
+        return x;
+    }
+
+    public static float InvConvertX(float x)
+    {
+        return x;
+    }
+
+    public static float ConvertY(float y)
+    {
+        return -y;
+    }
+
+    public static float InvConvertY(float y)
+    {
+        return -y;
+    }
 }

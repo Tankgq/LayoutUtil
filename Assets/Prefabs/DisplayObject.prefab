@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776a0e336ff660345a1219b432bd43e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frame: {fileID: 3708969055879217765}
+  SelfRect: {fileID: 3708969055879217767}
   FrameWider: {fileID: 3708969055879217766}
 --- !u!1 &3708969055879217765
 GameObject:
