@@ -18,13 +18,13 @@ public class InspectorManager : MonoBehaviour
     private void Start()
     {
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
-            .Where(_ => !string.IsNullOrEmpty(NameInputField.text))
+            .Where(isFocused => !isFocused && !string.IsNullOrEmpty(NameInputField.text))
             .Subscribe(_ => {
                 if (!_displayObject) return;
                 _displayObject.name = NameInputField.text;
             });
         XInputField.ObserveEveryValueChanged(element => element.isFocused)
-            .Where(_ => !string.IsNullOrEmpty(XInputField.text))
+            .Where(isFocused => !isFocused && !string.IsNullOrEmpty(XInputField.text))
             .Subscribe(_ =>
             {
                 var x = ParseFloat(XInputField.text);
@@ -36,7 +36,7 @@ public class InspectorManager : MonoBehaviour
                 rect.anchoredPosition = pos;
             });
         YInputField.ObserveEveryValueChanged(element => element.isFocused)
-            .Where(_ => !string.IsNullOrEmpty(YInputField.text))
+            .Where(isFocused => !isFocused && !string.IsNullOrEmpty(YInputField.text))
             .Subscribe(_ => {
                 var y = ParseFloat(YInputField.text);
                 if (y <= GlobalData.MinFloat) return;
@@ -47,7 +47,7 @@ public class InspectorManager : MonoBehaviour
                 rect.anchoredPosition = pos;
             });
         WidthInputField.ObserveEveryValueChanged(element => element.isFocused)
-            .Where(_ => !string.IsNullOrEmpty(WidthInputField.text))
+            .Where(isFocused => !isFocused && !string.IsNullOrEmpty(WidthInputField.text))
             .Subscribe(_ => {
                 var width = ParseFloat(WidthInputField.text);
                 if (width < 0f) return;
@@ -58,7 +58,7 @@ public class InspectorManager : MonoBehaviour
                 rect.sizeDelta = size;
             });
         HeightInputField.ObserveEveryValueChanged(element => element.isFocused)
-            .Where(_ => !string.IsNullOrEmpty(HeightInputField.text))
+            .Where(isFocused => !isFocused && !string.IsNullOrEmpty(HeightInputField.text))
             .Subscribe(_ => {
                 var height = ParseFloat(HeightInputField.text);
                 if (height < 0f) return;

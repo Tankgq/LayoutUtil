@@ -51,7 +51,6 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
         {
             if (bSelect && !isSelect) {
                 GlobalData.CurrentSelectDisplayObjects[instanceId] = this.transform;
-                Debug.Log($"Select DisplayObject: {instanceId}, name: {this.transform.name}");
             }
             if (!bSelect && isSelect) {
                 GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);

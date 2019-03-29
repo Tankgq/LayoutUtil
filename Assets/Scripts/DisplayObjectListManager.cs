@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,27 +10,38 @@ public class DisplayObjectListManager : MonoBehaviour
     public Transform DisplayObjectListContainer;
     public Transform DisplayObjectItem;
 
+    public InputField NameInputField;
+    public Button UpButton;
+    public Button DownButton;
+
     private static readonly List<Transform> DisplayObjectItemPool = new List<Transform>();
+    private readonly List<Transform> DisplayObjectItems = new List<Transform>();
 
     private void Start()
     {
+
         GlobalData.DisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
-            .Subscribe(list =>
+            .Subscribe(list => Refresh());
+//        GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
+
+        NameInputField.ObserveEveryValueChanged(element => element.isFocused)
+            .Where(isFocused => ! isFocused && !string.IsNullOrEmpty(NameInputField.text))
+            .Subscribe(_ =>
             {
-                try
-                {
-                    RecycleAll();
-                    foreach (Transform displayObject in GlobalData.DisplayObjects) {
-                        Transform displayObjectItem = GetDisplayObjectItem();
-                        displayObjectItem.SetParent(DisplayObjectListContainer);
-                        displayObjectItem.GetComponentInChildren<Text>().text = displayObject.name;
-                    }
-                }
-                catch (Exception e)
-                {
-                    MessageBoxUtil.Show($"{e}");
-                }
+                if (GlobalData.CurrentSelectDisplayObjects.Count != 1) return;
+                int instanceId = GlobalData.CurrentSelectDisplayObjects.Keys.First();
+                int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
+                if (idx < 0 || idx >= DisplayObjectItems.Count) return;
+                DisplayObjectItems[idx].GetComponentInChildren<Text>().text = NameInputField.text;
             });
+
+        UpButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => Refresh());
+
+        DownButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => Refresh());
     }
 
     private Transform GetDisplayObjectItem()
@@ -51,8 +62,21 @@ public class DisplayObjectListManager : MonoBehaviour
 
     private void RecycleAll()
     {
-        int length = DisplayObjectListContainer.childCount;
-        for (int idx = length - 1; idx >= 0; --idx)
-            RecycleDisplayObject(DisplayObjectListContainer.GetChild(idx));
+        foreach(Transform displayObjectItem in DisplayObjectItems)
+        {
+            RecycleDisplayObject(displayObjectItem);
+        }
+        DisplayObjectItems.Clear();
+    }
+
+    private void Refresh()
+    {
+        RecycleAll();
+        foreach (Transform displayObject in GlobalData.DisplayObjects) {
+            Transform displayObjectItem = GetDisplayObjectItem();
+            DisplayObjectItems.Add(displayObjectItem);
+            displayObjectItem.SetParent(DisplayObjectListContainer);
+            displayObjectItem.GetComponentInChildren<Text>().text = displayObject.name;
+        }
     }
 }

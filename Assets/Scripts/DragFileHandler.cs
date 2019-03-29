@@ -43,7 +43,7 @@ public class DragFileHandler : MonoBehaviour
             try {
                 if (REG_IMAGE_SUFFIX.IsMatch(path)) {
                     LoadImageHandler loadImage = GetComponent<LoadImageHandler>();
-                    loadImage.Load(path, new Vector2(aPos.x, aPos.y));
+                    loadImage.Load(path, new Vector2(aPos.x, aPos.y), Vector2.zero);
                 }
                 sb.Append(" isMatch.");
             } catch (Exception e) {

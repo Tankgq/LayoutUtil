@@ -33,9 +33,9 @@ public class
     private void Start() {
 #if UNITY_EDITOR
 #if UNITY_EDITOR_WIN
-        Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f));
+        Load("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
 #else
-        Load("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f));
+        Load("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
 #endif
 #endif
     }
@@ -48,39 +48,32 @@ public class
         return texture2D;
     }
 
-    public void Load(string imageUrl, Vector2 pos)
+    public Transform Load(string imageUrl, Vector2 pos, Vector2 size, string elementName = null)
     {
-        if (!DisplayObject || !MainContainer) return;
+        if (!DisplayObject || !MainContainer) return null;
         Material material = null;
-        Vector2 size;
-        if (string.IsNullOrEmpty(imageUrl))
-        {
-            size = GlobalData.DefaultSize;
-        }
-        else
+        if (! string.IsNullOrEmpty(imageUrl))
         {
             if (MaterialDic.ContainsKey(imageUrl)) {
                 material = MaterialDic[imageUrl];
-                size = SizeDic[imageUrl];
+                if(size == Vector2.zero) size = SizeDic[imageUrl];
             } else {
                 Texture2D texture2 = LoadTexture2DbyIo(imageUrl);
                 material = new Material(Shader.Find("UI/Default")) {
                     mainTexture = texture2
                 };
-                size = new Vector2(texture2.width, texture2.height);
                 MaterialDic[imageUrl] = material;
-                SizeDic[imageUrl] = size;
+                SizeDic[imageUrl] = new Vector2(texture2.width, texture2.height);
+                if (size == Vector2.zero) size = SizeDic[imageUrl];
             }
         }
-        
         Transform imageElement = GetDisplayObject();
         imageElement.SetParent(MainContainer);
         int instanceId = imageElement.GetInstanceID();
         GlobalData.DisplayObjectPaths[instanceId] = imageUrl;
         GlobalData.DisplayObjects.Add(imageElement);
-        Debug.Log($"Load Image: {instanceId}, name: {imageElement.name}");
-
-        imageElement.name = $"{(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds}";
+        if(! string.IsNullOrEmpty(imageUrl))
+            imageElement.name = string.IsNullOrEmpty(elementName) ? Utils.GetFileNameInPath(imageUrl) : elementName;
         Image image = imageElement.GetComponent<Image>();
         image.material = material;
         image.color = (material ? Color.white : Color.clear);
@@ -88,5 +81,6 @@ public class
         rect.sizeDelta = new Vector2(size.x, size.y);
         pos.y = - pos.y;
         rect.anchoredPosition = pos - MainContainer.GetComponent<RectTransform>().anchoredPosition;
+        return imageElement;
     }
 }
