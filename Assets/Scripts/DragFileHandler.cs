@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class DragFileHandler : MonoBehaviour
 {
+    public ContainerManager ContainerManager;
     private UnityDragAndDropHook hook;
     
     private void Start()
@@ -42,8 +43,7 @@ public class DragFileHandler : MonoBehaviour
             sb.Append(path);
             try {
                 if (REG_IMAGE_SUFFIX.IsMatch(path)) {
-                    LoadImageHandler loadImage = GetComponent<LoadImageHandler>();
-                    loadImage.Load(path, new Vector2(aPos.x, aPos.y), Vector2.zero);
+                     ContainerManager.AddDisplayObject(path, new Vector2(aPos.x, aPos.y), Vector2.zero);
                 }
                 sb.Append(" isMatch.");
             } catch (Exception e) {

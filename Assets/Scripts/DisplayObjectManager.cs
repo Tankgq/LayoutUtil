@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHandler
 {
     private Vector2 _offset;
     
     public RectTransform SelfRect;
-    public GameObject FrameWider;
+//    public Toggle SelfToggle;
 
     public void OnDrag(PointerEventData eventData)
     {
@@ -19,7 +20,7 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        bool isSelect = GlobalData.CurrentSelectDisplayObjects.ContainsKey(this.GetInstanceID());
+        bool isSelect = GlobalData.CurrentSelectDisplayObjects.ContainsKey(this.transform.GetInstanceID());
         if (isSelect)
         {
             if (KeyboardEventManager.IsControlDown())
@@ -37,33 +38,16 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
         if (isRect) _offset = offset;
     }
     
-    private void Start()
+    private void UpdateSelectState(bool bSelect)
     {
-        if (FrameWider) FrameWider.SetActive(false);
-    }
-    
-    private void UpdateSelectState(bool bSelect, bool needUpdate = true)
-    {
-        if (FrameWider) FrameWider.SetActive(bSelect);
         int instanceId = this.transform.GetInstanceID();
         bool isSelect = GlobalData.CurrentSelectDisplayObjects.ContainsKey(instanceId);
-        if (needUpdate)
-        {
-            if (bSelect && !isSelect) {
-                GlobalData.CurrentSelectDisplayObjects[instanceId] = this.transform;
-            }
-            if (!bSelect && isSelect) {
-                GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);
-            }
+        if (bSelect && !isSelect) {
+            GlobalData.AddCurrentSelectObject(this.transform);
         }
-    }
-
-    private static bool UpdateSelectDisplayObjectSelectState(Transform displayObject, bool bSelect) {
-        if (!displayObject) return false;
-        var displayObjectManager = displayObject.GetComponent<DisplayObjectManager>();
-        if (!displayObjectManager) return false;
-        displayObjectManager.UpdateSelectState(false, false);
-        return false;
+        if (!bSelect && isSelect) {
+            GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);
+        }
     }
 
     public static bool DeSelectDisplayObject(Transform displayObject)
@@ -71,17 +55,12 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
         if (!displayObject) return false;
         var instanceId = displayObject.GetInstanceID();
         if (!GlobalData.CurrentSelectDisplayObjects.ContainsKey(instanceId)) return false;
-        var result = UpdateSelectDisplayObjectSelectState(displayObject, false);
-        if (!result) return false;
         GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);
         return true;
     }
     
     public static void DeselectAllDisplayObject()
     {
-        foreach (var pair in GlobalData.CurrentSelectDisplayObjects)
-            UpdateSelectDisplayObjectSelectState(pair.Value, false);
-
         GlobalData.CurrentSelectDisplayObjects.Clear();
     }
 }

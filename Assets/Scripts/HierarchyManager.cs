@@ -5,7 +5,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DisplayObjectListManager : MonoBehaviour
+public class HierarchyManager : MonoBehaviour
 {
     public Transform DisplayObjectListContainer;
     public Transform DisplayObjectItem;
@@ -19,10 +19,23 @@ public class DisplayObjectListManager : MonoBehaviour
 
     private void Start()
     {
-
         GlobalData.DisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
             .Subscribe(list => Refresh());
-//        GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
+        GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
+            .Subscribe(count =>
+            {
+                foreach (Transform displayObjectItem in DisplayObjectItems)
+                    displayObjectItem.GetChild(0).gameObject.SetActive(false);
+                if (count == 0) return;
+                int length = DisplayObjectItems.Count;
+                if (length != GlobalData.DisplayObjects.Count) return;
+                foreach (var pair in GlobalData.CurrentSelectDisplayObjects)
+                {
+                    int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == pair.Key);
+                    if (idx < 0 || idx >= length) continue;
+                    DisplayObjectItems[idx].GetChild(0).gameObject.SetActive(true);
+                }
+            });
 
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
             .Where(isFocused => ! isFocused && !string.IsNullOrEmpty(NameInputField.text))

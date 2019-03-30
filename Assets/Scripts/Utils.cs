@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -58,12 +59,24 @@ public class Utils
         return string.Empty;
     }
 
-    public static readonly Regex RegFileDirectory = new Regex(@"([\d\D]*)[\\/][^.]*.[a-zA-Z]*$");
+    private static readonly Regex RegFileDirectory = new Regex(@"([\d\D]*)[\\/][^.]*.[a-zA-Z]*$");
     public static bool CheckFileDirectory(string filePath)
     {
         GroupCollection groups = RegFileDirectory.Match(filePath).Groups;
         if (groups.Count < 2) return false;
         string fileDirectory = groups[1].Value;
         return Directory.Exists(fileDirectory);
+    }
+
+    public static string CancelHighlight(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        return Regex.Replace(text, @"<color=yellow><size=25><b>(?<str>.*?)</b></size></color>", @"${str}");
+    }
+
+    public static string GetHighlight(string text, string needHighlight)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(needHighlight)) return text;
+        return text.Replace(needHighlight, "<color=yellow><size=25><b>" + needHighlight + "</b></size></color>");
     }
 }
