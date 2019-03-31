@@ -35,7 +35,6 @@ public class ContainerManager : MonoBehaviour
         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
 #endif
 #endif
-
         GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
             .Subscribe(count => {
                 foreach (Transform displayObjectItem in GlobalData.DisplayObjects)
