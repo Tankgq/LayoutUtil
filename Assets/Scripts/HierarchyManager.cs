@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class HierarchyManager : MonoBehaviour
 {
     public Transform DisplayObjectListContainer;
-    public Transform DisplayObjectItem;
 
     public InputField NameInputField;
     public Button UpButton;
@@ -20,22 +19,15 @@ public class HierarchyManager : MonoBehaviour
     private void Start()
     {
         GlobalData.DisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
-            .Subscribe(list => Refresh());
+            .Subscribe(_ => Refresh());
         GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
-            .Subscribe(count =>
-            {
-                foreach (Transform displayObjectItem in DisplayObjectItems)
-                    displayObjectItem.GetChild(0).gameObject.SetActive(false);
-                if (count == 0) return;
-                int length = DisplayObjectItems.Count;
-                if (length != GlobalData.DisplayObjects.Count) return;
-                foreach (var pair in GlobalData.CurrentSelectDisplayObjects)
-                {
-                    int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == pair.Key);
-                    if (idx < 0 || idx >= length) continue;
-                    DisplayObjectItems[idx].GetChild(0).gameObject.SetActive(true);
-                }
-            });
+            .Subscribe(_ => Refresh());
+        UpButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => Refresh());
+        DownButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => Refresh());
 
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
             .Where(isFocused => ! isFocused && !string.IsNullOrEmpty(NameInputField.text))
@@ -47,49 +39,47 @@ public class HierarchyManager : MonoBehaviour
                 if (idx < 0 || idx >= DisplayObjectItems.Count) return;
                 DisplayObjectItems[idx].GetComponentInChildren<Text>().text = NameInputField.text;
             });
-
-        UpButton.OnClickAsObservable()
-            .Sample(TimeSpan.FromSeconds(1))
-            .Subscribe(_ => Refresh());
-
-        DownButton.OnClickAsObservable()
-            .Sample(TimeSpan.FromSeconds(1))
-            .Subscribe(_ => Refresh());
     }
 
     private Transform GetDisplayObjectItem()
     {
         int length = DisplayObjectItemPool.Count;
-        if(length == 0) return Instantiate(DisplayObjectItem, DisplayObjectListContainer);
+        if(length == 0) return Instantiate(GlobalData.DisplayObjectItemPrefab.transform, DisplayObjectListContainer);
         Transform result = DisplayObjectItemPool[length - 1];
         DisplayObjectItemPool.RemoveAt(length - 1);
         return result;
     }
 
-    private void RecycleDisplayObject(Transform displayObjectItem)
+    private static void RecycleDisplayObject(Transform displayObjectItem)
     {
         if (!displayObjectItem) return;
         displayObjectItem.SetParent(null);
+        displayObjectItem.GetChild(0).gameObject.SetActive(false);
         DisplayObjectItemPool.Add(displayObjectItem);
     }
 
     private void RecycleAll()
     {
         foreach(Transform displayObjectItem in DisplayObjectItems)
-        {
             RecycleDisplayObject(displayObjectItem);
-        }
         DisplayObjectItems.Clear();
     }
 
-    private void Refresh()
-    {
+    private void Refresh() {
         RecycleAll();
-        foreach (Transform displayObject in GlobalData.DisplayObjects) {
+        int count = GlobalData.DisplayObjects.Count;
+        for (var idx = 0; idx < count; ++idx) {
             Transform displayObjectItem = GetDisplayObjectItem();
             DisplayObjectItems.Add(displayObjectItem);
             displayObjectItem.SetParent(DisplayObjectListContainer);
-            displayObjectItem.GetComponentInChildren<Text>().text = displayObject.name;
+            displayObjectItem.GetComponentInChildren<Text>().text = GlobalData.DisplayObjects[idx].name;
+        }
+        int length = DisplayObjectItems.Count;
+        if (length == 0 || GlobalData.CurrentSelectDisplayObjects.Count == 0) return;
+        foreach (var pair in GlobalData.CurrentSelectDisplayObjects) {
+            int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == pair.Key);
+            if (idx < 0 || idx >= length) continue;
+            DisplayObjectItems[idx].GetChild(0).gameObject.SetActive(true);
         }
     }
 }

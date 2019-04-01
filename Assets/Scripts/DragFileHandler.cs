@@ -39,17 +39,17 @@ public class DragFileHandler : MonoBehaviour
         sb.Append("拖拽文件:\n");
         foreach (var path in aFiles)
         {
-            path.Replace('\\', '/');
             sb.Append(path);
             try {
                 if (REG_IMAGE_SUFFIX.IsMatch(path)) {
-                     ContainerManager.AddDisplayObject(path, new Vector2(aPos.x, aPos.y), Vector2.zero);
+                     ContainerManager.AddDisplayObject(path,
+                         new Vector2(aPos.x - GlobalData.OriginPoint.x, aPos.y - GlobalData.OriginPoint.y),
+                         Vector2.zero);
                 }
                 sb.Append(" isMatch.");
-            } catch (Exception e) {
-                Console.WriteLine(e);
-                MessageBoxUtil.Show(path);
-                MessageBoxUtil.Show(e.ToString());
+            } catch (Exception e)
+            {
+                DialogManager.ShowError(e.ToString());
             }
             sb.Append("\n");
         }

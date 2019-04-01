@@ -23,8 +23,8 @@ public class DisplayObject
         var result = new DisplayObject
         {
             Name = displayObject.name,
-            X = pos.x,
-            Y = -pos.y,
+            X = ConvertX(pos.x),
+            Y = ConvertY(pos.y),
             Width = size.x,
             Height = size.y
         };
@@ -33,26 +33,26 @@ public class DisplayObject
 
     public static Vector2 ConvertTo(Vector2 pos)
     {
-        return new Vector2(pos.x, -pos.y);
+        return new Vector2(ConvertX(pos.x), ConvertY(pos.y));
     }
 
     public static float ConvertX(float x)
     {
-        return x;
+        return x - GlobalData.OriginPoint.x;
     }
 
     public static float InvConvertX(float x)
     {
-        return x;
+        return x + GlobalData.OriginPoint.x;
     }
 
     public static float ConvertY(float y)
     {
-        return -y;
+        return -(y - GlobalData.OriginPoint.y);
     }
 
     public static float InvConvertY(float y)
     {
-        return -y;
+        return -(y - GlobalData.OriginPoint.y);
     }
 }

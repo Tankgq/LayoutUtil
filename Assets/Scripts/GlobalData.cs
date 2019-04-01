@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class GlobalData
+public class GlobalData : MonoBehaviour
 {
+    public static int NameId = 0;
     public static Dictionary<int, Transform> CurrentSelectDisplayObjects = new Dictionary<int, Transform>();
 
     public static void AddCurrentSelectObject(Transform displayObject)
@@ -19,7 +20,22 @@ public class GlobalData
     public static Dictionary<int, string> DisplayObjectPaths = new Dictionary<int, string>();
 
     public static readonly Vector2 OriginPoint = new Vector2(32, 32);
+    public static readonly Vector2 OriginPointPosition = new Vector2(OriginPoint.x, - OriginPoint.y);
     public static readonly Vector2 DefaultSize = new Vector2(64, 64);
-    public static readonly string DefaultName = "DisplayObject";
-    public static readonly float MinFloat = -100000000;
+    public const string DefaultName = "DisplayObject";
+    public const float MinFloat = -100000000;
+
+    public static GameObject DisplayObjectItemPrefab;
+    public static GameObject DisplayObjectPrefab;
+    public static GameObject DialogPrefab;
+
+    public static GameObject RootCanvas;
+
+    private void Awake()
+    {
+        DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
+        DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
+        DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");
+        RootCanvas = GameObject.FindGameObjectWithTag("Canvas");
+    }
 }

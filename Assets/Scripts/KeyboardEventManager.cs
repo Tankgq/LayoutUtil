@@ -31,7 +31,9 @@ public class KeyboardEventManager : MonoBehaviour
             .Subscribe(_ =>
             {
                 GlobalData.CurrentSelectDisplayObjects.Clear();
-                MessageBoxUtil.Show($"size: {GlobalData.CurrentSelectDisplayObjects.Count}");
             });
+        Observable.EveryUpdate()
+            .Where(_ => Input.GetKeyDown(KeyCode.I))
+            .Subscribe(_ => DialogManager.ShowInfo("按了 i."));
     }
 }

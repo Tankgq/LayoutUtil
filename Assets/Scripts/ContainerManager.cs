@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ContainerManager : MonoBehaviour
 {
-    public Transform DisplayObject;
-
     private static readonly Dictionary<string, Material> MaterialDic = new Dictionary<string, Material>();
     private static readonly Dictionary<string, Vector2> SizeDic = new Dictionary<string, Vector2>();
 
@@ -14,7 +12,7 @@ public class ContainerManager : MonoBehaviour
 
     private Transform GetDisplayObject() {
         int length = DisplayObjectPool.Count;
-        if (length == 0) return Instantiate(DisplayObject, this.transform);
+        if (length == 0) return Instantiate(GlobalData.DisplayObjectPrefab.transform, this.transform);
         Transform result = DisplayObjectPool[length - 1];
         DisplayObjectPool.RemoveAt(length - 1);
         return result;
@@ -23,6 +21,7 @@ public class ContainerManager : MonoBehaviour
     public void RecycleDisplayObject(Transform displayObject) {
         if (!displayObject) return;
         DisplayObjectManager.DeSelectDisplayObject(displayObject);
+        displayObject.GetComponent<Toggle>().isOn = false;
         displayObject.SetParent(null);
         DisplayObjectPool.Add(displayObject);
     }
@@ -54,7 +53,6 @@ public class ContainerManager : MonoBehaviour
     }
 
     public Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
-        if (!DisplayObject) return null;
         Material material = null;
         if (!string.IsNullOrEmpty(imageUrl)) {
             if (MaterialDic.ContainsKey(imageUrl)) {
@@ -75,15 +73,17 @@ public class ContainerManager : MonoBehaviour
         int instanceId = imageElement.GetInstanceID();
         GlobalData.DisplayObjectPaths[instanceId] = imageUrl;
         GlobalData.DisplayObjects.Add(imageElement);
-        if (string.IsNullOrEmpty(imageUrl)) imageElement.name = GlobalData.DefaultName;
-        else imageElement.name = string.IsNullOrEmpty(elementName) ? Utils.GetFileNameInPath(imageUrl) : elementName;
+        imageElement.name = string.IsNullOrEmpty(elementName)
+            ? (string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + (++GlobalData.NameId) : Utils.GetFileNameInPath(imageUrl))
+            : elementName;
         Image image = imageElement.GetComponent<Image>();
         image.material = material;
         image.color = (material ? Color.white : Color.clear);
         RectTransform rect = imageElement.GetComponent<RectTransform>();
         rect.sizeDelta = new Vector2(size.x, size.y);
-        pos.y = -pos.y;
-        rect.anchoredPosition = pos - this.transform.GetComponent<RectTransform>().anchoredPosition;
+        pos += GlobalData.OriginPoint;
+        pos.y = - pos.y;
+        rect.anchoredPosition = pos;
         return imageElement;
     }
     
@@ -91,7 +91,8 @@ public class ContainerManager : MonoBehaviour
     {
         var count = GlobalData.CurrentSelectDisplayObjects.Count;
         if (count == 0) {
-            MessageBoxUtil.Show("请先选择要删除的对象");
+//            MessageBoxUtil.Show("请先选择要删除的对象");
+            DialogManager.ShowInfo("请先选择要删除的对象");
             return;
         }
 

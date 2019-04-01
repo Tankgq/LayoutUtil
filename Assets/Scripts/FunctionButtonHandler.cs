@@ -10,7 +10,7 @@ public class FunctionButtonHandler : MonoBehaviour
 
     public void OnAddButtonClick()
     {
-        ContainerManager.AddDisplayObject(null, GlobalData.OriginPoint, GlobalData.DefaultSize);
+        ContainerManager.AddDisplayObject(null, Vector2.zero, GlobalData.DefaultSize);
     }
 
     public void OnRemoveButtonClick()
@@ -21,9 +21,14 @@ public class FunctionButtonHandler : MonoBehaviour
     public void OnUpButtonClick()
     {
         if (GlobalData.CurrentSelectDisplayObjects.Count != 1) return;
-        int instanceId = GlobalData.CurrentSelectDisplayObjects.Keys.First();
+        int instanceId = GlobalData.CurrentSelectDisplayObjects.First().Key;
         int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
-        if (idx <= 0 || idx >= GlobalData.DisplayObjects.Count) return;
+        Debug.Log($"[OnUpButtonClick] current idx: {idx}");
+        if (idx <= 0 || idx >= GlobalData.DisplayObjects.Count)
+        {
+            Debug.Log("[OnUpButtonClick] return");
+            return;
+        }
         Transform tmp = GlobalData.DisplayObjects[idx];
         GlobalData.DisplayObjects[idx] = GlobalData.DisplayObjects[idx - 1];
         GlobalData.DisplayObjects[idx - 1] = tmp;
@@ -35,7 +40,12 @@ public class FunctionButtonHandler : MonoBehaviour
         if (GlobalData.CurrentSelectDisplayObjects.Count != 1) return;
         int instanceId = GlobalData.CurrentSelectDisplayObjects.Keys.First();
         int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
-        if (idx < 0 || idx >= GlobalData.DisplayObjects.Count - 1) return;
+        Debug.Log($"[OnDownButtonClick] current idx: {idx}");
+        if (idx < 0 || idx >= GlobalData.DisplayObjects.Count - 1)
+        {
+            Debug.Log("[OnDownButtonClick] return");
+            return;
+        }
         Transform tmp = GlobalData.DisplayObjects[idx];
         GlobalData.DisplayObjects[idx] = GlobalData.DisplayObjects[idx + 1];
         GlobalData.DisplayObjects[idx + 1] = tmp;
@@ -54,14 +64,14 @@ public class FunctionButtonHandler : MonoBehaviour
             foreach (DisplayObject displayObject in displayObjects)
             {
                 ContainerManager.AddDisplayObject(null,
-                    new Vector2(DisplayObject.InvConvertX(displayObject.X), DisplayObject.InvConvertY(displayObject.Y)),
+                    new Vector2(displayObject.X + GlobalData.OriginPoint.x, displayObject.Y + GlobalData.OriginPoint.y), 
                     new Vector2(displayObject.Width, displayObject.Height),
                     displayObject.Name);
             }
         }
         catch (Exception e)
         {
-            MessageBoxUtil.Show($"导入失败({e})");
+            DialogManager.ShowError($"导入失败({e})");
         }
     }
 
@@ -74,9 +84,9 @@ public class FunctionButtonHandler : MonoBehaviour
         {
             displayObjects.Add(DisplayObject.ConvertTo(displayObject));
         }
-        string jsonString = JsonConvert.SerializeObject(displayObjects);
+        string jsonString = JsonConvert.SerializeObject(displayObjects, Formatting.Indented);
         bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
-        if (result) MessageBoxUtil.Show($"成功导出到 {filePath}");
-        else MessageBoxUtil.Show($"导出失败");
+        if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
+        else DialogManager.ShowError($"导出失败", 0, 0);
     }
 }

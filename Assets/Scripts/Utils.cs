@@ -21,7 +21,8 @@ public class Utils
         }
         catch (Exception e)
         {
-            MessageBoxUtil.Show($"{e}");
+//            MessageBoxUtil.Show($"{e}");
+            DialogManager.ShowError($"{e}");
             return null;
         }
         
@@ -45,7 +46,8 @@ public class Utils
         }
         catch (Exception e)
         {
-            MessageBoxUtil.Show($"{e}");
+//            MessageBoxUtil.Show($"{e}");
+            DialogManager.ShowError($"{e}");
             return false;
         }
         return true;
