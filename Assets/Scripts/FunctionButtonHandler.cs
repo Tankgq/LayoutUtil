@@ -94,6 +94,10 @@ public class FunctionButtonHandler : MonoBehaviour
         else DialogManager.ShowError($"导出失败", 0, 0);
     }
 
+    public void OnCreateModuleButtonClick() {
+        ContainerManager.CreateModule();
+    }
+
     public void OnScaleSliderValueChanged(float value)
     {
         value /= 10;

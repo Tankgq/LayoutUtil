@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class GlobalData : MonoBehaviour
 {
+    public static string GlobalObservable = "Observable";
     public static int NameId = 0;
     public static Dictionary<int, Transform> CurrentSelectDisplayObjects = new Dictionary<int, Transform>();
 
@@ -19,7 +20,12 @@ public class GlobalData : MonoBehaviour
     public static List<Transform> DisplayObjects = new List<Transform>();
     public static Dictionary<int, string> DisplayObjectPaths = new Dictionary<int, string>();
 
-    public static Dictionary<string, DisplayObject>  
+    public static Dictionary<string, Transform> DisplayObjectNames = new Dictionary<string, Transform>();
+
+    public static List<string> ModuleNames = new List<string>();
+    public static Dictionary<string, DisplayObject> Modules = new Dictionary<string, DisplayObject>();
+
+    public static string CurrentModule = null;
 
     public static readonly Vector2 OriginPoint = new Vector2(32, 32);
     public static readonly Vector2 OriginPointPosition = new Vector2(OriginPoint.x, - OriginPoint.y);

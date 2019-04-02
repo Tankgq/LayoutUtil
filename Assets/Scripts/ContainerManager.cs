@@ -10,6 +10,8 @@ public class ContainerManager : MonoBehaviour
 
     private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
 
+    public Text ModuleNameText;
+
     private Transform GetDisplayObject() {
         int length = DisplayObjectPool.Count;
         if (length == 0) return Instantiate(GlobalData.DisplayObjectPrefab.transform, this.transform);
@@ -27,13 +29,13 @@ public class ContainerManager : MonoBehaviour
     }
 
     private void Start() {
-#if UNITY_EDITOR
-#if UNITY_EDITOR_WIN
-        AddDisplayObject("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
-#else
-        AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
-#endif
-#endif
+// #if UNITY_EDITOR
+// #if UNITY_EDITOR_WIN
+//         AddDisplayObject("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
+// #else
+//         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
+// #endif
+// #endif
         GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
             .Subscribe(count => {
                 foreach (Transform displayObjectItem in GlobalData.DisplayObjects)
@@ -43,6 +45,12 @@ public class ContainerManager : MonoBehaviour
                     pair.Value.GetComponent<Toggle>().isOn = true;
                 }
             });
+
+        GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
+                                   .Where(module => ! string.IsNullOrEmpty(module))
+                                   .Subscribe(module => {
+                                       ModuleNameText.text = module;
+                                   });
     }
 
     public static Texture2D LoadTexture2DbyIo(string imageUrl) {
@@ -53,6 +61,14 @@ public class ContainerManager : MonoBehaviour
     }
 
     public Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
+        if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
+            if(GlobalData.Modules.Count == 0) {
+                DialogManager.ShowInfo("请先创建一个 module", 320);
+                return null;
+            }
+            DialogManager.ShowInfo("请先打开一个 module", 320);
+            return null;
+        }
         Material material = null;
         if (!string.IsNullOrEmpty(imageUrl)) {
             if (MaterialDic.ContainsKey(imageUrl)) {
@@ -71,11 +87,12 @@ public class ContainerManager : MonoBehaviour
         Transform imageElement = GetDisplayObject();
         imageElement.SetParent(this.transform);
         int instanceId = imageElement.GetInstanceID();
-        GlobalData.DisplayObjectPaths[instanceId] = imageUrl;
-        GlobalData.DisplayObjects.Add(imageElement);
         imageElement.name = string.IsNullOrEmpty(elementName)
             ? (string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + (++GlobalData.NameId) : Utils.GetFileNameInPath(imageUrl))
             : elementName;
+        GlobalData.DisplayObjectPaths[instanceId] = imageUrl;
+        GlobalData.DisplayObjects.Add(imageElement);
+        GlobalData.DisplayObjectNames[$"{GlobalData.CurrentModule}_{imageElement.name}"] = imageElement;
         Image image = imageElement.GetComponent<Image>();
         image.material = material;
         image.color = (material ? Color.white : Color.clear);
@@ -108,5 +125,13 @@ public class ContainerManager : MonoBehaviour
         }
 
         GlobalData.CurrentSelectDisplayObjects.Clear();
+    }
+
+    public static void CreateModule() {
+        DialogManager.ShowGetValue("请输入 module 名:", "module", txt => {
+            if(string.IsNullOrEmpty(txt)) return;
+            GlobalData.CurrentModule = txt;
+            Debug.Log(GlobalData.CurrentModule);
+        });
     }
 }
