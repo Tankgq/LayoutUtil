@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class KeyboardEventManager : MonoBehaviour
 {
     public ContainerManager ContainerManager;
+    public Slider ScaleSlider;
 
     public static bool IsShiftDown()
     {
@@ -28,12 +31,9 @@ public class KeyboardEventManager : MonoBehaviour
             .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObject());
         Observable.EveryUpdate()
             .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjects.Count != 0)
-            .Subscribe(_ =>
-            {
-                GlobalData.CurrentSelectDisplayObjects.Clear();
-            });
+            .Subscribe(_ => GlobalData.CurrentSelectDisplayObjects.Clear());
         Observable.EveryUpdate()
-            .Where(_ => Input.GetKeyDown(KeyCode.I))
-            .Subscribe(_ => DialogManager.ShowInfo("按了 i."));
+            .Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
+            .Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
     }
 }

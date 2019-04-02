@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FunctionButtonHandler : MonoBehaviour
 {
     public ContainerManager ContainerManager;
+    public RectTransform ContainerRect;
+    public Slider ScaleSlider;
 
     public void OnAddButtonClick()
     {
@@ -88,5 +92,19 @@ public class FunctionButtonHandler : MonoBehaviour
         bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
         if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
         else DialogManager.ShowError($"导出失败", 0, 0);
+    }
+
+    public void OnScaleSliderValueChanged(float value)
+    {
+        value /= 10;
+        ContainerRect.localScale = new Vector3(value, value, value);
+        ScaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";
+    }
+
+    private void Start()
+    {
+        ScaleSlider.OnValueChangedAsObservable()
+//            .Sample(TimeSpan.FromMilliseconds(500))
+            .Subscribe(OnScaleSliderValueChanged);
     }
 }
