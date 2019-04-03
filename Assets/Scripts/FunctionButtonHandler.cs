@@ -25,35 +25,35 @@ public class FunctionButtonHandler : MonoBehaviour
     public void OnUpButtonClick()
     {
         if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-        int instanceId = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
-        Debug.Log($"[OnUpButtonClick] current idx: {idx}");
-        if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count)
-        {
-            Debug.Log("[OnUpButtonClick] return");
-            return;
-        }
+        string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+        string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
+        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectKey));
+        if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count) return;
         Transform tmp = GlobalData.CurrentDisplayObjects[idx];
         GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
         GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
         tmp.SetSiblingIndex(idx - 1);
+        List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+        DisplayObject tmp2 = displayObjectDataList[idx];
+        displayObjectDataList[idx] = displayObjectDataList[idx - 1];
+        displayObjectDataList[idx - 1] = tmp2;
     }
 
     public void OnDownButtonClick()
     {
         if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-        int instanceId = GlobalData.CurrentSelectDisplayObjectDic.Keys.First();
-        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
-        Debug.Log($"[OnDownButtonClick] current idx: {idx}");
-        if (idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1)
-        {
-            Debug.Log("[OnDownButtonClick] return");
-            return;
-        }
+        string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+        string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
+        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectKey));
+        if (idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1) return;
         Transform tmp = GlobalData.CurrentDisplayObjects[idx];
         GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
         GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
         tmp.SetSiblingIndex(idx + 1);
+        List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+        DisplayObject tmp2 = displayObjectDataList[idx];
+        displayObjectDataList[idx] = displayObjectDataList[idx + 1];
+        displayObjectDataList[idx + 1] = tmp2;
     }
 
     public void OnImportButtonClick()

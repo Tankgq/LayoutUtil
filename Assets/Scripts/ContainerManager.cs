@@ -30,19 +30,32 @@ public class ContainerManager : MonoBehaviour
 
     private void RecycleAllDisplayObject()
     {
-        if (GlobalData.CurrentDisplayObjects == null) return;
-        foreach (Transform displayObject in GlobalData.CurrentDisplayObjects)
-            RecycleDisplayObject(displayObject);
+        // int lenght = transform.childCount;
+        // for(var idx = lenght - 1; idx >= 0; -- idx) {
+        //     RecycleDisplayObject(transform.GetChild(idx));
+        // }
+        int count = GlobalData.CurrentDisplayObjects.Count;
+        for(int idx = 0; idx < count; ++ idx) {
+            
+            RecycleDisplayObject(GlobalData.CurrentDisplayObjects[idx]);
+        }
+        GlobalData.CurrentDisplayObjects.Clear();
+        GlobalData.CurrentDisplayObjectDic.Clear();
     }
 
     private void LoadAllDisplayObject()
     {
-        if (GlobalData.CurrentDisplayObjects == null) return;
-        int count = GlobalData.CurrentDisplayObjects.Count;
+        if (GlobalData.CurrentModule == null) return;
+        List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+        int count = displayObjectDataList.Count;
         for (var idx = 0; idx < count; ++idx)
         {
             Transform displayObject = GetDisplayObject();
             displayObject.SetParent(transform);
+            DisplayObject displayObjectData = displayObjectDataList[idx];
+            displayObjectData.InvConvertTo(displayObject);
+            GlobalData.CurrentDisplayObjects.Add(displayObject);
+            GlobalData.CurrentDisplayObjectDic[$"{GlobalData.CurrentModule}_{displayObject.name}"] = displayObject;
         }
     }
     
@@ -54,12 +67,9 @@ public class ContainerManager : MonoBehaviour
 //         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
 // #endif
 // #endif
-        GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentDisplayObjects)
-            .Select(_ => GlobalData.CurrentDisplayObjects == null ? 0 : GlobalData.CurrentDisplayObjects.Count)
-            .Concat(GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count))
+        GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
             .Subscribe(count =>
             {
-                if (GlobalData.CurrentDisplayObjects == null) return;
                 foreach (Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
                     displayObjectItem.GetComponent<Toggle>().isOn = false;
                 if (count == 0) return;
@@ -70,16 +80,14 @@ public class ContainerManager : MonoBehaviour
 
         GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
                                    .Subscribe(module => {
+                                       RecycleAllDisplayObject();
                                        if (string.IsNullOrEmpty(module))
                                        {
                                            ModuleNameText.text = "null";
-                                           GlobalData.CurrentDisplayObjects = null;
                                            return;
                                        }
                                        ModuleNameText.text = module;
                                        GlobalData.CurrentSelectDisplayObjectDic.Clear();
-                                       RecycleAllDisplayObject();
-                                       GlobalData.CurrentDisplayObjects = GlobalData.Modules[module];
                                        LoadAllDisplayObject();
                                    });
     }
@@ -124,7 +132,7 @@ public class ContainerManager : MonoBehaviour
         string displayObjectKey = $"{GlobalData.CurrentModule}_{imageElement.name}";
         GlobalData.DisplayObjectPathDic[displayObjectKey] = imageUrl;
         GlobalData.CurrentDisplayObjects.Add(imageElement);
-        GlobalData.DisplayObjectNameDic[displayObjectKey] = imageElement;
+        GlobalData.CurrentDisplayObjectDic[displayObjectKey] = imageElement;
         Image image = imageElement.GetComponent<Image>();
         image.material = material;
         image.color = (material ? Color.white : Color.clear);
@@ -133,6 +141,7 @@ public class ContainerManager : MonoBehaviour
         pos += GlobalData.OriginPoint;
         pos.y = - pos.y;
         rect.anchoredPosition = pos;
+        GlobalData.Modules[GlobalData.CurrentModule].Add(DisplayObject.ConvertTo(imageElement));
         return imageElement;
     }
     
@@ -154,6 +163,7 @@ public class ContainerManager : MonoBehaviour
             var idx = GlobalData.CurrentDisplayObjects.FindIndex(0, element => element.name.Equals(pair.Value.name));
             if (idx < 0 || idx >= length) continue;
             GlobalData.CurrentDisplayObjects.RemoveAt(idx);
+            GlobalData.CurrentDisplayObjectDic.Remove(pair.Key);
             --length;
         }
 
@@ -163,9 +173,33 @@ public class ContainerManager : MonoBehaviour
     public static void CreateModule() {
         DialogManager.ShowGetValue("请输入 module 名:", "module", txt => {
             if(string.IsNullOrEmpty(txt)) return;
+            if(GlobalData.Modules.ContainsKey(txt)) {
+                DialogManager.ShowError("module 已存在", 0, 0);
+                return;
+            }
+            UpdateCurrentDisplayObjectData();
             GlobalData.CurrentModule = txt;
-            GlobalData.Modules[txt] = new List<Transform>();
+            GlobalData.Modules[txt] = new List<DisplayObject>();
             GlobalData.ModuleNames.Add(txt);
         });
+    }
+
+    public static void UpdateCurrentDisplayObjectData() {
+        Debug.Log($"GlobalData.CurrentModule: {GlobalData.CurrentModule}, GlobalData.Modules: {GlobalData.Modules}");
+        if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+        List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+        int count = GlobalData.CurrentDisplayObjects.Count;
+        for(int idx = 0; idx < count; ++ idx) {
+            Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
+            DisplayObject displayObjectData = displayObjectDataList[idx];
+            displayObjectData.Name = displayObject.name;
+            RectTransform rt = displayObject.GetComponent<RectTransform>();
+            Vector2 pos = rt.anchoredPosition;
+            Vector2 size = rt.sizeDelta;
+            displayObjectData.X = DisplayObject.ConvertX(pos.x);
+            displayObjectData.Y = DisplayObject.ConvertY(pos.y);
+            displayObjectData.Width = size.x;
+            displayObjectData.Height = size.y;
+        }
     }
 }

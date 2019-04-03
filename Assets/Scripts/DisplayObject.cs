@@ -31,6 +31,17 @@ public class DisplayObject
         return result;
     }
 
+    public bool InvConvertTo(Transform displayObject) {
+        if(! displayObject) return false;
+        displayObject.name = Name;
+        var rect = displayObject.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(Width, Height);
+        Debug.Log($"x: {X}, invX: {InvConvertX(X)}");
+        Debug.Log($"x: {Y}, invX: {InvConvertY(Y)}");
+        rect.anchoredPosition = new Vector2(InvConvertX(X), InvConvertY(Y));
+        return true;
+    }
+
     public static Vector2 ConvertTo(Vector2 pos)
     {
         return new Vector2(ConvertX(pos.x), ConvertY(pos.y));

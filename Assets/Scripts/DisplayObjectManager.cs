@@ -16,21 +16,26 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
         Vector3 pos;
         RectTransformUtility.ScreenPointToWorldPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out pos);
         SelfRect.position = pos;
+        DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.Name.Equals(transform.name));
+        if(displayObjectData == null) return;
+        displayObjectData.X = DisplayObject.ConvertX(pos.x);
+        displayObjectData.Y = DisplayObject.ConvertY(pos.y);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(this.transform.GetInstanceID());
+        string displayObjectKey = $"{GlobalData.CurrentModule}_{transform.name}";
+        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey($"{GlobalData.CurrentModule}_{transform.name}");
         if (isSelect)
         {
             if (KeyboardEventManager.IsControlDown())
-                UpdateSelectState(false);
+                GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
         }
         else
         {
             if (!KeyboardEventManager.IsShiftDown())
                 DeselectAllDisplayObject();
-            UpdateSelectState(true);
+            GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, this.transform);
         }
         var mousePos = eventData.position;
         Vector2 offset;
@@ -38,24 +43,12 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
         if (isRect) _offset = offset;
     }
     
-    private void UpdateSelectState(bool bSelect)
-    {
-        int instanceId = this.transform.GetInstanceID();
-        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(instanceId);
-        if (bSelect && !isSelect) {
-            GlobalData.AddCurrentSelectObject(this.transform);
-        }
-        if (!bSelect && isSelect) {
-            GlobalData.CurrentSelectDisplayObjectDic.Remove(instanceId);
-        }
-    }
-
     public static bool DeSelectDisplayObject(Transform displayObject)
     {
-        if (!displayObject) return false;
-        var instanceId = displayObject.GetInstanceID();
-        if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(instanceId)) return false;
-        GlobalData.CurrentSelectDisplayObjectDic.Remove(instanceId);
+        if(! displayObject) return false;
+        string displayObjectKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
+        if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey)) return false;
+        GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
         return true;
     }
     

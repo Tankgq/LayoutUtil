@@ -81,7 +81,7 @@ public class Utils
     }
 
     private static readonly Regex RegGetDisplayName = new Regex(@"_([^_]*)$");
-    public static string GetDisplayName(string displayObjectKey)
+    public static string GetDisplayObjectName(string displayObjectKey)
     {
         if (string.IsNullOrEmpty(displayObjectKey)) return displayObjectKey;
         GroupCollection groups = RegGetDisplayName.Match(displayObjectKey).Groups;

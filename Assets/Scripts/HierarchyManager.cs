@@ -21,23 +21,16 @@ public class HierarchyManager : MonoBehaviour
 
     private void Start()
     {
-        GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentDisplayObjects == null ? 0 : GlobalData.CurrentDisplayObjects.Count)
-            .Concat(GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentDisplayObjects).Select(_ => 1),
-                    GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count),
-                    UpButton.OnClickAsObservable().Select(_ => 0),
-                    DownButton.OnClickAsObservable().Select(_ => 0))
-            .Sample(TimeSpan.FromMilliseconds(100))
+        GlobalData.CurrentDisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
             .Subscribe(_ => RefreshDisplayObjectItem());
-        //        GlobalData.CurrentDisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
-        //            .Subscribe(_ => RefreshDisplayObjectItem());
-        //        GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-        //            .Subscribe(_ => RefreshDisplayObjectItem());
-        //        UpButton.OnClickAsObservable()
-        //            .Sample(TimeSpan.FromSeconds(1))
-        //            .Subscribe(_ => RefreshDisplayObjectItem());
-        //        DownButton.OnClickAsObservable()
-        //            .Sample(TimeSpan.FromSeconds(1))
-        //            .Subscribe(_ => RefreshDisplayObjectItem());
+        GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
+            .Subscribe(_ => RefreshDisplayObjectItem());
+        UpButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => RefreshDisplayObjectItem());
+        DownButton.OnClickAsObservable()
+            .Sample(TimeSpan.FromSeconds(1))
+            .Subscribe(_ => RefreshDisplayObjectItem());
 
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
             .Where(isFocused => ! isFocused && !string.IsNullOrEmpty(NameInputField.text))
@@ -50,14 +43,11 @@ public class HierarchyManager : MonoBehaviour
                 DisplayObjectItems[idx].GetComponentInChildren<Text>().text = NameInputField.text;
             });
         GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
-            .Concat(GlobalData.ModuleNames.ObserveEveryValueChanged(moduleNames => moduleNames.Count).Select(_ => string.Empty))
             .Sample(TimeSpan.FromMilliseconds(100))
             .Subscribe(_ => RefreshModuleItem());
-
-//        GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
-//                                   .Subscribe(_ => RefreshModuleItem());
-//        GlobalData.ModuleNames.ObserveEveryValueChanged(moduleNames => moduleNames.Count)
-//            .Subscribe(_ => RefreshModuleItem());
+        GlobalData.ModuleNames.ObserveEveryValueChanged(moduleNames => moduleNames.Count)
+            .Sample(TimeSpan.FromMilliseconds(100))
+            .Subscribe(_ => RefreshModuleItem());
     }
 
     private Transform GetDisplayObjectItem()
@@ -73,7 +63,8 @@ public class HierarchyManager : MonoBehaviour
     {
         if (!displayObjectItem) return;
         displayObjectItem.SetParent(null);
-        displayObjectItem.GetChild(0).gameObject.SetActive(false);
+        displayObjectItem.GetChild(1).gameObject.SetActive(false);
+        displayObjectItem.GetComponentInChildren<ImageHoverManager>().SimulatePointerExit();
         DisplayObjectItemPool.Add(displayObjectItem);
     }
 
@@ -92,10 +83,11 @@ public class HierarchyManager : MonoBehaviour
     {
         if (!moduleItem) return;
         moduleItem.SetParent(null);
-        moduleItem.GetChild(0).gameObject.SetActive(false);
+        moduleItem.GetChild(1).gameObject.SetActive(false);
         SwapImageManager swapImage = moduleItem.GetComponentInChildren<SwapImageManager>();
         swapImage.StopObserveImageChange();
         swapImage.IsSwap = false;
+        moduleItem.GetComponentInChildren<ImageHoverManager>().SimulatePointerExit();
         ModuleItemPool.Add(moduleItem);
     }
 
@@ -115,11 +107,15 @@ public class HierarchyManager : MonoBehaviour
 
     private void RefreshDisplayObjectItem() {
         RecycleAllDisplayObjectItem();
+        Debug.Log($"GlobalData.CurrentModule: {GlobalData.CurrentModule}");
         if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
         int currentModuleIdx = ModuleItems.FindIndex(module => module.name.Equals(GlobalData.CurrentModule));
+        Debug.Log($"ModuleItems.Count: {ModuleItems.Count}, currentModuleIdx: {currentModuleIdx}");
         if (currentModuleIdx == -1) return;
-        ModuleItems[currentModuleIdx].GetComponentInChildren<SwapImageManager>().IsSwap = true;
-        ModuleItems[currentModuleIdx].GetChild(0).gameObject.SetActive(true);
+        SwapImageManager swapImage = ModuleItems[currentModuleIdx].GetComponentInChildren<SwapImageManager>();
+        swapImage.IsSwap = true;
+        swapImage.ForceUpdate();
+        ModuleItems[currentModuleIdx].GetChild(1).gameObject.SetActive(true);
         int count = GlobalData.CurrentDisplayObjects.Count;
         for (var idx = 0; idx < count; ++idx) {
             Transform displayObjectItem = GetDisplayObjectItem();
@@ -129,12 +125,13 @@ public class HierarchyManager : MonoBehaviour
             displayObjectItem.name = GlobalData.CurrentDisplayObjects[idx].name;
             displayObjectItem.GetComponentInChildren<Text>().text = GlobalData.CurrentDisplayObjects[idx].name;
         }
-        int length = DisplayObjectItems.Count;
-        if (length == 0 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
+        Debug.Log($"count: {count}, GlobalData.CurrentSelectDisplayObjectDic.Count: {GlobalData.CurrentSelectDisplayObjectDic.Count}");
+        if (count == 0 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
         foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-            int idx = DisplayObjectItems.FindIndex(element => element.name == pair.Value.name);
-            if (idx < 0 || idx >= length) continue;
-            DisplayObjectItems[idx].GetChild(0).gameObject.SetActive(true);
+            int idx = DisplayObjectItems.FindIndex(element => element.name.Equals(pair.Value.name));
+            Debug.Log($"name: {pair.Value.name}, idx: {idx}");
+            if (idx < 0 || idx >= count) continue;
+            DisplayObjectItems[idx].GetChild(1).gameObject.SetActive(true);
         }
     }
 
@@ -153,15 +150,4 @@ public class HierarchyManager : MonoBehaviour
         }
         RefreshDisplayObjectItem();
     }
-
-//    private static void OnModuleStateChanged(Transform moduleItem, bool isOn)
-//    {
-//        Debug.Log($"moduleItem: {moduleItem}, isOn: {isOn}");
-//        if(! moduleItem) {
-//            GlobalData.CurrentModule = null;
-//            return;
-//        }
-//
-//        GlobalData.CurrentModule = isOn ? moduleItem.name : null;
-//    }
 }

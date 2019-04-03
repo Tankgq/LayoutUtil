@@ -14,6 +14,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
     {
         if (ItemType == 1)
         {
+            ContainerManager.UpdateCurrentDisplayObjectData();
             if (gameObject.name.Equals(GlobalData.CurrentModule))
             {
                 GlobalData.CurrentModule = null;
@@ -24,9 +25,9 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
         }
         if (ItemType != 2) return;
         if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-        Transform displayObject = GlobalData.DisplayObjectNameDic[$"{GlobalData.CurrentModule}_{gameObject.name}"];
+        string displayObjectKey = $"{GlobalData.CurrentModule}_{gameObject.name}";
+        Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjectKey];
         if (displayObject.parent == null) return;
-        string displayObjectKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
         bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
         if (isSelect) {
             if (KeyboardEventManager.IsControlDown())

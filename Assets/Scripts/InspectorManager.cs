@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,7 +22,9 @@ public class InspectorManager : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(NameInputField.gameObject);
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
             .Where(isFocus => _displayObject && !isFocus && !string.IsNullOrEmpty(NameInputField.text))
-            .Subscribe(_ => _displayObject.name = NameInputField.text);
+            .Subscribe(_ => {
+                _displayObject.name = NameInputField.text;
+            });
         XInputField.ObserveEveryValueChanged(element => element.isFocused)
             .Where(isFocused => _displayObject && !isFocused && !string.IsNullOrEmpty(XInputField.text))
             .Select(_ => ParseFloat(XInputField.text))
@@ -82,12 +85,10 @@ public class InspectorManager : MonoBehaviour
                 else if (go == HeightInputField.gameObject)
                     EventSystem.current.SetSelectedGameObject(NameInputField.gameObject);
             });
-        GlobalData.CurrentSelectDisplayObjects.ObserveEveryValueChanged(dic => dic.Count)
+        GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
             .Subscribe(count => {
                 if (count != 1) UpdateState(null);
-                else
-                    foreach (var pair in GlobalData.CurrentSelectDisplayObjects)
-                        UpdateState(pair.Value);
+                else UpdateState(GlobalData.CurrentSelectDisplayObjectDic.First().Value);
             });
     }
 

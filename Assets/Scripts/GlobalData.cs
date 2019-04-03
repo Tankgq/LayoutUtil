@@ -17,14 +17,13 @@ public class GlobalData : MonoBehaviour
             .Subscribe(_ => CurrentSelectDisplayObjectDic[$"{currentModule}_{displayObject.name}"] = displayObject);
     }
 
-    public static List<Transform> CurrentDisplayObjects = null;
+    public static List<Transform> CurrentDisplayObjects = new List<Transform>();
+    public static Dictionary<string, Transform> CurrentDisplayObjectDic = new Dictionary<string, Transform>();
+
     public static Dictionary<string, string> DisplayObjectPathDic = new Dictionary<string, string>();
 
-    public static Dictionary<string, Transform> DisplayObjectNameDic = new Dictionary<string, Transform>();
-    public static Dictionary<string, DisplayObject> DisplayObjectDataDic = new Dictionary<string, DisplayObject>();
-
     public static List<string> ModuleNames = new List<string>();
-    public static Dictionary<string, List<Transform>> Modules = new Dictionary<string, List<Transform>>();
+    public static Dictionary<string, List<DisplayObject>> Modules = new Dictionary<string, List<DisplayObject>>();
 
     public static string CurrentModule = null;
 

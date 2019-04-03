@@ -27,11 +27,11 @@ public class KeyboardEventManager : MonoBehaviour
     private void Start()
     {
         Observable.EveryUpdate()
-            .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjects.Count != 0)
+            .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0)
             .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObject());
         Observable.EveryUpdate()
-            .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjects.Count != 0)
-            .Subscribe(_ => GlobalData.CurrentSelectDisplayObjects.Clear());
+            .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0)
+            .Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
         Observable.EveryUpdate()
             .Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
             .Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);

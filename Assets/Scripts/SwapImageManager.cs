@@ -28,10 +28,20 @@ public class SwapImageManager : MonoBehaviour
             });
     }
 
+    public void ForceUpdate() {
+        GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+    }
+
     public void StopObserveImageChange()
     {
         if (CancelObserveImageChange == null) return;
         CancelObserveImageChange.Dispose();
         CancelObserveImageChange = null;
     }
+
+    // private Image ImageComponent;
+    // private void Update() {
+    //     if(! ImageComponent) ImageComponent = GetComponent<Image>();
+    //     ImageComponent.sprite = IsSwap ? SwapImage : OriginImage;
+    // }
 }
