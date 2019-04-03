@@ -57,8 +57,7 @@ public class Utils
     public static string GetFileNameInPath(string filePath)
     {
         GroupCollection groups = RegFileName.Match(filePath).Groups;
-        if (groups.Count > 1) return groups[1].Value;
-        return string.Empty;
+        return groups.Count > 1 ? groups[1].Value : string.Empty;
     }
 
     private static readonly Regex RegFileDirectory = new Regex(@"([\d\D]*)[\\/][^.]*.[a-zA-Z]*$");
@@ -72,13 +71,20 @@ public class Utils
 
     public static string CancelHighlight(string text)
     {
-        if (string.IsNullOrEmpty(text)) return text;
-        return Regex.Replace(text, @"<color=yellow><size=25><b>(?<str>.*?)</b></size></color>", @"${str}");
+        return string.IsNullOrEmpty(text) ? text : Regex.Replace(text, @"<color=yellow><size=25><b>(?<str>.*?)</b></size></color>", @"${str}");
     }
 
     public static string GetHighlight(string text, string needHighlight)
     {
         if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(needHighlight)) return text;
         return text.Replace(needHighlight, "<color=yellow><size=25><b>" + needHighlight + "</b></size></color>");
+    }
+
+    private static readonly Regex RegGetDisplayName = new Regex(@"_([^_]*)$");
+    public static string GetDisplayName(string displayObjectKey)
+    {
+        if (string.IsNullOrEmpty(displayObjectKey)) return displayObjectKey;
+        GroupCollection groups = RegGetDisplayName.Match(displayObjectKey).Groups;
+        return groups.Count < 2 ? displayObjectKey : groups[1].Value;
     }
 }

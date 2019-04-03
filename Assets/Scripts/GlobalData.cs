@@ -7,23 +7,24 @@ using UnityEngine;
 public class GlobalData : MonoBehaviour
 {
     public static string GlobalObservable = "Observable";
-    public static int NameId = 0;
-    public static Dictionary<int, Transform> CurrentSelectDisplayObjects = new Dictionary<int, Transform>();
+    public static int UniqueId = 0;
+    public static Dictionary<string, Transform> CurrentSelectDisplayObjectDic = new Dictionary<string, Transform>();
 
-    public static void AddCurrentSelectObject(Transform displayObject)
+    public static void AddCurrentSelectObject(string currentModule, Transform displayObject)
     {
         if (!displayObject) return;
         Observable.Timer(TimeSpan.Zero)
-            .Subscribe(_ => CurrentSelectDisplayObjects[displayObject.GetInstanceID()] = displayObject);
+            .Subscribe(_ => CurrentSelectDisplayObjectDic[$"{currentModule}_{displayObject.name}"] = displayObject);
     }
 
-    public static List<Transform> DisplayObjects = new List<Transform>();
-    public static Dictionary<int, string> DisplayObjectPaths = new Dictionary<int, string>();
+    public static List<Transform> CurrentDisplayObjects = null;
+    public static Dictionary<string, string> DisplayObjectPathDic = new Dictionary<string, string>();
 
-    public static Dictionary<string, Transform> DisplayObjectNames = new Dictionary<string, Transform>();
+    public static Dictionary<string, Transform> DisplayObjectNameDic = new Dictionary<string, Transform>();
+    public static Dictionary<string, DisplayObject> DisplayObjectDataDic = new Dictionary<string, DisplayObject>();
 
     public static List<string> ModuleNames = new List<string>();
-    public static Dictionary<string, DisplayObject> Modules = new Dictionary<string, DisplayObject>();
+    public static Dictionary<string, List<Transform>> Modules = new Dictionary<string, List<Transform>>();
 
     public static string CurrentModule = null;
 

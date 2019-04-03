@@ -20,7 +20,7 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        bool isSelect = GlobalData.CurrentSelectDisplayObjects.ContainsKey(this.transform.GetInstanceID());
+        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(this.transform.GetInstanceID());
         if (isSelect)
         {
             if (KeyboardEventManager.IsControlDown())
@@ -41,12 +41,12 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
     private void UpdateSelectState(bool bSelect)
     {
         int instanceId = this.transform.GetInstanceID();
-        bool isSelect = GlobalData.CurrentSelectDisplayObjects.ContainsKey(instanceId);
+        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(instanceId);
         if (bSelect && !isSelect) {
             GlobalData.AddCurrentSelectObject(this.transform);
         }
         if (!bSelect && isSelect) {
-            GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);
+            GlobalData.CurrentSelectDisplayObjectDic.Remove(instanceId);
         }
     }
 
@@ -54,13 +54,13 @@ public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHan
     {
         if (!displayObject) return false;
         var instanceId = displayObject.GetInstanceID();
-        if (!GlobalData.CurrentSelectDisplayObjects.ContainsKey(instanceId)) return false;
-        GlobalData.CurrentSelectDisplayObjects.Remove(instanceId);
+        if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(instanceId)) return false;
+        GlobalData.CurrentSelectDisplayObjectDic.Remove(instanceId);
         return true;
     }
     
     public static void DeselectAllDisplayObject()
     {
-        GlobalData.CurrentSelectDisplayObjects.Clear();
+        GlobalData.CurrentSelectDisplayObjectDic.Clear();
     }
 }

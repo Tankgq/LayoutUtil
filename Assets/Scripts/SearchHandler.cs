@@ -15,7 +15,7 @@ public class SearchHandler : MonoBehaviour
     private void Start()
     {
         SearchInputField.OnValueChangedAsObservable()
-            .Where(txt => GlobalData.DisplayObjects.Count > 0 && txt != null && ! txt.Equals(PreviousSearch))
+            .Where(txt => GlobalData.CurrentDisplayObjects.Count > 0 && txt != null && ! txt.Equals(PreviousSearch))
             .Sample(TimeSpan.FromSeconds(1))
             .Subscribe(txt =>
             {

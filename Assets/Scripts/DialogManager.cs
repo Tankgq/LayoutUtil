@@ -128,7 +128,6 @@ public class DialogManager : MonoBehaviour
     {
         dialogWidth = Math.Max(dialogWidth, 280);
         dialogHeight = Math.Max(dialogHeight, 160);
-        Debug.Log($"{dialogWidth}, {dialogHeight}");
         transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(dialogWidth, dialogHeight);
     }
 
@@ -203,5 +202,6 @@ public class DialogManager : MonoBehaviour
     public void SetValuePlaceholder(string txt) {
         if(string.IsNullOrEmpty(txt)) return;
         ValueInputFiled.placeholder.GetComponent<Text>().text = txt;
+        ValueInputFiled.text = string.Empty;
     }
 }

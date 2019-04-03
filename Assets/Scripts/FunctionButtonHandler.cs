@@ -24,35 +24,35 @@ public class FunctionButtonHandler : MonoBehaviour
 
     public void OnUpButtonClick()
     {
-        if (GlobalData.CurrentSelectDisplayObjects.Count != 1) return;
-        int instanceId = GlobalData.CurrentSelectDisplayObjects.First().Key;
-        int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
+        if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
+        int instanceId = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
         Debug.Log($"[OnUpButtonClick] current idx: {idx}");
-        if (idx <= 0 || idx >= GlobalData.DisplayObjects.Count)
+        if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count)
         {
             Debug.Log("[OnUpButtonClick] return");
             return;
         }
-        Transform tmp = GlobalData.DisplayObjects[idx];
-        GlobalData.DisplayObjects[idx] = GlobalData.DisplayObjects[idx - 1];
-        GlobalData.DisplayObjects[idx - 1] = tmp;
+        Transform tmp = GlobalData.CurrentDisplayObjects[idx];
+        GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
+        GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
         tmp.SetSiblingIndex(idx - 1);
     }
 
     public void OnDownButtonClick()
     {
-        if (GlobalData.CurrentSelectDisplayObjects.Count != 1) return;
-        int instanceId = GlobalData.CurrentSelectDisplayObjects.Keys.First();
-        int idx = GlobalData.DisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
+        if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
+        int instanceId = GlobalData.CurrentSelectDisplayObjectDic.Keys.First();
+        int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.GetInstanceID() == instanceId);
         Debug.Log($"[OnDownButtonClick] current idx: {idx}");
-        if (idx < 0 || idx >= GlobalData.DisplayObjects.Count - 1)
+        if (idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1)
         {
             Debug.Log("[OnDownButtonClick] return");
             return;
         }
-        Transform tmp = GlobalData.DisplayObjects[idx];
-        GlobalData.DisplayObjects[idx] = GlobalData.DisplayObjects[idx + 1];
-        GlobalData.DisplayObjects[idx + 1] = tmp;
+        Transform tmp = GlobalData.CurrentDisplayObjects[idx];
+        GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
+        GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
         tmp.SetSiblingIndex(idx + 1);
     }
 
@@ -84,7 +84,7 @@ public class FunctionButtonHandler : MonoBehaviour
         string filePath = SaveFileUtil.SaveFile("json 文件(*.json)\0*.json");
         if (string.IsNullOrEmpty(filePath)) return;
         List<DisplayObject> displayObjects = new List<DisplayObject>();
-        foreach (Transform displayObject in GlobalData.DisplayObjects)
+        foreach (Transform displayObject in GlobalData.CurrentDisplayObjects)
         {
             displayObjects.Add(DisplayObject.ConvertTo(displayObject));
         }
