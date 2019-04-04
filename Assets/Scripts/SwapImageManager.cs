@@ -3,45 +3,48 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SwapImageManager : MonoBehaviour
+namespace Assets.Scripts
 {
-    public Sprite OriginImage;
-    public Sprite SwapImage;
-    public bool IsSwap = false;
-
-    private IDisposable CancelObserveImageChange = null;
-
-    public bool HasObserveImageChange()
+    public class SwapImageManager : MonoBehaviour
     {
-        return CancelObserveImageChange != null;
-    }
+        public Sprite OriginImage;
+        public Sprite SwapImage;
+        public bool IsSwap = false;
 
-    public void StartObserveImageChange(Action<bool> onImageChange = null)
-    {
-        if (HasObserveImageChange()) return;
-        GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-        CancelObserveImageChange = this.ObserveEveryValueChanged(_ => IsSwap)
-            .Subscribe(isSwap =>
-            {
-                GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-                onImageChange?.Invoke(isSwap);
-            });
-    }
+        private IDisposable CancelObserveImageChange = null;
 
-    public void ForceUpdate() {
-        GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-    }
+        public bool HasObserveImageChange()
+        {
+            return CancelObserveImageChange != null;
+        }
 
-    public void StopObserveImageChange()
-    {
-        if (CancelObserveImageChange == null) return;
-        CancelObserveImageChange.Dispose();
-        CancelObserveImageChange = null;
-    }
+        public void StartObserveImageChange(Action<bool> onImageChange = null)
+        {
+            if (HasObserveImageChange()) return;
+            GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+            CancelObserveImageChange = this.ObserveEveryValueChanged(_ => IsSwap)
+                .Subscribe(isSwap =>
+                {
+                    GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+                    onImageChange?.Invoke(isSwap);
+                });
+        }
 
-    // private Image ImageComponent;
-    // private void Update() {
-    //     if(! ImageComponent) ImageComponent = GetComponent<Image>();
-    //     ImageComponent.sprite = IsSwap ? SwapImage : OriginImage;
-    // }
+        public void ForceUpdate() {
+            GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+        }
+
+        public void StopObserveImageChange()
+        {
+            if (CancelObserveImageChange == null) return;
+            CancelObserveImageChange.Dispose();
+            CancelObserveImageChange = null;
+        }
+
+        // private Image ImageComponent;
+        // private void Update() {
+        //     if(! ImageComponent) ImageComponent = GetComponent<Image>();
+        //     ImageComponent.sprite = IsSwap ? SwapImage : OriginImage;
+        // }
+    }
 }

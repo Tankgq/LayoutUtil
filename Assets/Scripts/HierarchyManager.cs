@@ -26,10 +26,10 @@ public class HierarchyManager : MonoBehaviour
         GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
             .Subscribe(_ => RefreshDisplayObjectItem());
         UpButton.OnClickAsObservable()
-            .Sample(TimeSpan.FromSeconds(1))
+            .Sample(TimeSpan.FromMilliseconds(100))
             .Subscribe(_ => RefreshDisplayObjectItem());
         DownButton.OnClickAsObservable()
-            .Sample(TimeSpan.FromSeconds(1))
+            .Sample(TimeSpan.FromMilliseconds(100))
             .Subscribe(_ => RefreshDisplayObjectItem());
 
         NameInputField.ObserveEveryValueChanged(element => element.isFocused)
