@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class WorkSpaceManager : MonoBehaviour, IPointerDownHandler
+namespace Assets.Scripts
 {
-    public void OnPointerDown(PointerEventData eventData)
+    public class WorkSpaceManager : MonoBehaviour, IPointerDownHandler
     {
-        if(Input.GetMouseButtonDown(0))
-            OnMouseLeftButtonDown();
-        else if(Input.GetMouseButton(1))
-            OnMouseRightButtonDown();
-    }
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if(Input.GetMouseButtonDown(0))
+                OnMouseLeftButtonDown();
+            else if(Input.GetMouseButton(1))
+                OnMouseRightButtonDown();
+        }
 
-    private void OnMouseLeftButtonDown()
-    {
-        DisplayObjectManager.DeselectAllDisplayObject();
-    }
+        private void OnMouseLeftButtonDown()
+        {
+            DisplayObjectManager.DeselectAllDisplayObject();
+        }
 
-    private void OnMouseRightButtonDown()
-    {
-        Debug.Log("OnMouseRightDown");
+        private void OnMouseRightButtonDown()
+        {
+            Debug.Log("OnMouseRightDown");
+        }
     }
 }

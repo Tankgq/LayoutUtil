@@ -2,58 +2,61 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHandler
+namespace Assets.Scripts
 {
-    private Vector2 _offset;
-    
-    public RectTransform SelfRect;
-//    public Toggle SelfToggle;
+    public class DisplayObjectManager : MonoBehaviour, IDragHandler, IPointerDownHandler
+    {
+        private Vector2 _offset;
+        
+        public RectTransform SelfRect;
+    //    public Toggle SelfToggle;
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        var mousePos = eventData.position;
-        mousePos -= _offset;
-        Vector3 pos;
-        RectTransformUtility.ScreenPointToWorldPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out pos);
-        SelfRect.position = pos;
-        DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.Name.Equals(transform.name));
-        if(displayObjectData == null) return;
-        displayObjectData.X = DisplayObject.ConvertX(pos.x);
-        displayObjectData.Y = DisplayObject.ConvertY(pos.y);
-    }
+        public void OnDrag(PointerEventData eventData)
+        {
+            var mousePos = eventData.position;
+            mousePos -= _offset;
+            Vector3 pos;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out pos);
+            SelfRect.position = pos;
+            DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.Name.Equals(transform.name));
+            if(displayObjectData == null) return;
+            displayObjectData.X = DisplayObject.ConvertX(pos.x);
+            displayObjectData.Y = DisplayObject.ConvertY(pos.y);
+        }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        string displayObjectKey = $"{GlobalData.CurrentModule}_{transform.name}";
-        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey($"{GlobalData.CurrentModule}_{transform.name}");
-        if (isSelect)
+        public void OnPointerDown(PointerEventData eventData)
         {
-            if (KeyboardEventManager.IsControlDown())
-                GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+            string displayObjectKey = $"{GlobalData.CurrentModule}_{transform.name}";
+            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey($"{GlobalData.CurrentModule}_{transform.name}");
+            if (isSelect)
+            {
+                if (KeyboardEventManager.IsControlDown())
+                    GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+            }
+            else
+            {
+                if (!KeyboardEventManager.IsShiftDown())
+                    DeselectAllDisplayObject();
+                GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, this.transform);
+            }
+            var mousePos = eventData.position;
+            Vector2 offset;
+            var isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out offset);
+            if (isRect) _offset = offset;
         }
-        else
+        
+        public static bool DeSelectDisplayObject(Transform displayObject)
         {
-            if (!KeyboardEventManager.IsShiftDown())
-                DeselectAllDisplayObject();
-            GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, this.transform);
+            if(! displayObject) return false;
+            string displayObjectKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
+            if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey)) return false;
+            GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+            return true;
         }
-        var mousePos = eventData.position;
-        Vector2 offset;
-        var isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out offset);
-        if (isRect) _offset = offset;
-    }
-    
-    public static bool DeSelectDisplayObject(Transform displayObject)
-    {
-        if(! displayObject) return false;
-        string displayObjectKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
-        if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey)) return false;
-        GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
-        return true;
-    }
-    
-    public static void DeselectAllDisplayObject()
-    {
-        GlobalData.CurrentSelectDisplayObjectDic.Clear();
+        
+        public static void DeselectAllDisplayObject()
+        {
+            GlobalData.CurrentSelectDisplayObjectDic.Clear();
+        }
     }
 }

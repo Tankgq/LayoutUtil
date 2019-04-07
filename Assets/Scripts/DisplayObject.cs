@@ -59,11 +59,11 @@ public class DisplayObject
 
     public static float ConvertY(float y)
     {
-        return -(y - GlobalData.OriginPoint.y);
+        return -(y + GlobalData.OriginPoint.y);
     }
 
     public static float InvConvertY(float y)
     {
-        return -(y - GlobalData.OriginPoint.y);
+        return -(y + GlobalData.OriginPoint.y);
     }
 }

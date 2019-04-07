@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class Module : MonoBehaviour
+    public class Module
     {
-        public string ModuleName;
-        public List<DisplayObject> displayObjects;
+        public string Name;
+        public List<DisplayObject> DisplayObjects;
     }
 }

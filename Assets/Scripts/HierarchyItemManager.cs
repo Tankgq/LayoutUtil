@@ -6,40 +6,43 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
+namespace Assets.Scripts
 {
-    public int ItemType = 0;
-
-    public void OnPointerDown(PointerEventData eventData)
+    public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
     {
-        if (ItemType == 1)
+        public int ItemType = 0;
+
+        public void OnPointerDown(PointerEventData eventData)
         {
-            ContainerManager.UpdateCurrentDisplayObjectData();
-            if (gameObject.name.Equals(GlobalData.CurrentModule))
+            if (ItemType == 1)
             {
-                GlobalData.CurrentModule = null;
+                ContainerManager.UpdateCurrentDisplayObjectData();
+                if (gameObject.name.Equals(GlobalData.CurrentModule))
+                {
+                    GlobalData.CurrentModule = null;
+                    return;
+                }
+                GlobalData.CurrentModule = gameObject.name;
                 return;
             }
-            GlobalData.CurrentModule = gameObject.name;
-            return;
+            if (ItemType != 2) return;
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+            string displayObjectKey = $"{GlobalData.CurrentModule}_{gameObject.name}";
+            Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjectKey];
+            if (displayObject.parent == null) return;
+            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
+            if (isSelect) {
+                if (KeyboardEventManager.IsControlDown())
+                    GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+            } else {
+                if (!KeyboardEventManager.IsShiftDown())
+                    DeselectAllDisplayObjectItem();
+                GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, displayObject);
+            }
         }
-        if (ItemType != 2) return;
-        if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-        string displayObjectKey = $"{GlobalData.CurrentModule}_{gameObject.name}";
-        Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjectKey];
-        if (displayObject.parent == null) return;
-        bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
-        if (isSelect) {
-            if (KeyboardEventManager.IsControlDown())
-                GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
-        } else {
-            if (!KeyboardEventManager.IsShiftDown())
-                DeselectAllDisplayObjectItem();
-            GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, displayObject);
+        
+        public static void DeselectAllDisplayObjectItem() {
+            GlobalData.CurrentSelectDisplayObjectDic.Clear();
         }
-    }
-    
-    public static void DeselectAllDisplayObjectItem() {
-        GlobalData.CurrentSelectDisplayObjectDic.Clear();
     }
 }

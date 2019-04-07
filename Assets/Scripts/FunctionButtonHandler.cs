@@ -77,7 +77,13 @@ namespace Assets.Scripts
                 .Subscribe(_ =>
                 {
                     try {
-                        
+                        List<Module> modules = JsonConvert.DeserializeObject<List<Module>>(jsonStr);
+                        int count = modules.Count;
+                        for(int idx = 0; idx < count; ++ idx) {
+                            Module module = modules[idx];
+                            GlobalData.ModuleNames.Add(module.Name);
+                            GlobalData.Modules[module.Name] = module.DisplayObjects;
+                        }
                     } catch (Exception e) {
                         DialogManager.ShowError($"导入失败({e})");
                     }
@@ -88,12 +94,15 @@ namespace Assets.Scripts
         {
             string filePath = SaveFileUtil.SaveFile("json 文件(*.json)\0*.json");
             if (string.IsNullOrEmpty(filePath)) return;
-            List<DisplayObject> displayObjects = new List<DisplayObject>();
-            foreach (Transform displayObject in GlobalData.CurrentDisplayObjects)
-            {
-                displayObjects.Add(DisplayObject.ConvertTo(displayObject));
+            ContainerManager.UpdateCurrentDisplayObjectData();
+            List<Module> modules = new List<Module>();
+            int count = GlobalData.ModuleNames.Count;
+            for(int idx = 0; idx < count; ++ idx) {
+                Module module = new Module();
+                module.Name = GlobalData.ModuleNames[idx];
+                module.DisplayObjects = GlobalData.Modules[module.Name];
             }
-            string jsonString = JsonConvert.SerializeObject(displayObjects, Formatting.Indented);
+            string jsonString = JsonConvert.SerializeObject(modules, Formatting.Indented);
             bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
             if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
             else DialogManager.ShowError($"导出失败", 0, 0);
