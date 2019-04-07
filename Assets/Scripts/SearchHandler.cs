@@ -10,26 +10,16 @@ namespace Assets.Scripts
     public class SearchHandler : MonoBehaviour
     {
         public InputField SearchInputField;
-        public HierarchyManager HierarchyManager;
+        // public HierarchyManager HierarchyManager;
 
         private string PreviousSearch = null;
 
         private void Start()
         {
             SearchInputField.OnValueChangedAsObservable()
-                .Where(txt => GlobalData.CurrentDisplayObjects.Count > 0 && txt != null && ! txt.Equals(PreviousSearch))
-                .Sample(TimeSpan.FromSeconds(1))
-                .Subscribe(txt =>
-                {
-                    int count = GlobalData.ModuleNames.Count;
-
-                    // Text[] displayObjectNameList = DisplayObjectListContent.GetComponentsInChildren<Text>();
-                    // foreach (Text nameText in displayObjectNameList) {
-                    //     string text = Utils.CancelHighlight(nameText.text);
-                    //     nameText.text = Utils.GetHighlight(text, txt);
-                    // }
-                    // PreviousSearch = txt;
-                });
+                .Where(txt => ! string.IsNullOrWhiteSpace(txt) && ! txt.Equals(PreviousSearch))
+                .Sample(TimeSpan.FromMilliseconds(500))
+                .Subscribe(txt => HierarchyManager.Search(txt));
         }
     }
 }

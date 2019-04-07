@@ -30,7 +30,7 @@ namespace Assets.Scripts
                 .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0)
                 .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObject());
             Observable.EveryUpdate()
-                .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0)
+                .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
                 .Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
             Observable.EveryUpdate()
                 .Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)

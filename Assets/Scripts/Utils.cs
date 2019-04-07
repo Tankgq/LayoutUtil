@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -88,6 +90,13 @@ namespace Assets.Scripts
             if (string.IsNullOrEmpty(displayObjectKey)) return displayObjectKey;
             GroupCollection groups = RegGetDisplayName.Match(displayObjectKey).Groups;
             return groups.Count < 2 ? displayObjectKey : groups[1].Value;
+        }
+
+
+        public static bool IsFocusOnInputText()
+        {
+            GameObject focusGameObject = EventSystem.current.currentSelectedGameObject;
+            return focusGameObject && focusGameObject.GetComponent<InputField>() != null;
         }
     }
 }

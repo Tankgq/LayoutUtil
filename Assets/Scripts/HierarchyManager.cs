@@ -16,10 +16,10 @@ namespace Assets.Scripts
         public Button DownButton;
 
         private static readonly List<Transform> DisplayObjectItemPool = new List<Transform>();
-        private readonly List<Transform> DisplayObjectItems = new List<Transform>();
+        private static readonly List<Transform> DisplayObjectItems = new List<Transform>();
 
         private static readonly List<Transform> ModuleItemPool = new List<Transform>();
-        private readonly List<Transform> ModuleItems = new List<Transform>();
+        private static readonly List<Transform> ModuleItems = new List<Transform>();
 
         private void Start()
         {
@@ -52,10 +52,10 @@ namespace Assets.Scripts
                 .Subscribe(_ => RefreshModuleItem());
         }
 
-        private Transform GetDisplayObjectItem()
+        private static Transform GetDisplayObjectItem()
         {
             int length = DisplayObjectItemPool.Count;
-            if(length == 0) return Instantiate(GlobalData.DisplayObjectItemPrefab.transform, HierarchyListContainer);
+            if(length == 0) return Instantiate(GlobalData.DisplayObjectItemPrefab.transform, GlobalData.HierarchyContainer.transform);
             Transform result = DisplayObjectItemPool[length - 1];
             DisplayObjectItemPool.RemoveAt(length - 1);
             return result;
@@ -70,10 +70,10 @@ namespace Assets.Scripts
             DisplayObjectItemPool.Add(displayObjectItem);
         }
 
-        private Transform GetModuleItem()
+        private static Transform GetModuleItem()
         {
             int length = ModuleItemPool.Count;
-            if(length == 0) return Instantiate(GlobalData.ModuleItemPrefab.transform, HierarchyListContainer);
+            if(length == 0) return Instantiate(GlobalData.ModuleItemPrefab.transform, GlobalData.HierarchyContainer.transform);
             Transform result = ModuleItemPool[length - 1];
             SwapImageManager swapImage = result.GetComponentInChildren<SwapImageManager>();
             swapImage.StartObserveImageChange();
@@ -93,26 +93,57 @@ namespace Assets.Scripts
             ModuleItemPool.Add(moduleItem);
         }
 
-        private void RecycleAllDisplayObjectItem()
+        private static void RecycleAllDisplayObjectItem()
         {
             foreach(Transform displayObjectItem in DisplayObjectItems)
                 RecycleDisplayObject(displayObjectItem);
             DisplayObjectItems.Clear();
         }
 
-        private void RecycleAllModuleItem()
+        private static void RecycleAllModuleItem()
         {
             foreach (Transform moduleItem in ModuleItems)
                 RecycleModuleItem(moduleItem);
             ModuleItems.Clear();
         }
 
-        private void RefreshDisplayObjectItem() {
+        private static void ShowAllSeachedDisplayObjectItem() {
+            if(string.IsNullOrWhiteSpace(SearchText)) return;
+            int count = GlobalData.ModuleNames.Count;
+            for(int idx = 0; idx < count; ++ idx) {
+                if(ModuleItems[idx].name.IndexOf(SearchText) != -1)
+                    ModuleItems[idx].name = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
+                int silbingIndex = ModuleItems[idx].GetSiblingIndex();
+                List<DisplayObject> displayObjects = GlobalData.Modules[GlobalData.ModuleNames[idx]];
+                bool hasFind = false;
+                int count2 = displayObjects.Count;
+                for(int idx2 = 0; idx2 < count2; ++ idx2) {
+                    DisplayObject displayObject = displayObjects[idx2];
+                    if(displayObject.Name.IndexOf(SearchText) == -1) continue;
+                    hasFind = true;
+                    Transform displayObjectItem = GetDisplayObjectItem();
+                    DisplayObjectItems.Add(displayObjectItem);
+                    displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
+                    displayObjectItem.SetSiblingIndex(++ silbingIndex);
+                    displayObjectItem.name = Utils.GetHighlight(displayObject.Name, SearchText);
+                    displayObjectItem.GetComponentInChildren<Text>().text = displayObjectItem.name;
+                }
+                if(hasFind) {
+                    SwapImageManager swapImage = ModuleItems[idx].GetComponentInChildren<SwapImageManager>();
+                    swapImage.IsSwap = true;
+                    swapImage.ForceUpdate();
+                }
+            }
+        }
+
+        private static void RefreshDisplayObjectItem() {
             RecycleAllDisplayObjectItem();
-            Debug.Log($"GlobalData.CurrentModule: {GlobalData.CurrentModule}");
+            if(! string.IsNullOrWhiteSpace(SearchText)) {
+                ShowAllSeachedDisplayObjectItem();
+                return;
+            }
             if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
             int currentModuleIdx = ModuleItems.FindIndex(module => module.name.Equals(GlobalData.CurrentModule));
-            Debug.Log($"ModuleItems.Count: {ModuleItems.Count}, currentModuleIdx: {currentModuleIdx}");
             if (currentModuleIdx == -1) return;
             SwapImageManager swapImage = ModuleItems[currentModuleIdx].GetComponentInChildren<SwapImageManager>();
             swapImage.IsSwap = true;
@@ -122,23 +153,22 @@ namespace Assets.Scripts
             for (var idx = 0; idx < count; ++idx) {
                 Transform displayObjectItem = GetDisplayObjectItem();
                 DisplayObjectItems.Add(displayObjectItem);
-                displayObjectItem.SetParent(HierarchyListContainer);
+                displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
                 displayObjectItem.SetSiblingIndex(currentModuleIdx + idx + 1);
                 displayObjectItem.name = GlobalData.CurrentDisplayObjects[idx].name;
                 displayObjectItem.GetComponentInChildren<Text>().text = GlobalData.CurrentDisplayObjects[idx].name;
             }
-            Debug.Log($"count: {count}, GlobalData.CurrentSelectDisplayObjectDic.Count: {GlobalData.CurrentSelectDisplayObjectDic.Count}");
             if (count == 0 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
             foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic) {
                 int idx = DisplayObjectItems.FindIndex(element => element.name.Equals(pair.Value.name));
-                Debug.Log($"name: {pair.Value.name}, idx: {idx}");
                 if (idx < 0 || idx >= count) continue;
                 DisplayObjectItems[idx].GetChild(1).gameObject.SetActive(true);
             }
         }
 
-        private void RefreshModuleItem()
+        private static void RefreshModuleItem()
         {
+            if(! string.IsNullOrWhiteSpace(GlobalData.CurrentModule)) SearchText = null;
             RecycleAllDisplayObjectItem();
             RecycleAllModuleItem();
             int length = GlobalData.ModuleNames.Count;
@@ -146,11 +176,18 @@ namespace Assets.Scripts
             {
                 Transform moduleItem = GetModuleItem();
                 ModuleItems.Add(moduleItem);
-                moduleItem.SetParent(HierarchyListContainer);
-                moduleItem.name = GlobalData.ModuleNames[idx];
+                moduleItem.SetParent(GlobalData.HierarchyContainer.transform);
+                moduleItem.name = Utils.GetHighlight(GlobalData.ModuleNames[idx], SearchText);
                 moduleItem.GetComponentInChildren<Text>().text = GlobalData.ModuleNames[idx];
             }
             RefreshDisplayObjectItem();
+        }
+
+        private static string SearchText = null;
+        public static void Search(string text) {
+            if(string.IsNullOrWhiteSpace(text) || text.Equals(SearchText)) return;
+            SearchText = text;
+            GlobalData.CurrentModule = null;
         }
     }
 }

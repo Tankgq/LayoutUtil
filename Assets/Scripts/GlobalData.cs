@@ -39,6 +39,8 @@ public class GlobalData : MonoBehaviour
     public static GameObject DialogPrefab;
 
     public static GameObject RootCanvas;
+    public static GameObject DisplayObjectContainer;
+    public static GameObject HierarchyContainer;
 
     private void Awake()
     {
@@ -46,6 +48,8 @@ public class GlobalData : MonoBehaviour
         DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
         ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");
         DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");
-        RootCanvas = GameObject.FindGameObjectWithTag("Canvas");
+        RootCanvas = GameObject.FindGameObjectWithTag("RootCanvas");
+        DisplayObjectContainer = GameObject.FindGameObjectWithTag("DisplayObjectContainer");
+        HierarchyContainer = GameObject.FindGameObjectWithTag("HierarchyContainer");
     }
 }
