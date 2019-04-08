@@ -27,7 +27,7 @@ namespace Assets.Scripts
         public void OnPointerDown(PointerEventData eventData)
         {
             string displayObjectKey = $"{GlobalData.CurrentModule}_{transform.name}";
-            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey($"{GlobalData.CurrentModule}_{transform.name}");
+            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
             if (isSelect)
             {
                 if (KeyboardEventManager.IsControlDown())

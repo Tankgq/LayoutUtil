@@ -27,7 +27,7 @@ namespace Assets.Scripts
         private void Start()
         {
             Observable.EveryUpdate()
-                .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0)
+                .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
                 .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObject());
             Observable.EveryUpdate()
                 .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())

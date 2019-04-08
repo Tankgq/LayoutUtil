@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,7 @@ namespace Assets.Scripts
         private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
     
         public Text ModuleNameText;
+        public Text SelectedDisplayObjectText;
 
         private Transform GetDisplayObject() {
             int length = DisplayObjectPool.Count;
@@ -85,8 +87,28 @@ namespace Assets.Scripts
                         return;
                     }
                     ModuleNameText.text = module;
+                    Observable.Timer(TimeSpan.Zero)
+                        .Subscribe(_ => {
+                            RectTransform rt = ModuleNameText.GetComponent<RectTransform>();
+                            RectTransform rt2 = SelectedDisplayObjectText.GetComponent<RectTransform>();
+                            rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30, rt2.anchoredPosition.y);
+                        });
                     GlobalData.CurrentSelectDisplayObjectDic.Clear();
+                    GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
                     LoadAllDisplayObject();
+                });
+            
+            GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
+                .Subscribe(count => {
+                    if(count == 0) {
+                        SelectedDisplayObjectText.text = "null";
+                        return;
+                    }
+                    string text = "";
+                    foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+                        text += $"{pair.Value.name}, ";
+                    }
+                    SelectedDisplayObjectText.text = text.Substring(0, text.Length - 2);
                 });
         }
 
@@ -113,7 +135,7 @@ namespace Assets.Scripts
                     if (size == Vector2.zero) size = SizeDic[imageUrl];
                 } else {
                     Texture2D texture2 = LoadTexture2DbyIo(imageUrl);
-                    material = new Material(Shader.Find("UI/Default")) {
+                    material = new Material(GlobalData.DefaultShader) {
                         mainTexture = texture2
                     };
                     MaterialDic[imageUrl] = material;

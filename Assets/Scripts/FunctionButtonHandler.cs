@@ -104,7 +104,6 @@ namespace Assets.Scripts
                 modules.Add(module);
             }
             string jsonString = JsonConvert.SerializeObject(modules, Formatting.Indented);
-            Debug.Log($"OnExportButtonClick: {jsonString}");
             bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
             if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
             else DialogManager.ShowError($"导出失败", 0, 0);

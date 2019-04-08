@@ -50,6 +50,9 @@ namespace Assets.Scripts
             GlobalData.ModuleNames.ObserveEveryValueChanged(moduleNames => moduleNames.Count)
                 .Sample(TimeSpan.FromMilliseconds(100))
                 .Subscribe(_ => RefreshModuleItem());
+            GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => SearchText)
+                .Where(_ => string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
+                .Subscribe(_ => RefreshModuleItem());
         }
 
         private static Transform GetDisplayObjectItem()
@@ -112,7 +115,7 @@ namespace Assets.Scripts
             int count = GlobalData.ModuleNames.Count;
             for(int idx = 0; idx < count; ++ idx) {
                 if(ModuleItems[idx].name.IndexOf(SearchText) != -1)
-                    ModuleItems[idx].name = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
+                    ModuleItems[idx].GetComponentInChildren<Text>().text = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
                 int silbingIndex = ModuleItems[idx].GetSiblingIndex();
                 List<DisplayObject> displayObjects = GlobalData.Modules[GlobalData.ModuleNames[idx]];
                 bool hasFind = false;
@@ -177,7 +180,7 @@ namespace Assets.Scripts
                 Transform moduleItem = GetModuleItem();
                 ModuleItems.Add(moduleItem);
                 moduleItem.SetParent(GlobalData.HierarchyContainer.transform);
-                moduleItem.name = Utils.GetHighlight(GlobalData.ModuleNames[idx], SearchText);
+                moduleItem.name = GlobalData.ModuleNames[idx];
                 moduleItem.GetComponentInChildren<Text>().text = GlobalData.ModuleNames[idx];
             }
             RefreshDisplayObjectItem();
@@ -186,8 +189,8 @@ namespace Assets.Scripts
         private static string SearchText = null;
         public static void Search(string text) {
             if(string.IsNullOrWhiteSpace(text) || text.Equals(SearchText)) return;
-            SearchText = text;
             GlobalData.CurrentModule = null;
+            SearchText = text;
         }
     }
 }

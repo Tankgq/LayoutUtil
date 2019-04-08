@@ -19,7 +19,10 @@ namespace Assets.Scripts
             SearchInputField.OnValueChangedAsObservable()
                 .Where(txt => ! string.IsNullOrWhiteSpace(txt) && ! txt.Equals(PreviousSearch))
                 .Sample(TimeSpan.FromMilliseconds(500))
-                .Subscribe(txt => HierarchyManager.Search(txt));
+                .Subscribe(txt => {
+                    HierarchyManager.Search(txt);
+                    PreviousSearch = txt;
+                });
         }
     }
 }

@@ -33,6 +33,8 @@ public class GlobalData : MonoBehaviour
     public const string DefaultName = "DisplayObject";
     public const float MinFloat = -100000000;
 
+    public static Shader DefaultShader;
+
     public static GameObject DisplayObjectItemPrefab;
     public static GameObject DisplayObjectPrefab;
     public static GameObject ModuleItemPrefab;
@@ -44,6 +46,7 @@ public class GlobalData : MonoBehaviour
 
     private void Awake()
     {
+        DefaultShader = Shader.Find("UI/Default");
         DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
         DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
         ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");
