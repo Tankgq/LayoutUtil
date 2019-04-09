@@ -188,9 +188,16 @@ namespace Assets.Scripts
 
         private static string SearchText = null;
         public static void Search(string text) {
-            if(string.IsNullOrWhiteSpace(text) || text.Equals(SearchText)) return;
+            if(text.Equals(SearchText)) return;
             GlobalData.CurrentModule = null;
             SearchText = text;
+        }
+
+        public static void UpdateDisplayObjectName(string originName, string newName) {
+            if(string.IsNullOrWhiteSpace(originName) || string.IsNullOrWhiteSpace(newName)) return;
+            int idx = DisplayObjectItems.FindIndex(item => item.name.Equals(originName));
+            if(idx == -1) return;
+            DisplayObjectItems[idx].name = newName;
         }
     }
 }

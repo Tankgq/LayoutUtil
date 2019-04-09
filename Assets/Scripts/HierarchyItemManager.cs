@@ -28,6 +28,7 @@ namespace Assets.Scripts
             if (ItemType != 2) return;
             if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
             string displayObjectKey = $"{GlobalData.CurrentModule}_{gameObject.name}";
+            Debug.Log(displayObjectKey);
             Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjectKey];
             if (displayObject.parent == null) return;
             bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);

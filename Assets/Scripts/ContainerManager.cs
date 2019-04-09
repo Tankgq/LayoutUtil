@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,7 @@ namespace Assets.Scripts
     
         public Text ModuleNameText;
         public Text SelectedDisplayObjectText;
+        public Slider ScaleSlider;
 
         private Transform GetDisplayObject() {
             int length = DisplayObjectPool.Count;
@@ -51,7 +53,9 @@ namespace Assets.Scripts
             for (var idx = 0; idx < count; ++idx)
             {
                 Transform displayObject = GetDisplayObject();
+                displayObject.GetComponent<Image>().color = Color.clear;
                 displayObject.SetParent(transform);
+                displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
                 DisplayObject displayObjectData = displayObjectDataList[idx];
                 displayObjectData.InvConvertTo(displayObject);
                 GlobalData.CurrentDisplayObjects.Add(displayObject);
@@ -94,7 +98,9 @@ namespace Assets.Scripts
                             rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30, rt2.anchoredPosition.y);
                         });
                     GlobalData.CurrentSelectDisplayObjectDic.Clear();
-                    GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    // GetComponent<RectTransform>().localScale = Vector3.one;
+                    ScaleSlider.value = 10f;
+                    GetComponent<RectTransform>().localPosition = Vector2.zero;
                     LoadAllDisplayObject();
                 });
             
@@ -145,6 +151,7 @@ namespace Assets.Scripts
             }
             Transform imageElement = GetDisplayObject();
             imageElement.SetParent(this.transform);
+            imageElement.GetComponent<RectTransform>().localScale = Vector3.one;
             int instanceId = imageElement.GetInstanceID();
             imageElement.name = string.IsNullOrEmpty(elementName)
                 ? (string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + (++GlobalData.UniqueId) : Utils.GetFileNameInPath(imageUrl))

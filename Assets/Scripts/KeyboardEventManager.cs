@@ -8,6 +8,9 @@ namespace Assets.Scripts
     public class KeyboardEventManager : MonoBehaviour
     {
         public ContainerManager ContainerManager;
+        public ScrollRect ContainerScrollRect;
+        public RectTransform ContainerRect;
+        public float ContainerKeyMoveSensitivity;
         public Slider ScaleSlider;
 
         public static bool IsShiftDown()
@@ -35,6 +38,28 @@ namespace Assets.Scripts
             Observable.EveryUpdate()
                 .Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
                 .Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
+            Observable.EveryUpdate()
+                .Subscribe(_ => {
+                    if(Input.GetMouseButton(0)) {
+                        ContainerScrollRect.horizontal = true;
+                        ContainerScrollRect.vertical = true;
+                    } else {
+                        bool isShiftDown = IsShiftDown();
+                        ContainerScrollRect.horizontal = isShiftDown;
+                        ContainerScrollRect.vertical = ! isShiftDown;
+                        ContainerScrollRect.scrollSensitivity = Math.Abs(ContainerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
+                    }
+                    Vector2 pos = ContainerRect.anchoredPosition;
+                    if(Input.GetKey(KeyCode.UpArrow))
+                        pos += Vector2.up * ContainerKeyMoveSensitivity;
+                    if(Input.GetKey(KeyCode.DownArrow))
+                        pos += Vector2.down * ContainerKeyMoveSensitivity;
+                    else if(Input.GetKey(KeyCode.LeftArrow))
+                        pos += Vector2.left * ContainerKeyMoveSensitivity;
+                    else if(Input.GetKey(KeyCode.RightArrow))
+                        pos += Vector2.right * ContainerKeyMoveSensitivity;
+                    ContainerRect.anchoredPosition = pos;
+                });
         }
     }
 }

@@ -463,7 +463,7 @@ namespace B83.Win32
         {
             if (lParam.message != WM.NCMBUTTONDOWN && lParam.message != WM.MOUSEHWHEEL && lParam.message != WM.MOUSEWHEEL && lParam.message != WM.INPUT && lParam.message != WM.MOUSEFIRST && lParam.message != WM.NCMOUSEMOVE && lParam.message != WM.NCMOUSELEAVE)
             {
-                UnityEngine.Debug.LogWarning("Callback outSide： " + code + "：" + wParam + "：" + lParam.message);
+                // UnityEngine.Debug.LogWarning("Callback outSide： " + code + "：" + wParam + "：" + lParam.message);
             }
 
             if (code == 0 && lParam.message == WM.DROPFILES)

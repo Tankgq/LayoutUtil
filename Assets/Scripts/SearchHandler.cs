@@ -17,7 +17,7 @@ namespace Assets.Scripts
         private void Start()
         {
             SearchInputField.OnValueChangedAsObservable()
-                .Where(txt => ! string.IsNullOrWhiteSpace(txt) && ! txt.Equals(PreviousSearch))
+                .Where(txt => ! txt.Equals(PreviousSearch))
                 .Sample(TimeSpan.FromMilliseconds(500))
                 .Subscribe(txt => {
                     HierarchyManager.Search(txt);
