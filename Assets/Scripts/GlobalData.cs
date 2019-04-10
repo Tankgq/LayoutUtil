@@ -33,6 +33,8 @@ public class GlobalData : MonoBehaviour
     public const string DefaultName = "DisplayObject";
     public const float MinFloat = -100000000;
 
+    public static bool IsDragGui = false;
+
     public static Shader DefaultShader;
 
     public static GameObject DisplayObjectItemPrefab;

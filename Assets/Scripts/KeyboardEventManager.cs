@@ -40,9 +40,11 @@ namespace Assets.Scripts
                 .Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
             Observable.EveryUpdate()
                 .Subscribe(_ => {
-                    if(Input.GetMouseButton(0)) {
-                        ContainerScrollRect.horizontal = true;
-                        ContainerScrollRect.vertical = true;
+                    if(Input.GetMouseButton(0))
+                    {
+                        bool canMove = !GlobalData.IsDragGui;
+                        ContainerScrollRect.horizontal = canMove;
+                        ContainerScrollRect.vertical = canMove;
                     } else {
                         bool isShiftDown = IsShiftDown();
                         ContainerScrollRect.horizontal = isShiftDown;
@@ -59,6 +61,14 @@ namespace Assets.Scripts
                     else if(Input.GetKey(KeyCode.RightArrow))
                         pos += Vector2.right * ContainerKeyMoveSensitivity;
                     ContainerRect.anchoredPosition = pos;
+                });
+            Observable.EveryUpdate()
+                .Where(_ => Input.GetKeyDown(KeyCode.D))
+                .Sample(TimeSpan.FromSeconds(1))
+                .Subscribe(_ =>
+                {
+                    Debugger.ShowDebugging = !Debugger.ShowDebugging;
+                    Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
                 });
         }
     }
