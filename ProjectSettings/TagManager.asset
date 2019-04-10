@@ -7,7 +7,6 @@ TagManager:
   - RootCanvas
   - DisplayObjectContainer
   - HierarchyContainer
-  - TipInfo
   layers:
   - Default
   - TransparentFX

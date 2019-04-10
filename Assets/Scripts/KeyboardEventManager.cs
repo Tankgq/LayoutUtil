@@ -22,9 +22,9 @@ namespace Assets.Scripts
             return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         }
 
-        public static bool IsEnterDown()
+        public static bool IsAltDown()
         {
-            return Input.GetKey(KeyCode.KeypadEnter);
+            return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
         }
 
         private void Start()
@@ -63,8 +63,8 @@ namespace Assets.Scripts
                     ContainerRect.anchoredPosition = pos;
                 });
             Observable.EveryUpdate()
-                .Where(_ => Input.GetKeyDown(KeyCode.D))
-                .Sample(TimeSpan.FromSeconds(1))
+                .Where(_ => Input.GetKeyDown(KeyCode.D) && IsShiftDown() && IsAltDown())
+                .Sample(TimeSpan.FromMilliseconds(100))
                 .Subscribe(_ =>
                 {
                     Debugger.ShowDebugging = !Debugger.ShowDebugging;
