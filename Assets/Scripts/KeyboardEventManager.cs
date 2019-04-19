@@ -71,6 +71,9 @@ namespace Assets.Scripts
                     Debugger.ShowDebugging = !Debugger.ShowDebugging;
                     Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
                 });
+            Observable.EveryUpdate()
+                      .Where(_ => Input.GetKeyDown(KeyCode.F) && IsShiftDown() && IsAltDown())
+                      .Subscribe(_ => Screen.fullScreen = ! Screen.fullScreen);
         }
     }
 }
