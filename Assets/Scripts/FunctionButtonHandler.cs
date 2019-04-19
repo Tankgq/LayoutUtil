@@ -11,6 +11,7 @@ namespace Assets.Scripts
     public class FunctionButtonHandler : MonoBehaviour
     {
         public ContainerManager ContainerManager;
+        public HierarchyManager HierarchyManager;
         public RectTransform ContainerRect;
         public Slider ScaleSlider;
 
@@ -21,42 +22,29 @@ namespace Assets.Scripts
 
         public void OnRemoveButtonClick()
         {
-            ContainerManager.RemoveSelectedDisplayObject();
+            if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
+                ContainerManager.RemoveSelectedDisplayObject();
+            } else {
+                ContainerManager.CheckRemoveCurrentModule();
+            }
         }
 
         public void OnUpButtonClick()
         {
-            if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-            string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-            string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
-            Debug.Log(displayObjectName);
-            int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
-            if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count) return;
-            Transform tmp = GlobalData.CurrentDisplayObjects[idx];
-            GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
-            GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
-            tmp.SetSiblingIndex(idx - 1);
-            List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
-            DisplayObject tmp2 = displayObjectDataList[idx];
-            displayObjectDataList[idx] = displayObjectDataList[idx - 1];
-            displayObjectDataList[idx - 1] = tmp2;
+            if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
+                ContainerManager.MoveCurrentSelectDisplayObjectUp();
+            } else {
+                HierarchyManager.MoveCurrentModuleUp();
+            }
         }
 
         public void OnDownButtonClick()
         {
-            if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-            string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-            string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
-            int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
-            if (idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1) return;
-            Transform tmp = GlobalData.CurrentDisplayObjects[idx];
-            GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
-            GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
-            tmp.SetSiblingIndex(idx + 1);
-            List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
-            DisplayObject tmp2 = displayObjectDataList[idx];
-            displayObjectDataList[idx] = displayObjectDataList[idx + 1];
-            displayObjectDataList[idx + 1] = tmp2;
+            if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
+                ContainerManager.MoveCurrentSelectDisplayObjectDown();
+            } else {
+                HierarchyManager.MoveCurrentModuleDown();
+            }
         }
 
         public void OnImportButtonClick()

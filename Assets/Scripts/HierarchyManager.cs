@@ -199,5 +199,29 @@ namespace Assets.Scripts
             if(idx == -1) return;
             DisplayObjectItems[idx].name = newName;
         }
+
+        public void MoveCurrentModuleUp()
+        {
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+            int idx = GlobalData.ModuleNames.FindIndex(0, name => GlobalData.CurrentModule.Equals(name));
+            if (idx == -1 || idx == 0) return;
+            List<string> moduleNames = GlobalData.ModuleNames;
+            string tmp = moduleNames[idx - 1];
+            moduleNames[idx - 1] = moduleNames[idx];
+            moduleNames[idx] = tmp;
+            RefreshModuleItem();
+        }
+
+        public void MoveCurrentModuleDown()
+        {
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+            int idx = GlobalData.ModuleNames.FindIndex(0, name => GlobalData.CurrentModule.Equals(name));
+            if (idx == -1 || idx == GlobalData.ModuleNames.Count - 1) return;
+            List<string> moduleNames = GlobalData.ModuleNames;
+            string tmp = moduleNames[idx + 1];
+            moduleNames[idx + 1] = moduleNames[idx];
+            moduleNames[idx] = tmp;
+            RefreshModuleItem();
+        }
     }
 }

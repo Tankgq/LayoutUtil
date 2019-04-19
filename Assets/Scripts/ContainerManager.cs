@@ -13,12 +13,13 @@ namespace Assets.Scripts
         private static readonly Dictionary<string, Vector2> SizeDic = new Dictionary<string, Vector2>();
 
         private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
-    
+
         public Text ModuleNameText;
         public Text SelectedDisplayObjectText;
         public Slider ScaleSlider;
 
-        private Transform GetDisplayObject() {
+        private Transform GetDisplayObject()
+        {
             int length = DisplayObjectPool.Count;
             if (length == 0) return Instantiate(GlobalData.DisplayObjectPrefab.transform, this.transform);
             Transform result = DisplayObjectPool[length - 1];
@@ -26,7 +27,8 @@ namespace Assets.Scripts
             return result;
         }
 
-        public void RecycleDisplayObject(Transform displayObject) {
+        public void RecycleDisplayObject(Transform displayObject)
+        {
             if (!displayObject) return;
             DisplayObjectManager.DeSelectDisplayObject(displayObject);
             displayObject.GetComponentInChildren<Toggle>().isOn = false;
@@ -37,8 +39,9 @@ namespace Assets.Scripts
         private void RecycleAllDisplayObject()
         {
             int count = GlobalData.CurrentDisplayObjects.Count;
-            for(int idx = 0; idx < count; ++ idx) {
-            
+            for (int idx = 0; idx < count; ++idx)
+            {
+
                 RecycleDisplayObject(GlobalData.CurrentDisplayObjects[idx]);
             }
             GlobalData.CurrentDisplayObjects.Clear();
@@ -62,28 +65,31 @@ namespace Assets.Scripts
                 GlobalData.CurrentDisplayObjectDic[$"{GlobalData.CurrentModule}_{displayObject.name}"] = displayObject;
             }
         }
-    
-        private void Start() {
-// #if UNITY_EDITOR
-// #if UNITY_EDITOR_WIN
-//         AddDisplayObject("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
-// #else
-//         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
-// #endif
-// #endif
+
+        private void Start()
+        {
+            // #if UNITY_EDITOR
+            // #if UNITY_EDITOR_WIN
+            //         AddDisplayObject("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
+            // #else
+            //         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
+            // #endif
+            // #endif
             GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
                 .Subscribe(count =>
                 {
                     foreach (Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
                         displayObjectItem.GetComponent<Toggle>().isOn = false;
                     if (count == 0) return;
-                    foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+                    foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+                    {
                         pair.Value.GetComponent<Toggle>().isOn = true;
                     }
                 });
 
             GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
-                .Subscribe(module => {
+                .Subscribe(module =>
+                {
                     RecycleAllDisplayObject();
                     if (string.IsNullOrEmpty(module))
                     {
@@ -92,7 +98,8 @@ namespace Assets.Scripts
                     }
                     ModuleNameText.text = module;
                     Observable.Timer(TimeSpan.Zero)
-                        .Subscribe(_ => {
+                        .Subscribe(_ =>
+                        {
                             RectTransform rt = ModuleNameText.GetComponent<RectTransform>();
                             RectTransform rt2 = SelectedDisplayObjectText.GetComponent<RectTransform>();
                             rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30, rt2.anchoredPosition.y);
@@ -103,31 +110,38 @@ namespace Assets.Scripts
                     GetComponent<RectTransform>().localPosition = Vector2.zero;
                     LoadAllDisplayObject();
                 });
-            
+
             GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-                .Subscribe(count => {
-                    if(count == 0) {
+                .Subscribe(count =>
+                {
+                    if (count == 0)
+                    {
                         SelectedDisplayObjectText.text = "null";
                         return;
                     }
                     string text = "";
-                    foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+                    foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+                    {
                         text += $"{pair.Value.name}, ";
                     }
                     SelectedDisplayObjectText.text = text.Substring(0, text.Length - 2);
                 });
         }
 
-        public static Texture2D LoadTexture2DbyIo(string imageUrl) {
+        public static Texture2D LoadTexture2DbyIo(string imageUrl)
+        {
             byte[] bytes = Utils.ReadFile(imageUrl);
             Texture2D texture2D = new Texture2D((int)GlobalData.DefaultSize.x, (int)GlobalData.DefaultSize.y);
             texture2D.LoadImage(bytes);
             return texture2D;
         }
 
-        public Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
-            if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
-                if(GlobalData.Modules.Count == 0) {
+        public Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null)
+        {
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule))
+            {
+                if (GlobalData.Modules.Count == 0)
+                {
                     DialogManager.ShowInfo("请先创建一个 module", 320);
                     return null;
                 }
@@ -135,13 +149,18 @@ namespace Assets.Scripts
                 return null;
             }
             Material material = null;
-            if (!string.IsNullOrEmpty(imageUrl)) {
-                if (MaterialDic.ContainsKey(imageUrl)) {
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                if (MaterialDic.ContainsKey(imageUrl))
+                {
                     material = MaterialDic[imageUrl];
                     if (size == Vector2.zero) size = SizeDic[imageUrl];
-                } else {
+                }
+                else
+                {
                     Texture2D texture2 = LoadTexture2DbyIo(imageUrl);
-                    material = new Material(GlobalData.DefaultShader) {
+                    material = new Material(GlobalData.DefaultShader)
+                    {
                         mainTexture = texture2
                     };
                     MaterialDic[imageUrl] = material;
@@ -166,24 +185,26 @@ namespace Assets.Scripts
             RectTransform rect = imageElement.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(size.x, size.y);
             pos += GlobalData.OriginPoint;
-            pos.y = - pos.y;
+            pos.y = -pos.y;
             rect.anchoredPosition = pos;
             GlobalData.Modules[GlobalData.CurrentModule].Add(DisplayObject.ConvertTo(imageElement));
             return imageElement;
         }
-    
+
         public void RemoveSelectedDisplayObject()
         {
             int count = GlobalData.CurrentSelectDisplayObjectDic.Count;
-            if (count == 0) {
-//            MessageBoxUtil.Show("请先选择要删除的对象");
+            if (count == 0)
+            {
+                //            MessageBoxUtil.Show("请先选择要删除的对象");
                 DialogManager.ShowInfo("请先选择要删除的对象");
                 return;
             }
 
             if (GlobalData.CurrentDisplayObjects == null) return;
             int length = GlobalData.CurrentDisplayObjects.Count;
-            foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+            foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+            {
                 RecycleDisplayObject(pair.Value);
                 if (GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key))
                     GlobalData.DisplayObjectPathDic.Remove(pair.Key);
@@ -197,14 +218,34 @@ namespace Assets.Scripts
             GlobalData.CurrentSelectDisplayObjectDic.Clear();
         }
 
-        public static void CreateModule() {
-            DialogManager.ShowGetValue("请输入 module 名:", "module", txt => {
+        public void CheckRemoveCurrentModule()
+        {
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule))
+            {
+                DialogManager.ShowInfo("请先打开一个 module");
+                return;
+            }
+            DialogManager.ShowQuestion($"是否删除当前打开的 module: {GlobalData.CurrentModule}", () =>
+            {
+                string module = GlobalData.CurrentModule;
+                GlobalData.CurrentModule = null;
+                int idx = GlobalData.ModuleNames.FindIndex(0, name => module.Equals(name));
+                if (idx != -1) GlobalData.ModuleNames.RemoveAt(idx);
+                GlobalData.Modules.Remove(module);
+            }, null);
+        }
+
+        public static void CreateModule()
+        {
+            DialogManager.ShowGetValue("请输入 module 名:", "module", txt =>
+            {
                 if (string.IsNullOrWhiteSpace(txt))
                 {
                     DialogManager.ShowError("请输入正确的 module", 0, 0);
                     return;
                 }
-                if(GlobalData.Modules.ContainsKey(txt)) {
+                if (GlobalData.Modules.ContainsKey(txt))
+                {
                     DialogManager.ShowError("module 已存在", 0, 0);
                     return;
                 }
@@ -215,12 +256,14 @@ namespace Assets.Scripts
             });
         }
 
-        public static void UpdateCurrentDisplayObjectData() {
+        public static void UpdateCurrentDisplayObjectData()
+        {
             Debug.Log($"GlobalData.CurrentModule: {GlobalData.CurrentModule}, GlobalData.Modules: {GlobalData.Modules}");
-            if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+            if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
             List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
             int count = GlobalData.CurrentDisplayObjects.Count;
-            for(int idx = 0; idx < count; ++ idx) {
+            for (int idx = 0; idx < count; ++idx)
+            {
                 Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
                 DisplayObject displayObjectData = displayObjectDataList[idx];
                 displayObjectData.Name = displayObject.name;
@@ -232,6 +275,41 @@ namespace Assets.Scripts
                 displayObjectData.Width = size.x;
                 displayObjectData.Height = size.y;
             }
+        }
+
+        public void MoveCurrentSelectDisplayObjectUp()
+        {
+            if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
+            string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+            string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
+            Debug.Log(displayObjectName);
+            int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
+            if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count) return;
+            Transform tmp = GlobalData.CurrentDisplayObjects[idx];
+            GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
+            GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
+            tmp.SetSiblingIndex(idx - 1);
+            List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+            DisplayObject tmp2 = displayObjectDataList[idx];
+            displayObjectDataList[idx] = displayObjectDataList[idx - 1];
+            displayObjectDataList[idx - 1] = tmp2;
+        }
+
+        public void MoveCurrentSelectDisplayObjectDown()
+        {
+            if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
+            string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+            string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
+            int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
+            if (idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1) return;
+            Transform tmp = GlobalData.CurrentDisplayObjects[idx];
+            GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
+            GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
+            tmp.SetSiblingIndex(idx + 1);
+            List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+            DisplayObject tmp2 = displayObjectDataList[idx];
+            displayObjectDataList[idx] = displayObjectDataList[idx + 1];
+            displayObjectDataList[idx + 1] = tmp2;
         }
     }
 }

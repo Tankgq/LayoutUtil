@@ -12,11 +12,12 @@ namespace Assets.Scripts
     {
         public static byte[] ReadFile(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath) || ! File.Exists(filePath)) return null;
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath)) return null;
             byte[] bytes = null;
             try
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
                     fs.Seek(0, SeekOrigin.Begin);
                     bytes = new byte[fs.Length];
                     fs.Read(bytes, 0, (int)fs.Length);
@@ -25,11 +26,11 @@ namespace Assets.Scripts
             }
             catch (Exception e)
             {
-    //            MessageBoxUtil.Show($"{e}");
+                //            MessageBoxUtil.Show($"{e}");
                 DialogManager.ShowError($"{e}");
                 return null;
             }
-            
+
             return bytes;
         }
 
@@ -41,7 +42,8 @@ namespace Assets.Scripts
             if (!isExist) return false;
             try
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write)) {
+                using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
                     fs.Seek(0, SeekOrigin.Begin);
                     fs.Write(content, 0, (int)content.Length);
                     fs.Flush();
@@ -50,7 +52,7 @@ namespace Assets.Scripts
             }
             catch (Exception e)
             {
-    //            MessageBoxUtil.Show($"{e}");
+                //            MessageBoxUtil.Show($"{e}");
                 DialogManager.ShowError($"{e}");
                 return false;
             }
@@ -92,11 +94,26 @@ namespace Assets.Scripts
             return groups.Count < 2 ? displayObjectKey : groups[1].Value;
         }
 
-
         public static bool IsFocusOnInputText()
         {
             GameObject focusGameObject = EventSystem.current.currentSelectedGameObject;
             return focusGameObject && focusGameObject.GetComponent<InputField>() != null;
+        }
+
+        public static Vector2 GetAnchoredPositionInCanvas(Transform element)
+        {
+            Vector2 pos = Camera.main.WorldToScreenPoint(element.position);
+            RectTransform crt = GlobalData.RootCanvas.transform.GetComponent<RectTransform>();
+            RectTransform rt = element.GetComponent<RectTransform>();
+            pos.x = pos.x - crt.rect.width * crt.pivot.x;
+            pos.y = pos.y - crt.rect.height * crt.pivot.y;
+            return pos;
+        }
+
+        public static bool IsPointOverGameObject(GameObject go)
+        {
+            if (!go) return false;
+            return RectTransformUtility.RectangleContainsScreenPoint(go.GetComponent<RectTransform>(), Input.mousePosition, Camera.main);
         }
     }
 }

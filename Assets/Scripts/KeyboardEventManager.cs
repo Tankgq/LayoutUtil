@@ -51,6 +51,7 @@ namespace Assets.Scripts
                         ContainerScrollRect.vertical = ! isShiftDown;
                         ContainerScrollRect.scrollSensitivity = Math.Abs(ContainerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
                     }
+                    if(Utils.IsFocusOnInputText()) return;
                     Vector2 pos = ContainerRect.anchoredPosition;
                     if(Input.GetKey(KeyCode.UpArrow))
                         pos += Vector2.up * ContainerKeyMoveSensitivity;

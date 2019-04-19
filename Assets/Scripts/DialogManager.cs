@@ -99,7 +99,7 @@ namespace Assets.Scripts
                                                 int dialogHeight = 0) {
             DialogManager dialogManager = ShowDialog();
             dialogManager.SetSize(dialogWidth, dialogHeight);
-            dialogManager.SetDialogType(ErrorType);
+            dialogManager.SetDialogType(QuestionType);
             dialogManager.SetDialogMessage(message);
             dialogManager.SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick);
             dialogManager.SetRightButtonState(true, rightButtonTxt, onRightButtonClick);
