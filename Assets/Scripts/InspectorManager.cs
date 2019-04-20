@@ -141,10 +141,10 @@ namespace Assets.Scripts
 
             var display = DisplayObject.ConvertTo(_displayObject);
             NameInputField.text = display.Name;
-            XInputField.text = $"{display.X}";
-            YInputField.text = $"{display.Y}";
-            WidthInputField.text = $"{display.Width}";
-            HeightInputField.text = $"{display.Height}";
+            XInputField.text = $"{display.X:F1}";
+            YInputField.text = $"{display.Y:F1}";
+            WidthInputField.text = $"{display.Width:F1}";
+            HeightInputField.text = $"{display.Height:F1}";
 
             _disposable = _displayObject.GetComponent<RectTransform>()
                 .ObserveEveryValueChanged(rect => rect.anchoredPosition)
@@ -152,8 +152,8 @@ namespace Assets.Scripts
                 .Subscribe(anchoredPosition =>
                 {
                     var pos = DisplayObject.ConvertTo(anchoredPosition);
-                    XInputField.text = $"{pos.x}";
-                    YInputField.text = $"{pos.y}";
+                    XInputField.text = $"{pos.x:F1}";
+                    YInputField.text = $"{pos.y:F1}";
                 });
         }
     }

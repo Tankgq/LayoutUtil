@@ -168,6 +168,22 @@ namespace Assets.Scripts
                     if (size == Vector2.zero) size = SizeDic[imageUrl];
                 }
             }
+            if(!string.IsNullOrEmpty(imageUrl) && KeyboardEventManager.IsAltDown()) {
+                int length = GlobalData.CurrentDisplayObjects.Count;
+                for(int idx = length - 1; idx >= 0; -- idx) {
+                    Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
+                    if(Utils.IsPointOverGameObject(displayObject.gameObject)) {
+                        Debug.Log($"Drag in {displayObject.name}");
+                        string displayObjectKey2 = $"{GlobalData.CurrentModule}_{displayObject.name}";
+                        GlobalData.DisplayObjectPathDic[displayObjectKey2] = imageUrl;
+                        Image image2 = displayObject.GetComponent<Image>();
+                        image2.material = material;
+                        image2.color = Color.white;
+                        return displayObject;
+                    }
+                }
+                return null;
+            }
             Transform imageElement = GetDisplayObject();
             imageElement.SetParent(this.transform);
             imageElement.GetComponent<RectTransform>().localScale = Vector3.one;
@@ -176,6 +192,10 @@ namespace Assets.Scripts
                 ? (string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + (++GlobalData.UniqueId) : Utils.GetFileNameInPath(imageUrl))
                 : elementName;
             string displayObjectKey = $"{GlobalData.CurrentModule}_{imageElement.name}";
+            if(GlobalData.CurrentDisplayObjectDic.ContainsKey(displayObjectKey)) {
+                imageElement.name = imageElement.name + (++ GlobalData.UniqueId);
+                displayObjectKey = $"{GlobalData.CurrentModule}_{imageElement.name}";
+            }
             GlobalData.DisplayObjectPathDic[displayObjectKey] = imageUrl;
             GlobalData.CurrentDisplayObjects.Add(imageElement);
             GlobalData.CurrentDisplayObjectDic[displayObjectKey] = imageElement;
@@ -196,14 +216,14 @@ namespace Assets.Scripts
             int count = GlobalData.CurrentSelectDisplayObjectDic.Count;
             if (count == 0)
             {
-                //            MessageBoxUtil.Show("请先选择要删除的对象");
                 DialogManager.ShowInfo("请先选择要删除的对象");
                 return;
             }
 
             if (GlobalData.CurrentDisplayObjects == null) return;
             int length = GlobalData.CurrentDisplayObjects.Count;
-            foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+            List<KeyValuePair<string, Transform>> currentSelectDisplays = GlobalData.CurrentSelectDisplayObjectDic.ToList();
+            foreach (var pair in currentSelectDisplays)
             {
                 RecycleDisplayObject(pair.Value);
                 if (GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key))
@@ -288,7 +308,8 @@ namespace Assets.Scripts
             Transform tmp = GlobalData.CurrentDisplayObjects[idx];
             GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
             GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
-            tmp.SetSiblingIndex(idx - 1);
+            int slblingIndex = tmp.GetSiblingIndex();
+            tmp.SetSiblingIndex(slblingIndex - 1);
             List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
             DisplayObject tmp2 = displayObjectDataList[idx];
             displayObjectDataList[idx] = displayObjectDataList[idx - 1];
@@ -305,7 +326,8 @@ namespace Assets.Scripts
             Transform tmp = GlobalData.CurrentDisplayObjects[idx];
             GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
             GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
-            tmp.SetSiblingIndex(idx + 1);
+            int slblingIndex = tmp.GetSiblingIndex();
+            tmp.SetSiblingIndex(slblingIndex + 1);
             List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
             DisplayObject tmp2 = displayObjectDataList[idx];
             displayObjectDataList[idx] = displayObjectDataList[idx + 1];

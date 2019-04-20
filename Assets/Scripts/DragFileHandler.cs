@@ -12,7 +12,7 @@ namespace Assets.Scripts
     {
         public ContainerManager ContainerManager;
         private UnityDragAndDropHook hook;
-    
+
         private void Start()
         {
             hook = new UnityDragAndDropHook();
@@ -42,21 +42,30 @@ namespace Assets.Scripts
             foreach (var path in aFiles)
             {
                 sb.Append(path);
-                try {
-                    if (REG_IMAGE_SUFFIX.IsMatch(path)) {
-                        ContainerManager.AddDisplayObject(path,
-                            new Vector2(aPos.x - GlobalData.OriginPoint.x, aPos.y - GlobalData.OriginPoint.y),
-                            Vector2.zero);
+                try
+                {
+                    if (REG_IMAGE_SUFFIX.IsMatch(path))
+                    {
+                        RectTransform rt = ContainerManager.GetComponent<RectTransform>();
+                        Vector2 pos = rt.anchoredPosition;
+                        Vector2 mousePos = Input.mousePosition;
+                        mousePos.y = Screen.height - mousePos.y;
+                        pos.x = mousePos.x - pos.x;
+                        pos.y = mousePos.y + pos.y;
+                        pos /= rt.localScale.x;
+                        pos -= GlobalData.OriginPoint;
+                        ContainerManager.AddDisplayObject(path, pos, Vector2.zero);
                     }
                     sb.Append(" isMatch.");
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     DialogManager.ShowError(e.ToString());
                 }
                 sb.Append("\n");
             }
 
-//        MessageBoxUtil.Show(sb.ToString());
+            //        MessageBoxUtil.Show(sb.ToString());
         }
     }
 }

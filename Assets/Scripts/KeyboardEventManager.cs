@@ -18,7 +18,8 @@ namespace Assets.Scripts
             return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         }
 
-        public static bool IsControlDown() {
+        public static bool IsControlDown()
+        {
             return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         }
 
@@ -30,38 +31,72 @@ namespace Assets.Scripts
         private void Start()
         {
             Observable.EveryUpdate()
-                .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
+                .Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
                 .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObject());
             Observable.EveryUpdate()
-                .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
+                .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
                 .Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
             Observable.EveryUpdate()
                 .Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
                 .Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
             Observable.EveryUpdate()
-                .Subscribe(_ => {
-                    if(Input.GetMouseButton(0))
+                .Subscribe(_ =>
+                {
+                    if (Input.GetMouseButton(0))
                     {
                         bool canMove = !GlobalData.IsDragGui;
                         ContainerScrollRect.horizontal = canMove;
                         ContainerScrollRect.vertical = canMove;
-                    } else {
+                    }
+                    else if (IsControlDown())
+                    {
+                        ContainerScrollRect.horizontal = false;
+                        ContainerScrollRect.vertical = false;
+                    }
+                    else
+                    {
                         bool isShiftDown = IsShiftDown();
                         ContainerScrollRect.horizontal = isShiftDown;
-                        ContainerScrollRect.vertical = ! isShiftDown;
+                        ContainerScrollRect.vertical = !isShiftDown;
                         ContainerScrollRect.scrollSensitivity = Math.Abs(ContainerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
                     }
-                    if(Utils.IsFocusOnInputText()) return;
-                    Vector2 pos = ContainerRect.anchoredPosition;
-                    if(Input.GetKey(KeyCode.UpArrow))
-                        pos += Vector2.up * ContainerKeyMoveSensitivity;
-                    if(Input.GetKey(KeyCode.DownArrow))
-                        pos += Vector2.down * ContainerKeyMoveSensitivity;
-                    else if(Input.GetKey(KeyCode.LeftArrow))
-                        pos += Vector2.left * ContainerKeyMoveSensitivity;
-                    else if(Input.GetKey(KeyCode.RightArrow))
-                        pos += Vector2.right * ContainerKeyMoveSensitivity;
-                    ContainerRect.anchoredPosition = pos;
+                    Vector2 delta = Vector2.zero;
+                    if (Input.GetKey(KeyCode.UpArrow))
+                    {
+                        delta += Vector2.up * ContainerKeyMoveSensitivity;
+                    }
+                    if (Input.GetKey(KeyCode.DownArrow))
+                    {
+                        delta += Vector2.down * ContainerKeyMoveSensitivity;
+                    }
+                    if (Input.GetKey(KeyCode.LeftArrow))
+                    {
+                        delta += Vector2.left * ContainerKeyMoveSensitivity;
+                    }
+                    if (Input.GetKey(KeyCode.RightArrow))
+                    {
+                        delta += Vector2.right * ContainerKeyMoveSensitivity;
+                    }
+                    if (!Utils.IsFocusOnInputText() && (delta.x != 0 || delta.y != 0))
+                    {
+                        Vector2 pos = ContainerRect.anchoredPosition;
+                        ContainerRect.anchoredPosition = pos + delta;
+                        Debug.Log($"Container x: {ContainerRect.anchoredPosition.x}, y: {ContainerRect.anchoredPosition.y}");
+                    }
+                });
+            Observable.EveryUpdate()
+                .Where(_ => Input.GetKeyDown(KeyCode.N) && IsControlDown())
+                .Subscribe(_ =>
+                {
+                    RectTransform rt = ContainerManager.GetComponent<RectTransform>();
+                    Vector2 pos = rt.anchoredPosition;
+                    Vector2 mousePos = Input.mousePosition;
+                    mousePos.y = Screen.height - mousePos.y;
+                    pos.x = mousePos.x - pos.x;
+                    pos.y = mousePos.y + pos.y;
+                    pos /= rt.localScale.x;
+                    pos -= GlobalData.OriginPoint;
+                    ContainerManager.AddDisplayObject(null, pos, GlobalData.DefaultSize);
                 });
             Observable.EveryUpdate()
                 .Where(_ => Input.GetKeyDown(KeyCode.D) && IsShiftDown() && IsAltDown())
@@ -73,7 +108,7 @@ namespace Assets.Scripts
                 });
             Observable.EveryUpdate()
                       .Where(_ => Input.GetKeyDown(KeyCode.F) && IsShiftDown() && IsAltDown())
-                      .Subscribe(_ => Screen.fullScreen = ! Screen.fullScreen);
+                      .Subscribe(_ => Screen.fullScreen = !Screen.fullScreen);
         }
     }
 }
