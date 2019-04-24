@@ -47,9 +47,8 @@ namespace Assets.Scripts
                     if (REG_IMAGE_SUFFIX.IsMatch(path))
                     {
                         RectTransform rt = ContainerManager.GetComponent<RectTransform>();
+                        Vector2 mousePos = new Vector2(aPos.x, aPos.y);
                         Vector2 pos = rt.anchoredPosition;
-                        Vector2 mousePos = Input.mousePosition;
-                        mousePos.y = Screen.height - mousePos.y;
                         pos.x = mousePos.x - pos.x;
                         pos.y = mousePos.y + pos.y;
                         pos /= rt.localScale.x;
@@ -64,8 +63,6 @@ namespace Assets.Scripts
                 }
                 sb.Append("\n");
             }
-
-            //        MessageBoxUtil.Show(sb.ToString());
         }
     }
 }

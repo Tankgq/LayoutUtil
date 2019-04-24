@@ -1,72 +1,72 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class DisplayObject
-    {
-        public string Name { get; set; }
-        
-        public float X { get; set; }
-        
-        public float Y { get; set; }
-        
-        public float Width { get; set; }
-        
-        public float Height { get; set; }
+	public class DisplayObject
+	{
+		public string name { get; set; }
 
-        public static DisplayObject ConvertTo(Transform displayObject)
-        {
-            if (!displayObject) return null;
+		public float x { get; set; }
 
-            var rect = displayObject.GetComponent<RectTransform>();
-            var pos = rect.anchoredPosition;
-            var size = rect.sizeDelta;
+		public float y { get; set; }
 
-            var result = new DisplayObject
-            {
-                Name = displayObject.name,
-                X = ConvertX(pos.x),
-                Y = ConvertY(pos.y),
-                Width = size.x,
-                Height = size.y
-            };
-            return result;
-        }
+		public float width { get; set; }
 
-        public bool InvConvertTo(Transform displayObject) {
-            if(! displayObject) return false;
-            displayObject.name = Name;
-            var rect = displayObject.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(Width, Height);
-            Debug.Log($"x: {X}, invX: {InvConvertX(X)}");
-            Debug.Log($"x: {Y}, invX: {InvConvertY(Y)}");
-            rect.anchoredPosition = new Vector2(InvConvertX(X), InvConvertY(Y));
-            return true;
-        }
+		public float height { get; set; }
 
-        public static Vector2 ConvertTo(Vector2 pos)
-        {
-            return new Vector2(ConvertX(pos.x), ConvertY(pos.y));
-        }
+		public static DisplayObject ConvertTo(Transform displayObject)
+		{
+			if (!displayObject) return null;
 
-        public static float ConvertX(float x)
-        {
-            return x - GlobalData.OriginPoint.x;
-        }
+			var rect = displayObject.GetComponent<RectTransform>();
+			var pos = rect.anchoredPosition;
+			var size = rect.sizeDelta;
 
-        public static float InvConvertX(float x)
-        {
-            return x + GlobalData.OriginPoint.x;
-        }
+			var result = new DisplayObject
+			{
+				name = displayObject.name,
+				x = ConvertX(pos.x),
+				y = ConvertY(pos.y),
+				width = size.x,
+				height = size.y
+			};
+			return result;
+		}
 
-        public static float ConvertY(float y)
-        {
-            return -(y + GlobalData.OriginPoint.y);
-        }
+		public bool InvConvertTo(Transform displayObject)
+		{
+			if (!displayObject) return false;
+			displayObject.name = name;
+			var rect = displayObject.GetComponent<RectTransform>();
+			rect.sizeDelta = new Vector2(width, height);
+			rect.anchoredPosition = new Vector2(InvConvertX(x), InvConvertY(y));
+			return true;
+		}
 
-        public static float InvConvertY(float y)
-        {
-            return -(y + GlobalData.OriginPoint.y);
-        }
-    }
+		public static Vector2 ConvertTo(Vector2 pos)
+		{
+			return new Vector2(ConvertX(pos.x), ConvertY(pos.y));
+		}
+
+		public static float ConvertX(float x)
+		{
+			return (float)Math.Round(x - GlobalData.OriginPoint.x);
+		}
+
+		public static float InvConvertX(float x)
+		{
+			return (float)Math.Round(x + GlobalData.OriginPoint.x);
+		}
+
+		public static float ConvertY(float y)
+		{
+			return (float)Math.Round(-(y + GlobalData.OriginPoint.y));
+		}
+
+		public static float InvConvertY(float y)
+		{
+			return (float)Math.Round(-(y + GlobalData.OriginPoint.y));
+		}
+	}
 }
