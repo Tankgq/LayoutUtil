@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Object = System.Object;
 
 namespace Assets.Scripts
 {
@@ -64,19 +63,12 @@ namespace Assets.Scripts
 				DisplayObject displayObjectData = displayObjectDataList[idx];
 				displayObjectData.InvConvertTo(displayObject);
 				GlobalData.CurrentDisplayObjects.Add(displayObject);
-				GlobalData.CurrentDisplayObjectDic[$"{GlobalData.CurrentModule}_{displayObject.name}"] = displayObject;
+				GlobalData.CurrentDisplayObjectDic[displayObject.name] = displayObject;
 			}
 		}
 
 		private void Start()
 		{
-			// #if UNITY_EDITOR
-			// #if UNITY_EDITOR_WIN
-			//         AddDisplayObject("X:/Users/TankGq/Desktop/img.jpg", new Vector2(300f, 300f), Vector2.zero);
-			// #else
-			//         AddDisplayObject("/Users/Tank/Documents/OneDrive/Documents/icon.png", new Vector2(100f, 0f), Vector2.zero);
-			// #endif
-			// #endif
 			GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
 				.Subscribe(count =>
 				{
@@ -170,7 +162,7 @@ namespace Assets.Scripts
 					if (size == Vector2.zero) size = SizeDic[imageUrl];
 				}
 			}
-			if (!string.IsNullOrEmpty(imageUrl) && KeyboardEventManager.IsAltDown())
+			if (!string.IsNullOrEmpty(imageUrl) && KeyboardEventManager.GetAlt())
 			{
 				int length = GlobalData.CurrentDisplayObjects.Count;
 				for (int idx = length - 1; idx >= 0; --idx)
@@ -178,7 +170,6 @@ namespace Assets.Scripts
 					Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
 					if (Utils.IsPointOverGameObject(displayObject.gameObject))
 					{
-						Debug.Log($"Drag in {displayObject.name}");
 						string displayObjectKey2 = $"{GlobalData.CurrentModule}_{displayObject.name}";
 						GlobalData.DisplayObjectPathDic[displayObjectKey2] = imageUrl;
 						Image image2 = displayObject.GetComponent<Image>();
@@ -197,14 +188,14 @@ namespace Assets.Scripts
 				? (string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + (++GlobalData.UniqueId) : Utils.GetFileNameInPath(imageUrl))
 				: elementName;
 			string displayObjectKey = $"{GlobalData.CurrentModule}_{imageElement.name}";
-			if (GlobalData.CurrentDisplayObjectDic.ContainsKey(displayObjectKey))
+			if (GlobalData.CurrentDisplayObjectDic.ContainsKey(imageElement.name))
 			{
 				imageElement.name = imageElement.name + (++GlobalData.UniqueId);
 				displayObjectKey = $"{GlobalData.CurrentModule}_{imageElement.name}";
 			}
 			GlobalData.DisplayObjectPathDic[displayObjectKey] = imageUrl;
 			GlobalData.CurrentDisplayObjects.Add(imageElement);
-			GlobalData.CurrentDisplayObjectDic[displayObjectKey] = imageElement;
+			GlobalData.CurrentDisplayObjectDic[imageElement.name] = imageElement;
 			Image image = imageElement.GetComponent<Image>();
 			image.material = material;
 			image.color = (material ? Color.white : Color.clear);
@@ -410,5 +401,5 @@ namespace Assets.Scripts
 					}
 				});
 		}
-	}
+    }
 }

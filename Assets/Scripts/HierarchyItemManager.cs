@@ -27,16 +27,14 @@ namespace Assets.Scripts
             }
             if (ItemType != 2) return;
             if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-            string displayObjectKey = $"{GlobalData.CurrentModule}_{gameObject.name}";
-            Debug.Log(displayObjectKey);
-            Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjectKey];
+            Transform displayObject = GlobalData.CurrentDisplayObjectDic[gameObject.name];
             if (displayObject.parent == null) return;
-            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
+            bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(gameObject.name);
             if (isSelect) {
-                if (KeyboardEventManager.IsControlDown())
-                    GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+                if (KeyboardEventManager.GetControl())
+                    GlobalData.CurrentSelectDisplayObjectDic.Remove(gameObject.name);
             } else {
-                if (!KeyboardEventManager.IsShiftDown())
+                if (!KeyboardEventManager.GetShift())
                     DeselectAllDisplayObjectItem();
                 GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, displayObject);
             }

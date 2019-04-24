@@ -13,20 +13,37 @@ namespace Assets.Scripts
 		public float ContainerKeyMoveSensitivity;
 		public Slider ScaleSlider;
 
-		public static bool IsShiftDown()
+		public static bool GetShift()
 		{
 			return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 		}
 
-		public static bool IsControlDown()
+		public static bool GetShiftDown()
+		{
+			return Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
+		}
+
+		public static bool GetControl()
 		{
 			return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
 		}
 
-		public static bool IsAltDown()
+		public static bool GetControlDown()
+		{
+			return Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl);
+		}
+
+		public static bool GetAlt()
 		{
 			return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
 		}
+
+		public static bool GetAltDown()
+		{
+			return Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt);
+		}
+
+		private Vector3 _ContainerOffset = Vector3.zero;
 
 		private void Start()
 		{
@@ -43,25 +60,34 @@ namespace Assets.Scripts
 				.Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
 				.Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
 			Observable.EveryUpdate()
-				.Where(_ => IsControlDown() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
+				.Where(_ => GetControl() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
 				.Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
 			Observable.EveryUpdate()
 				.Subscribe(_ =>
 				{
-					if (Input.GetMouseButton(0))
+					/* if (Input.GetMouseButton(0))
 					{
 						bool canMove = !GlobalData.IsDragGui;
 						ContainerScrollRect.horizontal = canMove;
 						ContainerScrollRect.vertical = canMove;
 					}
-					else if (IsControlDown())
+					else */if (GetControl() || Input.GetMouseButton(0))
 					{
 						ContainerScrollRect.horizontal = false;
 						ContainerScrollRect.vertical = false;
 					}
+					else if(Input.GetMouseButton(2)) {
+						ContainerScrollRect.horizontal = true;
+						ContainerScrollRect.vertical = true;
+						if(Input.GetMouseButtonDown(2)) {
+							_ContainerOffset = ContainerRect.anchoredPosition3D - Input.mousePosition;
+						} else {
+							ContainerRect.anchoredPosition3D = Input.mousePosition + _ContainerOffset;
+						}
+					}
 					else
 					{
-						bool isShiftDown = IsShiftDown();
+						bool isShiftDown = GetShift();
 						ContainerScrollRect.horizontal = isShiftDown;
 						ContainerScrollRect.vertical = !isShiftDown;
 						ContainerScrollRect.scrollSensitivity = Math.Abs(ContainerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
@@ -87,11 +113,10 @@ namespace Assets.Scripts
 					{
 						Vector2 pos = ContainerRect.anchoredPosition;
 						ContainerRect.anchoredPosition = pos + delta;
-						Debug.Log($"Container x: {ContainerRect.anchoredPosition.x}, y: {ContainerRect.anchoredPosition.y}");
 					}
 				});
 			Observable.EveryUpdate()
-				.Where(_ => Input.GetKeyDown(KeyCode.N) && IsControlDown())
+				.Where(_ => Input.GetKeyDown(KeyCode.N) && GetControl())
 				.Subscribe(_ =>
 				{
 					RectTransform rt = ContainerManager.GetComponent<RectTransform>();
@@ -105,7 +130,7 @@ namespace Assets.Scripts
 					ContainerManager.AddDisplayObject(null, pos, GlobalData.DefaultSize);
 				});
 			Observable.EveryUpdate()
-				.Where(_ => Input.GetKeyDown(KeyCode.D) && IsShiftDown() && IsAltDown())
+				.Where(_ => Input.GetKeyDown(KeyCode.D) && GetShift() && GetAlt())
 				.Sample(TimeSpan.FromMilliseconds(100))
 				.Subscribe(_ =>
 				{
@@ -113,7 +138,7 @@ namespace Assets.Scripts
 					Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
 				});
 			Observable.EveryUpdate()
-					  .Where(_ => Input.GetKeyDown(KeyCode.F) && IsShiftDown() && IsAltDown())
+					  .Where(_ => Input.GetKeyDown(KeyCode.F) && GetShift() && GetAlt())
 					  .Subscribe(_ => Screen.fullScreen = !Screen.fullScreen);
 		}
 	}

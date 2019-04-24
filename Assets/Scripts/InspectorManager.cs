@@ -27,7 +27,7 @@ namespace Assets.Scripts
 				.Where(isFocus => !string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && _displayObject && !isFocus && !string.IsNullOrEmpty(NameInputField.text))
 				.Subscribe(_ =>
 				{
-					string displayObjectKey = $"{GlobalData.CurrentModule}_{NameInputField.text}";
+					string displayObjectKey = NameInputField.text;
 					string originName = GlobalData.CurrentSelectDisplayObjectDic.First().Value.name;
 					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(displayObjectKey))
 					{

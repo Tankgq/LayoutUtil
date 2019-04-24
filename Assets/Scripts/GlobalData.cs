@@ -15,7 +15,11 @@ namespace Assets.Scripts
         {
             if (!displayObject) return;
             Observable.Timer(TimeSpan.Zero)
-                .Subscribe(_ => CurrentSelectDisplayObjectDic[$"{currentModule}_{displayObject.name}"] = displayObject);
+                .Subscribe(_ => {
+                    if(string.IsNullOrEmpty(currentModule) || ! currentModule.Equals(GlobalData.CurrentModule))
+                        return;
+                    CurrentSelectDisplayObjectDic[displayObject.name] = displayObject;
+                });
         }
 
         public static readonly List<Transform> CurrentDisplayObjects = new List<Transform>();
@@ -42,6 +46,8 @@ namespace Assets.Scripts
         public static GameObject ModuleItemPrefab;
         public static GameObject DialogPrefab;
         public static GameObject TipPrefab;
+        public static GameObject SelectPrefab;
+        public static GameObject LinePrefab;
 
         public static GameObject RootCanvas;
         public static GameObject DisplayObjectContainer;
@@ -55,6 +61,8 @@ namespace Assets.Scripts
             ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");
             DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");
             TipPrefab = Resources.Load<GameObject>("Prefabs/Tip");
+            SelectPrefab = Resources.Load<GameObject>("Prefabs/Select-Rect");
+            LinePrefab = Resources.Load<GameObject>("Prefabs/Line");
             RootCanvas = GameObject.FindGameObjectWithTag("RootCanvas");
             DisplayObjectContainer = GameObject.FindGameObjectWithTag("DisplayObjectContainer");
             HierarchyContainer = GameObject.FindGameObjectWithTag("HierarchyContainer");

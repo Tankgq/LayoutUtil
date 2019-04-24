@@ -17,7 +17,18 @@ namespace Assets.Scripts
 			mousePos -= _offset;
 			Vector3 pos;
 			RectTransformUtility.ScreenPointToWorldPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out pos);
-			SelfRect.position = pos;
+			Vector3 offset = pos - SelfRect.position;
+			UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
+			if(GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
+			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+				if(pair.Value == transform) continue;
+				RectTransform rt = pair.Value.GetComponent<RectTransform>();
+				UpdateDisplayObjectPosition(rt, pair.Key, rt.position + offset);
+			}
+		}
+
+		private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos) {
+			rt.position = pos;
 			DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.name.Equals(transform.name));
 			if (displayObjectData == null) return;
 			displayObjectData.x = DisplayObject.ConvertX(pos.x);
@@ -26,16 +37,15 @@ namespace Assets.Scripts
 
 		public void OnPointerDown(PointerEventData eventData)
 		{
-			string displayObjectKey = $"{GlobalData.CurrentModule}_{transform.name}";
-			bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey);
+			bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(transform.name);
 			if (isSelect)
 			{
-				if (KeyboardEventManager.IsControlDown())
-					GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+				if (KeyboardEventManager.GetControl())
+					GlobalData.CurrentSelectDisplayObjectDic.Remove(transform.name);
 			}
 			else
 			{
-				if (!KeyboardEventManager.IsShiftDown())
+				if (!KeyboardEventManager.GetShift())
 					DeselectAllDisplayObject();
 				GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, this.transform);
 			}
@@ -48,9 +58,8 @@ namespace Assets.Scripts
 		public static bool DeSelectDisplayObject(Transform displayObject)
 		{
 			if (!displayObject) return false;
-			string displayObjectKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
-			if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObjectKey)) return false;
-			GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObjectKey);
+			if (!GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) return false;
+			GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObject.name);
 			return true;
 		}
 
