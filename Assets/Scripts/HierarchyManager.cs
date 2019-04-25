@@ -125,13 +125,13 @@ namespace Assets.Scripts
 				for (int idx2 = 0; idx2 < count2; ++idx2)
 				{
 					DisplayObject displayObject = displayObjects[idx2];
-					if (displayObject.name.IndexOf(SearchText) == -1) continue;
+					if (displayObject.Name.IndexOf(SearchText) == -1) continue;
 					hasFind = true;
 					Transform displayObjectItem = GetDisplayObjectItem();
 					DisplayObjectItems.Add(displayObjectItem);
 					displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
 					displayObjectItem.SetSiblingIndex(++silbingIndex);
-					displayObjectItem.name = Utils.GetHighlight(displayObject.name, SearchText);
+					displayObjectItem.name = Utils.GetHighlight(displayObject.Name, SearchText);
 					displayObjectItem.GetComponentInChildren<Text>().text = displayObjectItem.name;
 				}
 				if (hasFind)

@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Assets.Scripts
 {
 	public class Module
 	{
-		public string name;
-		public List<DisplayObject> elements;
+		[JsonProperty(PropertyName = "name")]
+		public string Name;
+
+		[JsonProperty(PropertyName = "elements")]
+		public List<DisplayObject> Elements;
 	}
 }

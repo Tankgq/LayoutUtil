@@ -8,7 +8,7 @@ namespace Assets.Scripts
 {
 	public class SelectManager : MonoBehaviour
 	{
-		private DisplayObject _selectDisplayObject = new DisplayObject();
+		private Rectangle _selectRect = new Rectangle();
 		private GameObject _selectGameObject = null;
 		private Vector3 _startPos = Vector3.zero;
 		private RectTransform _selectRt = null;
@@ -57,15 +57,11 @@ namespace Assets.Scripts
 				Vector2 size = _selectRt.sizeDelta;
 				if (scale.x < 0) leftTopPos.x -= size.x;
 				if (scale.y < 0) leftTopPos.y -= size.y;
-				_selectDisplayObject.x = leftTopPos.x;
-				_selectDisplayObject.y = leftTopPos.y;
-				_selectDisplayObject.width = size.x;
-				_selectDisplayObject.height = size.y;
-				ContainerManager.SelectDisplayObjectsInDisplayObject(_selectDisplayObject);
+				_selectRect.Set(leftTopPos.x, leftTopPos.y, size.x, size.y);
+				ContainerManager.SelectDisplayObjectsInDisplayObject(_selectRect);
 			}
 			if (_selectGameObject)
 				_selectGameObject.SetActive(false);
-
 		}
 
 		void Start()

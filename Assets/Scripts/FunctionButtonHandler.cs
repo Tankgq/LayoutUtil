@@ -27,7 +27,7 @@ namespace Assets.Scripts
 
 		public void OnRemoveButtonClick()
 		{
-			ContainerManager.RemoveSelectedDisplayObjectOrCurrentModule();
+			ContainerManager.RemoveSelectedDisplayObjectOrModules();
 		}
 
 		public void OnUpButtonClick()

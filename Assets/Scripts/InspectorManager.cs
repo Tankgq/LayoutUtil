@@ -112,6 +112,7 @@ namespace Assets.Scripts
 					if (count != 1) UpdateState(null);
 					else UpdateState(GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 				});
+			EventSystem.current.SetSelectedGameObject(null);
 		}
 
 		private static float ParseFloat(string txt)
@@ -143,11 +144,11 @@ namespace Assets.Scripts
 			}
 
 			var display = DisplayObject.ConvertTo(_displayObject);
-			NameInputField.text = display.name;
-			XInputField.text = $"{display.x:F1}";
-			YInputField.text = $"{display.y:F1}";
-			WidthInputField.text = $"{display.width:F1}";
-			HeightInputField.text = $"{display.height:F1}";
+			NameInputField.text = display.Name;
+			XInputField.text = $"{display.X:F1}";
+			YInputField.text = $"{display.Y:F1}";
+			WidthInputField.text = $"{display.Width:F1}";
+			HeightInputField.text = $"{display.Height:F1}";
 
 			_disposable = _displayObject.GetComponent<RectTransform>()
 				.ObserveEveryValueChanged(rect => rect.anchoredPosition)

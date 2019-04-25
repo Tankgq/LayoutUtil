@@ -1,38 +1,16 @@
-﻿using System;
+﻿using System.Drawing;
+using System;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace Assets.Scripts
 {
-	public class DisplayObject
+	public class DisplayObject : Rectangle
 	{
-		public string name { get; set; }
+		private const int DIGITS = 1;
 
-		public float x { get; set; }
-
-		public float y { get; set; }
-
-		public float width { get; set; }
-
-		public float height { get; set; }
-
-		public bool IsCrossing(DisplayObject displayObject)
-		{
-			if (displayObject == null) return false;
-			if (this.x + this.width <= displayObject.x || this.y + this.height <= displayObject.y)
-				return false;
-			if (this.x >= displayObject.x + displayObject.width || this.y >= displayObject.y + displayObject.height)
-				return false;
-			return true;
-		}
-
-		public bool Contain(Vector2 pos)
-		{
-			if (pos.x < this.x) return false;
-			if (pos.x > this.x + this.width) return false;
-			if (pos.y < this.y) return false;
-			if (pos.y > this.y + this.height) return false;
-			return true;
-		}
+		[JsonProperty(PropertyName = "name")]
+		public string Name { get; set; }
 
 		public static DisplayObject ConvertTo(Transform displayObject)
 		{
@@ -44,11 +22,11 @@ namespace Assets.Scripts
 
 			var result = new DisplayObject
 			{
-				name = displayObject.name,
-				x = ConvertX(pos.x),
-				y = ConvertY(pos.y),
-				width = size.x,
-				height = size.y
+				Name = displayObject.name,
+				X = ConvertX(pos.x),
+				Y = ConvertY(pos.y),
+				Width = size.x,
+				Height = size.y
 			};
 			return result;
 		}
@@ -56,10 +34,10 @@ namespace Assets.Scripts
 		public bool InvConvertTo(Transform displayObject)
 		{
 			if (!displayObject) return false;
-			displayObject.name = name;
+			displayObject.name = Name;
 			var rect = displayObject.GetComponent<RectTransform>();
-			rect.sizeDelta = new Vector2(width, height);
-			rect.anchoredPosition = new Vector2(InvConvertX(x), InvConvertY(y));
+			rect.sizeDelta = new Vector2(Width, Height);
+			rect.anchoredPosition = new Vector2(InvConvertX(X), InvConvertY(Y));
 			return true;
 		}
 
@@ -75,22 +53,22 @@ namespace Assets.Scripts
 
 		public static float ConvertX(float x)
 		{
-			return (float)Math.Round(x - GlobalData.OriginPoint.x, 1);
+			return (float)Math.Round(x - GlobalData.OriginPoint.x, DIGITS);
 		}
 
 		public static float InvConvertX(float x)
 		{
-			return (float)Math.Round(x + GlobalData.OriginPoint.x, 1);
+			return (float)Math.Round(x + GlobalData.OriginPoint.x, DIGITS);
 		}
 
 		public static float ConvertY(float y)
 		{
-			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), 1);
+			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), DIGITS);
 		}
 
 		public static float InvConvertY(float y)
 		{
-			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), 1);
+			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), DIGITS);
 		}
 	}
 }

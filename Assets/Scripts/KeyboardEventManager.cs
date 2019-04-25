@@ -49,7 +49,7 @@ namespace Assets.Scripts
 		{
 			Observable.EveryUpdate()
 				.Where(_ => (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Delete)) && !Utils.IsFocusOnInputText())
-				.Subscribe(_ => ContainerManager.RemoveSelectedDisplayObjectOrCurrentModule());
+				.Subscribe(_ => ContainerManager.RemoveSelectedDisplayObjectOrModules());
 			Observable.EveryUpdate()
 				.Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
 				.Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());

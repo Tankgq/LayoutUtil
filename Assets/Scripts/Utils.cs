@@ -136,5 +136,10 @@ namespace Assets.Scripts
 		{
 			return DisplayObject.ConvertTo(Utils.GetRealPositionInContainer(position, type));
 		}
+
+		public const float EPS = 0.01f;
+		public static bool IsEqual(float rhs, float lhs) {
+			return Math.Abs(rhs - lhs) < EPS;
+		}
 	}
 }
