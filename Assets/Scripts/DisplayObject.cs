@@ -15,6 +15,25 @@ namespace Assets.Scripts
 
 		public float height { get; set; }
 
+		public bool IsCrossing(DisplayObject displayObject)
+		{
+			if (displayObject == null) return false;
+			if (this.x + this.width <= displayObject.x || this.y + this.height <= displayObject.y)
+				return false;
+			if (this.x >= displayObject.x + displayObject.width || this.y >= displayObject.y + displayObject.height)
+				return false;
+			return true;
+		}
+
+		public bool Contain(Vector2 pos)
+		{
+			if (pos.x < this.x) return false;
+			if (pos.x > this.x + this.width) return false;
+			if (pos.y < this.y) return false;
+			if (pos.y > this.y + this.height) return false;
+			return true;
+		}
+
 		public static DisplayObject ConvertTo(Transform displayObject)
 		{
 			if (!displayObject) return null;
@@ -49,24 +68,29 @@ namespace Assets.Scripts
 			return new Vector2(ConvertX(pos.x), ConvertY(pos.y));
 		}
 
+		public static Vector2 InvConvertTo(Vector2 pos)
+		{
+			return new Vector2(InvConvertX(pos.x), InvConvertY(pos.y));
+		}
+
 		public static float ConvertX(float x)
 		{
-			return (float)Math.Round(x - GlobalData.OriginPoint.x);
+			return (float)Math.Round(x - GlobalData.OriginPoint.x, 1);
 		}
 
 		public static float InvConvertX(float x)
 		{
-			return (float)Math.Round(x + GlobalData.OriginPoint.x);
+			return (float)Math.Round(x + GlobalData.OriginPoint.x, 1);
 		}
 
 		public static float ConvertY(float y)
 		{
-			return (float)Math.Round(-(y + GlobalData.OriginPoint.y));
+			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), 1);
 		}
 
 		public static float InvConvertY(float y)
 		{
-			return (float)Math.Round(-(y + GlobalData.OriginPoint.y));
+			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), 1);
 		}
 	}
 }

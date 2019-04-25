@@ -48,14 +48,8 @@ namespace Assets.Scripts
 		private void Start()
 		{
 			Observable.EveryUpdate()
-				.Where(_ => Input.GetKeyDown(KeyCode.Backspace) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
-				.Subscribe(_ =>
-				{
-					if (GlobalData.CurrentSelectDisplayObjectDic.Count > 0)
-						ContainerManager.RemoveSelectedDisplayObject();
-					else
-						ContainerManager.CheckRemoveCurrentModule();
-				});
+				.Where(_ => (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Delete)) && !Utils.IsFocusOnInputText())
+				.Subscribe(_ => ContainerManager.RemoveSelectedDisplayObjectOrCurrentModule());
 			Observable.EveryUpdate()
 				.Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
 				.Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
@@ -71,17 +65,22 @@ namespace Assets.Scripts
 						ContainerScrollRect.horizontal = canMove;
 						ContainerScrollRect.vertical = canMove;
 					}
-					else */if (GetControl() || Input.GetMouseButton(0))
+					else */
+					if (GetControl() || Input.GetMouseButton(0))
 					{
 						ContainerScrollRect.horizontal = false;
 						ContainerScrollRect.vertical = false;
 					}
-					else if(Input.GetMouseButton(2)) {
+					else if (Input.GetMouseButton(2))
+					{
 						ContainerScrollRect.horizontal = true;
 						ContainerScrollRect.vertical = true;
-						if(Input.GetMouseButtonDown(2)) {
+						if (Input.GetMouseButtonDown(2))
+						{
 							_ContainerOffset = ContainerRect.anchoredPosition3D - Input.mousePosition;
-						} else {
+						}
+						else
+						{
 							ContainerRect.anchoredPosition3D = Input.mousePosition + _ContainerOffset;
 						}
 					}
@@ -119,14 +118,8 @@ namespace Assets.Scripts
 				.Where(_ => Input.GetKeyDown(KeyCode.N) && GetControl())
 				.Subscribe(_ =>
 				{
-					RectTransform rt = ContainerManager.GetComponent<RectTransform>();
-					Vector2 pos = rt.anchoredPosition;
-					Vector2 mousePos = Input.mousePosition;
-					mousePos.y = Screen.height - mousePos.y;
-					pos.x = mousePos.x - pos.x;
-					pos.y = mousePos.y + pos.y;
-					pos /= rt.localScale.x;
-					pos -= GlobalData.OriginPoint;
+					Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
+					Debug.Log($"Alt + N : ({pos.x}, {pos.y})");
 					ContainerManager.AddDisplayObject(null, pos, GlobalData.DefaultSize);
 				});
 			Observable.EveryUpdate()

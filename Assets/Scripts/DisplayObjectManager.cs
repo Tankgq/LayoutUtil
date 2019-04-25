@@ -9,7 +9,6 @@ namespace Assets.Scripts
 		private Vector2 _offset;
 
 		public RectTransform SelfRect;
-		//    public Toggle SelfToggle;
 
 		public void OnDrag(PointerEventData eventData)
 		{
@@ -18,22 +17,27 @@ namespace Assets.Scripts
 			Vector3 pos;
 			RectTransformUtility.ScreenPointToWorldPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out pos);
 			Vector3 offset = pos - SelfRect.position;
-			UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
-			if(GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
-			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-				if(pair.Value == transform) continue;
+			// UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
+			SelfRect.position = pos;
+			if (GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
+			foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+			{
+				if (pair.Value == transform) continue;
 				RectTransform rt = pair.Value.GetComponent<RectTransform>();
-				UpdateDisplayObjectPosition(rt, pair.Key, rt.position + offset);
+				// UpdateDisplayObjectPosition(rt, pair.Key, rt.position + offset);
+				rt.position = pos;
 			}
 		}
 
-		private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos) {
-			rt.position = pos;
-			DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.name.Equals(transform.name));
-			if (displayObjectData == null) return;
-			displayObjectData.x = DisplayObject.ConvertX(pos.x);
-			displayObjectData.y = DisplayObject.ConvertY(pos.y);
-		}
+		// private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)
+		// {
+		// 	// rt.position = pos;
+		// 	// DisplayObject displayObjectData = GlobalData.Modules[GlobalData.CurrentModule].Find(element => element.name.Equals(transform.name));
+		// 	// if (displayObjectData == null) return;
+		// 	// 延迟一帧才能拿到正确的 rt.anchoredPosition
+		// 	// displayObjectData.x = DisplayObject.ConvertX(rt.anchoredPosition.x);
+		// 	// displayObjectData.y = DisplayObject.ConvertY(rt.anchoredPosition.y);
+		// }
 
 		public void OnPointerDown(PointerEventData eventData)
 		{

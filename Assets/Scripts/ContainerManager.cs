@@ -201,11 +201,18 @@ namespace Assets.Scripts
 			image.color = (material ? Color.white : Color.clear);
 			RectTransform rect = imageElement.GetComponent<RectTransform>();
 			rect.sizeDelta = new Vector2(size.x, size.y);
-			pos += GlobalData.OriginPoint;
-			pos.y = -pos.y;
+			pos = DisplayObject.ConvertTo(pos);
 			rect.anchoredPosition = pos;
 			GlobalData.Modules[GlobalData.CurrentModule].Add(DisplayObject.ConvertTo(imageElement));
 			return imageElement;
+		}
+
+		public void RemoveSelectedDisplayObjectOrCurrentModule()
+		{
+			if (GlobalData.CurrentSelectDisplayObjectDic.Count > 0)
+				RemoveSelectedDisplayObject();
+			else
+				CheckRemoveCurrentModule();
 		}
 
 		public void RemoveSelectedDisplayObject()
@@ -401,5 +408,31 @@ namespace Assets.Scripts
 					}
 				});
 		}
-    }
+
+		public bool CheckPointOnAnyDisplayObject()
+		{
+			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return false;
+			Vector2 pos = DisplayObject.ConvertTo(Utils.GetAnchoredPositionInContainer(Input.mousePosition));
+			UpdateCurrentDisplayObjectData();
+			foreach (DisplayObject displayObject in GlobalData.Modules[GlobalData.CurrentModule])
+			{
+				if (displayObject.Contain(pos)) return true;
+			}
+			return false;
+		}
+
+		public void SelectDisplayObjectsInDisplayObject(DisplayObject selectRect)
+		{
+			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
+			UpdateCurrentDisplayObjectData();
+			foreach (DisplayObject displayObject in GlobalData.Modules[GlobalData.CurrentModule])
+				if (displayObject.IsCrossing(selectRect))
+				{
+					if (KeyboardEventManager.GetControl())
+						GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObject.name);
+					else
+						GlobalData.CurrentSelectDisplayObjectDic[displayObject.name] = GlobalData.CurrentDisplayObjectDic[displayObject.name];
+				}
+		}
+	}
 }

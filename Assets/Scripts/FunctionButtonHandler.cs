@@ -22,19 +22,12 @@ namespace Assets.Scripts
 
 		public void OnAddButtonClick()
 		{
-			ContainerManager.AddDisplayObject(null, Vector2.zero, GlobalData.DefaultSize);
+			ContainerManager.AddDisplayObject(null, DisplayObject.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
 		}
 
 		public void OnRemoveButtonClick()
 		{
-			if (GlobalData.CurrentSelectDisplayObjectDic.Count > 0)
-			{
-				ContainerManager.RemoveSelectedDisplayObject();
-			}
-			else
-			{
-				ContainerManager.CheckRemoveCurrentModule();
-			}
+			ContainerManager.RemoveSelectedDisplayObjectOrCurrentModule();
 		}
 
 		public void OnUpButtonClick()
