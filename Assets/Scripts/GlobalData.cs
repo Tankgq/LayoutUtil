@@ -7,13 +7,13 @@ namespace Assets.Scripts
 {
 	public class GlobalData : MonoBehaviour
 	{
-		public const int CLOSE_VALUE = 5;
+		public const int CLOSE_VALUE = 10;
 		public const int ALIGN_EXTENSION_VALUE = 16;
-		public const int ALIGN_LINE_WIDTH = 1;
+		public const int ALIGN_LINE_THICKNESS = 1;
 
 		public static readonly string GlobalObservable = "Observable";
 		public static int UniqueId = 0;
-		
+
 		public static readonly Dictionary<string, Transform> CurrentSelectDisplayObjectDic = new Dictionary<string, Transform>();
 
 		public static void AddCurrentSelectObject(string currentModule, Transform displayObject)
@@ -35,10 +35,11 @@ namespace Assets.Scripts
 
 		public static readonly List<string> ModuleNames = new List<string>();
 		public static readonly Dictionary<string, List<DisplayObject>> Modules = new Dictionary<string, List<DisplayObject>>();
-		public static DisplayObject GetDisplayObjectData(Transform displayObject) {
-			if(! displayObject) return null;
-			if(string.IsNullOrEmpty(CurrentModule)) return null;
-			return Modules[CurrentModule].Find(element => element.Name.Equals(displayObject.name));
+		public static DisplayObject GetDisplayObjectData(string name)
+		{
+			if (string.IsNullOrEmpty(name)) return null;
+			if (string.IsNullOrEmpty(CurrentModule)) return null;
+			return Modules[CurrentModule].Find(element => element.Name.Equals(name));
 		}
 
 		public static string CurrentModule = null;

@@ -23,6 +23,7 @@ namespace Assets.Scripts
 				_selectGameObject = Instantiate(GlobalData.SelectPrefab, GlobalData.DisplayObjectContainer.transform);
 			}
 			_selectGameObject.SetActive(true);
+			_selectGameObject.transform.SetAsLastSibling();
 			if (!_selectRt) _selectRt = _selectGameObject.GetComponent<RectTransform>();
 			_startPos = Input.mousePosition;
 			_selectRt.anchoredPosition = Utils.GetAnchoredPositionInContainer(_startPos);

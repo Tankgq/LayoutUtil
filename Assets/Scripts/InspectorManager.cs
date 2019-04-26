@@ -40,9 +40,6 @@ namespace Assets.Scripts
 					displayObject.name = NameInputField.text;
 					GlobalData.CurrentDisplayObjectDic.Add(displayObjectKey, displayObject);
 					GlobalData.CurrentDisplayObjectDic.Remove(originDisplayObjectKey);
-					// List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
-					// int idx = displayObjectDataList.FindIndex(displayObjectData => displayObjectData.Name.Equals(originName));
-					// if(idx != -1) displayObjectDataList[idx].Name = NameInputField.text;
 					HierarchyManager.UpdateDisplayObjectName(originName, NameInputField.text);
 					_displayObject.name = NameInputField.text;
 				});
@@ -56,6 +53,9 @@ namespace Assets.Scripts
 					var pos = rect.anchoredPosition;
 					pos.x = DisplayObject.InvConvertX(x);
 					rect.anchoredPosition = pos;
+					DisplayObject displayObject = GlobalData.GetDisplayObjectData(_displayObject.name);
+					if (displayObject == null) return;
+					displayObject.X = x;
 				});
 			YInputField.ObserveEveryValueChanged(element => element.isFocused)
 				.Where(isFocused => _displayObject && !isFocused && !string.IsNullOrEmpty(YInputField.text))
@@ -67,6 +67,9 @@ namespace Assets.Scripts
 					var pos = rect.anchoredPosition;
 					pos.y = DisplayObject.InvConvertY(y);
 					rect.anchoredPosition = pos;
+					DisplayObject displayObject = GlobalData.GetDisplayObjectData(_displayObject.name);
+					if (displayObject == null) return;
+					displayObject.Y = y;
 				});
 			WidthInputField.ObserveEveryValueChanged(element => element.isFocused)
 				.Where(isFocused => _displayObject && !isFocused && !string.IsNullOrEmpty(WidthInputField.text))
@@ -78,6 +81,9 @@ namespace Assets.Scripts
 					var size = rect.sizeDelta;
 					size.x = width;
 					rect.sizeDelta = size;
+					DisplayObject displayObject = GlobalData.GetDisplayObjectData(_displayObject.name);
+					if (displayObject == null) return;
+					displayObject.Width = width;
 				});
 			HeightInputField.ObserveEveryValueChanged(element => element.isFocused)
 				.Where(isFocused => _displayObject && !isFocused && !string.IsNullOrEmpty(HeightInputField.text))
@@ -89,6 +95,9 @@ namespace Assets.Scripts
 					var size = rect.sizeDelta;
 					size.y = height;
 					rect.sizeDelta = size;
+					DisplayObject displayObject = GlobalData.GetDisplayObjectData(_displayObject.name);
+					if (displayObject == null) return;
+					displayObject.Height = height;
 				});
 			Observable.EveryUpdate()
 				.Where(_ => EventSystem.current.currentSelectedGameObject != null && Input.GetKeyDown(KeyCode.Tab))

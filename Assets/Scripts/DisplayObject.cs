@@ -70,5 +70,10 @@ namespace Assets.Scripts
 		{
 			return (float)Math.Round(-(y - GlobalData.OriginPoint.y), DIGITS);
 		}
+
+		override public string ToString()
+		{
+			return $"name: {base.ToString()}";
+		}
 	}
 }
