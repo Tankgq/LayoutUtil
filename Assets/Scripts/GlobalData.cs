@@ -16,6 +16,8 @@ namespace Assets.Scripts
 
 		public static readonly Dictionary<string, Transform> CurrentSelectDisplayObjectDic = new Dictionary<string, Transform>();
 
+		public static readonly List<DisplayObject> CurrentCopyDisplayObjects = new List<DisplayObject>();
+
 		public static void AddCurrentSelectObject(string currentModule, Transform displayObject)
 		{
 			if (!displayObject) return;
@@ -48,6 +50,7 @@ namespace Assets.Scripts
 		public static readonly Vector2 DefaultSize = new Vector2(64, 64);
 		public const string DefaultName = "DisplayObject";
 		public const float MinFloat = -100000000;
+		public const float MaxFloat = 100000000;
 
 		public static bool IsDragGui = false;
 

@@ -84,7 +84,15 @@ namespace Assets.Scripts
 				pos.y = DisplayObject.InvConvertY(pos.y);
 				HorizontalAlignLine.SetActive(false);
 			}
+			Vector2 offset = pos - SelfRect.anchoredPosition;
 			UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
+			if (GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
+			foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
+			{
+				if (pair.Value == transform) continue;
+				RectTransform rt = pair.Value.GetComponent<RectTransform>();
+				UpdateDisplayObjectPosition(rt, pair.Key, rt.anchoredPosition + offset);
+			}
 		}
 
 		private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)

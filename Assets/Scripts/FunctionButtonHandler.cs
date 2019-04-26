@@ -61,7 +61,7 @@ namespace Assets.Scripts
 
 		public void OnImportButtonClick()
 		{
-			ContainerManager.ImportModules();
+			ContainerManager.CheckImportModules();
 		}
 
 		public void OnExportButtonClick()

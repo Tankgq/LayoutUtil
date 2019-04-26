@@ -119,7 +119,6 @@ namespace Assets.Scripts
 				.Subscribe(_ =>
 				{
 					Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
-					Debug.Log($"Alt + N : ({pos.x}, {pos.y})");
 					ContainerManager.AddDisplayObject(null, pos, GlobalData.DefaultSize);
 				});
 			Observable.EveryUpdate()
@@ -133,6 +132,12 @@ namespace Assets.Scripts
 			Observable.EveryUpdate()
 					  .Where(_ => Input.GetKeyDown(KeyCode.F) && GetShift() && GetAlt())
 					  .Subscribe(_ => Screen.fullScreen = !Screen.fullScreen);
+			Observable.EveryUpdate()
+					  .Where(_ => Input.GetKeyDown(KeyCode.C) && GetControl())
+					  .Subscribe(_ => ContainerManager.CopySelectDisplayObjects());
+			Observable.EveryUpdate()
+					  .Where(_ => Input.GetKeyDown(KeyCode.V) && GetControl())
+					  .Subscribe(_ => ContainerManager.PasteDisplayObjects());
 		}
 	}
 }
