@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -55,7 +56,12 @@ namespace Assets.Scripts
 				.Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
 			Observable.EveryUpdate()
 				.Where(_ => GetControl() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
-				.Subscribe(_ => ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10);
+				.Sample(TimeSpan.FromMilliseconds(100))
+				.Subscribe(_ =>
+				{
+					DOTween.To(() => ScaleSlider.value, value => ScaleSlider.value = value, ScaleSlider.value + Input.GetAxis("Mouse ScrollWheel") * 10, 0.1f);
+					// ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10;
+				});
 			Observable.EveryUpdate()
 				.Subscribe(_ =>
 				{
