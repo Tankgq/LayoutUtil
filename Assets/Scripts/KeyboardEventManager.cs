@@ -2,6 +2,7 @@
 using DG.Tweening;
 using UniRx;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Assets.Scripts
@@ -54,14 +55,42 @@ namespace Assets.Scripts
 			Observable.EveryUpdate()
 				.Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && !Utils.IsFocusOnInputText())
 				.Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
+			// Observable.EveryUpdate()
+			// 	.Where(_ => GetControl() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
+			// 	.Select(_ => Input.GetAxis("Mouse ScrollWheel"))
+			// 	.Buffer(TimeSpan.FromMilliseconds(250))
+			// 	.Select(scrollList =>
+			// 	{
+			// 		float sum = 0.0f;
+			// 		foreach (float scroll in scrollList)
+			// 			sum += scroll;
+			// 		return sum;
+			// 	})
+			// 	.Subscribe(scrollValue =>
+			// 	{
+			// 		// DOTween.To(() => ScaleSlider.value, value => ScaleSlider.value = value, ScaleSlider.value + scrollValue * 10, 0.25f);
+			// 		ScaleSlider.value += scrollValue * 10;
+			// 	});
 			Observable.EveryUpdate()
 				.Where(_ => GetControl() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
-				.Sample(TimeSpan.FromMilliseconds(100))
-				.Subscribe(_ =>
+				.Select(_ => Input.GetAxis("Mouse ScrollWheel"))
+				.Subscribe(scrollValue =>
 				{
-					DOTween.To(() => ScaleSlider.value, value => ScaleSlider.value = value, ScaleSlider.value + Input.GetAxis("Mouse ScrollWheel") * 10, 0.1f);
-					// ScaleSlider.value += Input.GetAxis("Mouse ScrollWheel") * 10;
+					Vector2 prevPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
+					prevPos /= ContainerRect.localScale.x;
+					prevPos -= ContainerRect.anchoredPosition;
+					ScaleSlider.value += scrollValue * 10;
+					Vector2 currPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
+					currPos /= ContainerRect.localScale.x;
+					Debug.Log($"prevPos: {prevPos}, currPos: {currPos}");
+					// factor = ScaleSlider.value / factor;
+					// Debug.Log($"prevScale: {prevScale}, currScale: {ContainerRect.localScale.x}");
+					// Vector2 targetPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
+					// Vector2 offset = targetPos * prevScale * (factor - 1);
+					// Vector2 offset = currPos - prevPos;
+					ContainerRect.anchoredPosition = ContainerRect.anchoredPosition - (1 - ContainerRect.localScale.x) * prevPos;
 				});
+
 			Observable.EveryUpdate()
 				.Subscribe(_ =>
 				{
@@ -116,8 +145,8 @@ namespace Assets.Scripts
 					}
 					if (!Utils.IsFocusOnInputText() && (delta.x != 0 || delta.y != 0))
 					{
-						Vector2 pos = ContainerRect.anchoredPosition;
-						ContainerRect.anchoredPosition = pos + delta;
+						Debug.Log($"delta: {delta}");
+						ContainerRect.anchoredPosition = ContainerRect.anchoredPosition + delta;
 					}
 				});
 			Observable.EveryUpdate()
@@ -144,6 +173,9 @@ namespace Assets.Scripts
 			Observable.EveryUpdate()
 					  .Where(_ => Input.GetKeyDown(KeyCode.V) && GetControl())
 					  .Subscribe(_ => ContainerManager.PasteDisplayObjects());
+			Observable.EveryUpdate()
+					  .Where(_ => Input.GetKeyDown(KeyCode.Q))
+					  .Subscribe(_ => Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition}"));
 		}
 	}
 }

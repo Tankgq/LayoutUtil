@@ -16,6 +16,7 @@ namespace Assets.Scripts
 
 		private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
 
+		public RectTransform ContainerScrollViewRt;
 		public Text ModuleNameText;
 		public Text SelectedDisplayObjectText;
 		public Slider ScaleSlider;
@@ -121,14 +122,25 @@ namespace Assets.Scripts
 					}
 					SelectedDisplayObjectText.text = text.Substring(0, text.Length - 2);
 				});
-			RectTransform containerRt = transform.GetComponent<RectTransform>();
-			containerRt.ObserveEveryValueChanged(rt => rt.localScale.x)
-				.Subscribe(scale =>
-				{
-					Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition);
-					Debug.Log($"container: {containerRt.anchoredPosition}, pos: {pos}");
-					containerRt.anchoredPosition = pos * (1 - scale);
-				});
+			// RectTransform containerRt = transform.GetComponent<RectTransform>();
+			// containerRt.ObserveEveryValueChanged(rt => rt.localScale.x)
+			// 	.Subscribe(scale =>
+			// 	{
+			// 		Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition);
+			// 		Debug.Log($"container: {containerRt.anchoredPosition}, pos: {pos}");
+			// 		containerRt.anchoredPosition = pos * (1 - scale);
+			// 	});
+			// GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => Input.mousePosition)
+			// 		  .Where(_ => Utils.IsPointOverGameObject(GlobalData.DisplayObjectContainer))
+			// 		  .Subscribe(mousePosition =>
+			// 		  {
+			// 			  RectTransform rt = transform.GetComponent<RectTransform>();
+			// 			  Vector2 pos = Utils.GetRealPositionInContainer(mousePosition);
+			// 			  Vector2 pivot = pos / rt.rect.size / rt.localScale.x;
+			// 			  Debug.Log($"pivot: {pivot}, size: {rt.rect.size}, pos: {pos}");
+			// 			  pivot.y += 1;
+			// 			  rt.pivot = pivot;
+			// 		  });
 		}
 
 		public static Texture2D LoadTexture2DbyIo(string imageUrl)
