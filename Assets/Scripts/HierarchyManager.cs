@@ -40,6 +40,7 @@ namespace Assets.Scripts
 				.Subscribe(_ =>
 				{
 					if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
+					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(NameInputField.text)) return;
 					Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.First().Value;
 					int idx = DisplayObjectItems.FindIndex(element => element.name.Equals(displayObject.name));
 					if (idx < 0 || idx >= DisplayObjectItems.Count) return;

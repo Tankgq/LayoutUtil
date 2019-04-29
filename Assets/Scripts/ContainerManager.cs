@@ -16,7 +16,7 @@ namespace Assets.Scripts
 
 		private static readonly List<Transform> DisplayObjectPool = new List<Transform>();
 
-		public RectTransform ContainerScrollViewRt;
+		public GameObject ContainerScrollView = null;
 		public Text ModuleNameText;
 		public Text SelectedDisplayObjectText;
 		public Slider ScaleSlider;
@@ -43,17 +43,14 @@ namespace Assets.Scripts
 		{
 			int count = GlobalData.CurrentDisplayObjects.Count;
 			for (int idx = 0; idx < count; ++idx)
-			{
-
 				RecycleDisplayObject(GlobalData.CurrentDisplayObjects[idx]);
-			}
 			GlobalData.CurrentDisplayObjects.Clear();
 			GlobalData.CurrentDisplayObjectDic.Clear();
 		}
 
 		private void LoadAllDisplayObject()
 		{
-			if (GlobalData.CurrentModule == null) return;
+			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
 			List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
 			int count = displayObjectDataList.Count;
 			for (var idx = 0; idx < count; ++idx)
@@ -250,12 +247,18 @@ namespace Assets.Scripts
 			foreach (var pair in currentSelectDisplays)
 			{
 				RecycleDisplayObject(pair.Value);
-				if (GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key))
-					GlobalData.DisplayObjectPathDic.Remove(pair.Key);
-				var idx = GlobalData.CurrentDisplayObjects.FindIndex(0, element => element.name.Equals(pair.Value.name));
-				if (idx < 0 || idx >= length) continue;
-				GlobalData.CurrentDisplayObjects.RemoveAt(idx);
-				GlobalData.CurrentDisplayObjectDic.Remove(pair.Key);
+				string displayObjectKey = $"{GlobalData.CurrentModule}_{pair.Key}";
+				if (GlobalData.DisplayObjectPathDic.ContainsKey(displayObjectKey))
+					GlobalData.DisplayObjectPathDic.Remove(displayObjectKey);
+				int idx = GlobalData.CurrentDisplayObjects.FindIndex(0, element => element.name.Equals(pair.Key));
+				if (idx != -1)
+				{
+					GlobalData.CurrentDisplayObjects.RemoveAt(idx);
+					GlobalData.CurrentDisplayObjectDic.Remove(pair.Key);
+				}
+				List<DisplayObject> elements = GlobalData.Modules[GlobalData.CurrentModule];
+				idx = elements.FindIndex(0, element => element.Name.Equals(pair.Key));
+				if (idx != -1) elements.RemoveAt(idx);
 				--length;
 			}
 
@@ -270,14 +273,17 @@ namespace Assets.Scripts
 				CheckRemoveAllModules();
 				return;
 			}
-			DialogManager.ShowQuestion($"是否删除当前打开的 module: {GlobalData.CurrentModule}", () =>
-			{
-				string module = GlobalData.CurrentModule;
-				GlobalData.CurrentModule = null;
-				int idx = GlobalData.ModuleNames.FindIndex(0, name => module.Equals(name));
-				if (idx != -1) GlobalData.ModuleNames.RemoveAt(idx);
-				GlobalData.Modules.Remove(module);
-			}, null);
+			DialogManager.ShowQuestion($"是否删除当前打开的 module: {GlobalData.CurrentModule}", () => removeCurrentModule(), null);
+		}
+
+		private void removeCurrentModule()
+		{
+			string module = GlobalData.CurrentModule;
+			GlobalData.CurrentModule = null;
+			int idx = GlobalData.ModuleNames.FindIndex(0, name => module.Equals(name));
+			if (idx != -1) GlobalData.ModuleNames.RemoveAt(idx);
+			GlobalData.Modules[module].Clear();
+			GlobalData.Modules.Remove(module);
 		}
 
 		public void CheckRemoveAllModules()
@@ -474,14 +480,15 @@ namespace Assets.Scripts
 
 		private void RemoveAllModules()
 		{
+			RecycleAllDisplayObject();
 			GlobalData.CurrentDisplayObjectDic.Clear();
 			GlobalData.CurrentDisplayObjects.Clear();
 			GlobalData.CurrentSelectDisplayObjectDic.Clear();
+			GlobalData.CurrentModule = null;
 			GlobalData.ModuleNames.Clear();
 			foreach (var pair in GlobalData.Modules)
 				pair.Value.Clear();
 			GlobalData.Modules.Clear();
-			GlobalData.CurrentModule = null;
 		}
 
 		public AlignInfo GetAlignLine(Transform displayObject)
@@ -546,7 +553,9 @@ namespace Assets.Scripts
 			if (GlobalData.CurrentCopyDisplayObjects.Count == 0) return;
 			List<DisplayObject> copyList = GlobalData.CurrentCopyDisplayObjects;
 			Vector2 leftTop = GetCopyDisplayObjectsLeftTop(copyList);
-			Vector2 mousePos = Utils.GetRealPositionInContainer(Input.mousePosition);
+			Vector2 mousePos = DisplayObject.InvConvertTo(GlobalData.OriginPoint);
+			if (Utils.IsPointOverGameObject(ContainerScrollView))
+				mousePos = Utils.GetRealPositionInContainer(Input.mousePosition);
 			int count = copyList.Count;
 			for (int idx = 0; idx < count; ++idx)
 			{

@@ -76,19 +76,12 @@ namespace Assets.Scripts
 				.Select(_ => Input.GetAxis("Mouse ScrollWheel"))
 				.Subscribe(scrollValue =>
 				{
-					Vector2 prevPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
-					prevPos /= ContainerRect.localScale.x;
-					prevPos -= ContainerRect.anchoredPosition;
+					Vector2 prevPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition);
 					ScaleSlider.value += scrollValue * 10;
-					Vector2 currPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
-					currPos /= ContainerRect.localScale.x;
-					Debug.Log($"prevPos: {prevPos}, currPos: {currPos}");
-					// factor = ScaleSlider.value / factor;
-					// Debug.Log($"prevScale: {prevScale}, currScale: {ContainerRect.localScale.x}");
-					// Vector2 targetPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition;
-					// Vector2 offset = targetPos * prevScale * (factor - 1);
-					// Vector2 offset = currPos - prevPos;
-					ContainerRect.anchoredPosition = ContainerRect.anchoredPosition - (1 - ContainerRect.localScale.x) * prevPos;
+					Vector2 currPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition);
+					Vector2 offset = currPos - prevPos;
+					Debug.Log($"prev: {prevPos}, curr: {currPos}, offset: {offset}, scale: {ContainerRect.localScale.x}");
+					ContainerRect.anchoredPosition = ContainerRect.anchoredPosition + offset * ContainerRect.localScale.x;
 				});
 
 			Observable.EveryUpdate()
@@ -168,10 +161,10 @@ namespace Assets.Scripts
 					  .Where(_ => Input.GetKeyDown(KeyCode.F) && GetShift() && GetAlt())
 					  .Subscribe(_ => Screen.fullScreen = !Screen.fullScreen);
 			Observable.EveryUpdate()
-					  .Where(_ => Input.GetKeyDown(KeyCode.C) && GetControl())
+					  .Where(_ => Input.GetKeyDown(KeyCode.C) && GetControl() && !Utils.IsFocusOnInputText())
 					  .Subscribe(_ => ContainerManager.CopySelectDisplayObjects());
 			Observable.EveryUpdate()
-					  .Where(_ => Input.GetKeyDown(KeyCode.V) && GetControl())
+					  .Where(_ => Input.GetKeyDown(KeyCode.V) && GetControl() && !Utils.IsFocusOnInputText())
 					  .Subscribe(_ => ContainerManager.PasteDisplayObjects());
 			Observable.EveryUpdate()
 					  .Where(_ => Input.GetKeyDown(KeyCode.Q))

@@ -29,6 +29,7 @@ namespace Assets.Scripts
 				{
 					string displayObjectKey = NameInputField.text;
 					string originName = GlobalData.CurrentSelectDisplayObjectDic.First().Value.name;
+					if (displayObjectKey.Equals(originName)) return;
 					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(displayObjectKey))
 					{
 						DialogManager.ShowError("该名称已存在", 0, 0);
@@ -108,7 +109,7 @@ namespace Assets.Scripts
 					HeightInputField.text = "0";
 				});
 			Observable.EveryUpdate()
-				.Where(_ => EventSystem.current.currentSelectedGameObject != null && Input.GetKeyDown(KeyCode.Tab))
+				.Where(_ => EventSystem.current.currentSelectedGameObject != null && (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Return)))
 				.Subscribe(_ =>
 				{
 					GameObject go = EventSystem.current.currentSelectedGameObject;
