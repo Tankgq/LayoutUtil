@@ -27,22 +27,18 @@ namespace Assets.Scripts
 				.Where(isFocus => !string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && _displayObject && !isFocus && !string.IsNullOrEmpty(NameInputField.text))
 				.Subscribe(_ =>
 				{
-					string displayObjectKey = NameInputField.text;
-					string originName = GlobalData.CurrentSelectDisplayObjectDic.First().Value.name;
-					if (displayObjectKey.Equals(originName)) return;
-					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(displayObjectKey))
+					string newName = NameInputField.text.Trim();
+					string originName = _displayObject.name;
+					if (newName.Equals(originName)) return;
+					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(newName))
 					{
 						DialogManager.ShowError("该名称已存在", 0, 0);
 						NameInputField.text = originName;
 						return;
 					}
-					string originDisplayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-					Transform displayObject = GlobalData.CurrentDisplayObjectDic[originDisplayObjectKey];
-					displayObject.name = NameInputField.text;
-					GlobalData.CurrentDisplayObjectDic.Add(displayObjectKey, displayObject);
-					GlobalData.CurrentDisplayObjectDic.Remove(originDisplayObjectKey);
-					HierarchyManager.UpdateDisplayObjectName(originName, NameInputField.text);
-					_displayObject.name = NameInputField.text;
+					Transform displayObject = GlobalData.CurrentDisplayObjectDic[originName];
+					HistoryManager.Do(new Behavior(() => ChangeDisplayName(GlobalData.CurrentModule, displayObject, newName),
+												   () => ChangeDisplayName(GlobalData.CurrentModule, displayObject, originName)));
 				});
 			XInputField.ObserveEveryValueChanged(element => element.isFocused)
 				.Where(isFocused => !isFocused && !string.IsNullOrEmpty(XInputField.text))
@@ -160,7 +156,7 @@ namespace Assets.Scripts
 				return;
 			}
 
-			var display = DisplayObject.ConvertTo(_displayObject);
+			var display = Element.ConvertTo(_displayObject);
 			NameInputField.text = display.Name;
 			XInputField.text = $"{display.X:F1}";
 			YInputField.text = $"{display.Y:F1}";
@@ -172,7 +168,7 @@ namespace Assets.Scripts
 				.Sample(TimeSpan.FromSeconds(1))
 				.Subscribe(anchoredPosition =>
 				{
-					var pos = DisplayObject.ConvertTo(anchoredPosition);
+					var pos = Element.ConvertTo(anchoredPosition);
 					XInputField.text = $"{pos.x:F1}";
 					YInputField.text = $"{pos.y:F1}";
 				});
@@ -183,9 +179,9 @@ namespace Assets.Scripts
 			var rect = displayObject.GetComponent<RectTransform>();
 			var pos = rect.anchoredPosition;
 			if (isAdd) pos.x += x;
-			else pos.x = DisplayObject.InvConvertX(x);
+			else pos.x = Element.InvConvertX(x);
 			rect.anchoredPosition = pos;
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
 			if (displayObjectData == null) return;
 			if (isAdd) displayObjectData.X += x;
 			else displayObjectData.X = x;
@@ -196,9 +192,9 @@ namespace Assets.Scripts
 			var rect = displayObject.GetComponent<RectTransform>();
 			var pos = rect.anchoredPosition;
 			if (isAdd) pos.y -= y;
-			else pos.y = DisplayObject.InvConvertY(y);
+			else pos.y = Element.InvConvertY(y);
 			rect.anchoredPosition = pos;
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
 			if (displayObjectData == null) return;
 			if (isAdd) displayObjectData.Y += y;
 			else displayObjectData.Y = y;
@@ -211,7 +207,7 @@ namespace Assets.Scripts
 			if (isAdd) size.x = Math.Max(size.x + width, 0);
 			else size.x = Math.Max(width, 0); ;
 			rect.sizeDelta = size;
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
 			if (displayObjectData == null) return;
 			if (isAdd) displayObjectData.Width += width;
 			else displayObjectData.Width = width;
@@ -224,10 +220,29 @@ namespace Assets.Scripts
 			if (isAdd) size.y = Math.Max(size.y + height, 0);
 			else size.y = Math.Max(height, 0);
 			rect.sizeDelta = size;
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
 			if (displayObjectData == null) return;
 			if (isAdd) displayObjectData.Height += height;
 			else displayObjectData.Height = height;
+		}
+
+		public void ChangeDisplayName(string currentModule, Transform displayObject, string newName)
+		{
+			string originName = displayObject.name;
+			displayObject.name = newName;
+			GlobalData.CurrentDisplayObjectDic.Add(newName, displayObject);
+			GlobalData.CurrentDisplayObjectDic.Remove(originName);
+			HierarchyManager.UpdateDisplayObjectName(originName, newName);
+			List<Element> elements = GlobalData.Modules[currentModule];
+			Element element = elements.Find(e => e.Name.Equals(originName));
+			if (element != null) element.Name = newName;
+			if (GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(originName))
+			{
+				if (GlobalData.CurrentSelectDisplayObjectDic.Count == 1)
+					NameInputField.text = newName;
+				GlobalData.AddCurrentSelectObject(GlobalData.CurrentModule, displayObject);
+				GlobalData.CurrentSelectDisplayObjectDic.Remove(originName);
+			}
 		}
 	}
 }

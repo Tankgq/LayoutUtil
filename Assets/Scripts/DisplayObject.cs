@@ -5,14 +5,14 @@ using Newtonsoft.Json;
 
 namespace Assets.Scripts
 {
-	public class DisplayObject : Rectangle
+	public class Element : Rectangle
 	{
 		private const int DIGITS = 1;
 
 		[JsonProperty(PropertyName = "name")]
 		public string Name { get; set; }
 
-		public static DisplayObject ConvertTo(Transform displayObject)
+		public static Element ConvertTo(Transform displayObject)
 		{
 			if (!displayObject) return null;
 
@@ -20,7 +20,7 @@ namespace Assets.Scripts
 			var pos = rect.anchoredPosition;
 			var size = rect.sizeDelta;
 
-			var result = new DisplayObject
+			var result = new Element
 			{
 				Name = displayObject.name,
 				X = ConvertX(pos.x),

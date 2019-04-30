@@ -51,7 +51,7 @@ namespace Assets.Scripts
 		private void LoadAllDisplayObject()
 		{
 			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-			List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+			List<Element> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
 			int count = displayObjectDataList.Count;
 			for (var idx = 0; idx < count; ++idx)
 			{
@@ -59,7 +59,7 @@ namespace Assets.Scripts
 				displayObject.GetComponent<Image>().color = Color.clear;
 				displayObject.SetParent(transform);
 				displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
-				DisplayObject displayObjectData = displayObjectDataList[idx];
+				Element displayObjectData = displayObjectDataList[idx];
 				displayObjectData.InvConvertTo(displayObject);
 				GlobalData.CurrentDisplayObjects.Add(displayObject);
 				GlobalData.CurrentDisplayObjectDic[displayObject.name] = displayObject;
@@ -218,9 +218,9 @@ namespace Assets.Scripts
 			image.color = (material ? Color.white : Color.clear);
 			RectTransform rect = imageElement.GetComponent<RectTransform>();
 			rect.sizeDelta = new Vector2(size.x, size.y);
-			pos = DisplayObject.ConvertTo(pos);
+			pos = Element.ConvertTo(pos);
 			rect.anchoredPosition = pos;
-			GlobalData.Modules[GlobalData.CurrentModule].Add(DisplayObject.ConvertTo(imageElement));
+			GlobalData.Modules[GlobalData.CurrentModule].Add(Element.ConvertTo(imageElement));
 			return imageElement;
 		}
 
@@ -256,7 +256,7 @@ namespace Assets.Scripts
 					GlobalData.CurrentDisplayObjects.RemoveAt(idx);
 					GlobalData.CurrentDisplayObjectDic.Remove(pair.Key);
 				}
-				List<DisplayObject> elements = GlobalData.Modules[GlobalData.CurrentModule];
+				List<Element> elements = GlobalData.Modules[GlobalData.CurrentModule];
 				idx = elements.FindIndex(0, element => element.Name.Equals(pair.Key));
 				if (idx != -1) elements.RemoveAt(idx);
 				--length;
@@ -311,7 +311,7 @@ namespace Assets.Scripts
 					return;
 				}
 				GlobalData.CurrentModule = txt;
-				GlobalData.Modules[txt] = new List<DisplayObject>();
+				GlobalData.Modules[txt] = new List<Element>();
 				GlobalData.ModuleNames.Add(txt);
 			});
 		}
@@ -319,18 +319,18 @@ namespace Assets.Scripts
 		public static void UpdateCurrentDisplayObjectData()
 		{
 			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-			List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+			List<Element> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
 			int count = GlobalData.CurrentDisplayObjects.Count;
 			for (int idx = 0; idx < count; ++idx)
 			{
 				Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
-				DisplayObject displayObjectData = displayObjectDataList[idx];
+				Element displayObjectData = displayObjectDataList[idx];
 				displayObjectData.Name = displayObject.name;
 				RectTransform rt = displayObject.GetComponent<RectTransform>();
 				Vector2 pos = rt.anchoredPosition;
 				Vector2 size = rt.sizeDelta;
-				displayObjectData.X = DisplayObject.ConvertX(pos.x);
-				displayObjectData.Y = DisplayObject.ConvertY(pos.y);
+				displayObjectData.X = Element.ConvertX(pos.x);
+				displayObjectData.Y = Element.ConvertY(pos.y);
 				displayObjectData.Width = size.x;
 				displayObjectData.Height = size.y;
 			}
@@ -349,8 +349,8 @@ namespace Assets.Scripts
 			GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
 			int slblingIndex = tmp.GetSiblingIndex();
 			tmp.SetSiblingIndex(slblingIndex - 1);
-			List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
-			DisplayObject tmp2 = displayObjectDataList[idx];
+			List<Element> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+			Element tmp2 = displayObjectDataList[idx];
 			displayObjectDataList[idx] = displayObjectDataList[idx - 1];
 			displayObjectDataList[idx - 1] = tmp2;
 		}
@@ -367,8 +367,8 @@ namespace Assets.Scripts
 			GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
 			int slblingIndex = tmp.GetSiblingIndex();
 			tmp.SetSiblingIndex(slblingIndex + 1);
-			List<DisplayObject> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
-			DisplayObject tmp2 = displayObjectDataList[idx];
+			List<Element> displayObjectDataList = GlobalData.Modules[GlobalData.CurrentModule];
+			Element tmp2 = displayObjectDataList[idx];
 			displayObjectDataList[idx] = displayObjectDataList[idx + 1];
 			displayObjectDataList[idx + 1] = tmp2;
 		}
@@ -406,12 +406,35 @@ namespace Assets.Scripts
 				Module module = new Module();
 				module.Name = GlobalData.ModuleNames[idx];
 				module.Elements = GlobalData.Modules[module.Name];
+				Rectangle rect = GetMinRectangleContainsDisplayObjects(module.Elements);
+				if (rect != null)
+				{
+					module.X = rect.X;
+					module.Y = rect.Y;
+					module.Width = rect.Width;
+					module.Height = rect.Height;
+				}
 				modules.Add(module);
 			}
 			string jsonString = JsonConvert.SerializeObject(modules, Formatting.Indented);
 			bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
 			if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
 			else DialogManager.ShowError($"导出失败", 0, 0);
+		}
+
+		public Rectangle GetMinRectangleContainsDisplayObjects(List<Element> displayObjects)
+		{
+			if (displayObjects == null || displayObjects.Count == 0) return null;
+			Rectangle rect = new Rectangle();
+			int count = displayObjects.Count;
+			for (int idx = 0; idx < count; ++idx)
+			{
+				rect.Left = Math.Min(rect.Left, displayObjects[idx].Left);
+				rect.Right = Math.Max(rect.Right, displayObjects[idx].Right);
+				rect.Top = Math.Min(rect.Top, displayObjects[idx].Top);
+				rect.Bottom = Math.Max(rect.Bottom, displayObjects[idx].Bottom);
+			}
+			return rect;
 		}
 
 		public void CheckImportModules()
@@ -457,8 +480,8 @@ namespace Assets.Scripts
 		public bool CheckPointOnAnyDisplayObject()
 		{
 			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return false;
-			Vector2 pos = DisplayObject.ConvertTo(Utils.GetAnchoredPositionInContainer(Input.mousePosition));
-			foreach (DisplayObject displayObject in GlobalData.Modules[GlobalData.CurrentModule])
+			Vector2 pos = Element.ConvertTo(Utils.GetAnchoredPositionInContainer(Input.mousePosition));
+			foreach (Element displayObject in GlobalData.Modules[GlobalData.CurrentModule])
 			{
 				if (displayObject.Contain(pos)) return true;
 			}
@@ -468,7 +491,7 @@ namespace Assets.Scripts
 		public void SelectDisplayObjectsInDisplayObject(Rectangle selectRect)
 		{
 			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-			foreach (DisplayObject displayObject in GlobalData.Modules[GlobalData.CurrentModule])
+			foreach (Element displayObject in GlobalData.Modules[GlobalData.CurrentModule])
 				if (displayObject.IsCrossing(selectRect))
 				{
 					if (KeyboardEventManager.GetControl())
@@ -493,14 +516,14 @@ namespace Assets.Scripts
 
 		public AlignInfo GetAlignLine(Transform displayObject)
 		{
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(displayObject.name);
 			if (displayObjectData == null) return null;
 			RectTransform rt = GlobalData.DisplayObjectContainer.GetComponent<RectTransform>();
 			float closeValue = GlobalData.CLOSE_VALUE / rt.localScale.x;
 			float alignExtensionValue = GlobalData.ALIGN_EXTENSION_VALUE / rt.localScale.x;
 			float lineThickness = GlobalData.ALIGN_LINE_THICKNESS; // * rt.localScale.x;
 			AlignInfo alignInfo = new AlignInfo(displayObjectData, closeValue, lineThickness);
-			List<DisplayObject> elements = GlobalData.Modules[GlobalData.CurrentModule];
+			List<Element> elements = GlobalData.Modules[GlobalData.CurrentModule];
 			int count = elements.Count;
 			for (int idx = 0; idx < count; ++idx)
 			{
@@ -522,8 +545,8 @@ namespace Assets.Scripts
 				if (displayObject == null) continue;
 				if (GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name))
 				{
-					DisplayObject element = GlobalData.GetDisplayObjectData(displayObject.name);
-					GlobalData.CurrentCopyDisplayObjects.Add(new DisplayObject
+					Element element = GlobalData.GetDisplayObjectData(displayObject.name);
+					GlobalData.CurrentCopyDisplayObjects.Add(new Element
 					{
 						Name = element.Name,
 						X = element.X,
@@ -535,7 +558,7 @@ namespace Assets.Scripts
 			}
 		}
 
-		public Vector2 GetCopyDisplayObjectsLeftTop(List<DisplayObject> displayObjects)
+		public Vector2 GetCopyDisplayObjectsLeftTop(List<Element> displayObjects)
 		{
 			if (displayObjects.Count == 0) return Vector2.zero;
 			Vector2 result = new Vector2(displayObjects[0].Left, displayObjects[0].Top);
@@ -551,9 +574,9 @@ namespace Assets.Scripts
 		public void PasteDisplayObjects()
 		{
 			if (GlobalData.CurrentCopyDisplayObjects.Count == 0) return;
-			List<DisplayObject> copyList = GlobalData.CurrentCopyDisplayObjects;
+			List<Element> copyList = GlobalData.CurrentCopyDisplayObjects;
 			Vector2 leftTop = GetCopyDisplayObjectsLeftTop(copyList);
-			Vector2 mousePos = DisplayObject.InvConvertTo(GlobalData.OriginPoint);
+			Vector2 mousePos = Element.InvConvertTo(GlobalData.OriginPoint);
 			if (Utils.IsPointOverGameObject(ContainerScrollView))
 				mousePos = Utils.GetRealPositionInContainer(Input.mousePosition);
 			int count = copyList.Count;

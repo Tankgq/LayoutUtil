@@ -169,6 +169,12 @@ namespace Assets.Scripts
 			Observable.EveryUpdate()
 					  .Where(_ => Input.GetKeyDown(KeyCode.Q))
 					  .Subscribe(_ => Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + ContainerRect.anchoredPosition}"));
+			Observable.EveryUpdate()
+					  .Where(_ => Input.GetKeyDown(KeyCode.Z) && GetControl())
+					  .Subscribe(_ => HistoryManager.Undo());
+			Observable.EveryUpdate()
+					  .Where(_ => Input.GetKeyDown(KeyCode.Y) && GetControl())
+					  .Subscribe(_ => HistoryManager.Do());
 		}
 	}
 }

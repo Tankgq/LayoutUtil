@@ -25,6 +25,7 @@ namespace Assets.Scripts
 
 		public void OnDrag(PointerEventData eventData)
 		{
+			if (Input.GetMouseButton(2)) return;
 			Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) - _offset;
 			Vector2 offset = pos - SelfRect.anchoredPosition;
 			UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
@@ -35,7 +36,7 @@ namespace Assets.Scripts
 				HorizontalAlignLine.SetActive(true);
 				HorizontalAlignLine.transform.SetAsLastSibling();
 				RectTransform rt = HorizontalAlignLine.GetComponent<RectTransform>();
-				rt.anchoredPosition = DisplayObject.InvConvertTo(new Vector2(horizontalAlignRect.X - GlobalData.ALIGN_EXTENSION_VALUE, horizontalAlignRect.Y));
+				rt.anchoredPosition = Element.InvConvertTo(new Vector2(horizontalAlignRect.X - GlobalData.ALIGN_EXTENSION_VALUE, horizontalAlignRect.Y));
 				rt.sizeDelta = new Vector2(horizontalAlignRect.Width + (GlobalData.ALIGN_EXTENSION_VALUE << 1), horizontalAlignRect.Height);
 			}
 			else HorizontalAlignLine.SetActive(false);
@@ -45,7 +46,7 @@ namespace Assets.Scripts
 				VerticalAlignLine.SetActive(true);
 				VerticalAlignLine.transform.SetAsLastSibling();
 				RectTransform rt = VerticalAlignLine.GetComponent<RectTransform>();
-				rt.anchoredPosition = DisplayObject.InvConvertTo(new Vector2(verticalAlignRect.X, verticalAlignRect.Y - GlobalData.ALIGN_EXTENSION_VALUE));
+				rt.anchoredPosition = Element.InvConvertTo(new Vector2(verticalAlignRect.X, verticalAlignRect.Y - GlobalData.ALIGN_EXTENSION_VALUE));
 				rt.sizeDelta = new Vector2(verticalAlignRect.Width, verticalAlignRect.Height + (GlobalData.ALIGN_EXTENSION_VALUE << 1));
 			}
 			else VerticalAlignLine.SetActive(false);
@@ -73,7 +74,7 @@ namespace Assets.Scripts
 				pos.x = _alignInfo.VerticalAlignLine.Left;
 				if (_alignInfo.VerticalAlignType == AlignInfo.ALIGN_RIGHT)
 					pos.x -= size.x;
-				pos.x = DisplayObject.InvConvertX(pos.x);
+				pos.x = Element.InvConvertX(pos.x);
 				VerticalAlignLine.SetActive(false);
 			}
 			if (HorizontalAlignLine.activeSelf && _alignInfo.HorizontalAlignLine != null)
@@ -81,7 +82,7 @@ namespace Assets.Scripts
 				pos.y = _alignInfo.HorizontalAlignLine.Top;
 				if (_alignInfo.HorizontalAlignType == AlignInfo.ALIGN_BOTTOM)
 					pos.y -= size.y;
-				pos.y = DisplayObject.InvConvertY(pos.y);
+				pos.y = Element.InvConvertY(pos.y);
 				HorizontalAlignLine.SetActive(false);
 			}
 			Vector2 offset = pos - SelfRect.anchoredPosition;
@@ -98,14 +99,15 @@ namespace Assets.Scripts
 		private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)
 		{
 			rt.anchoredPosition = pos;
-			DisplayObject displayObjectData = GlobalData.GetDisplayObjectData(name);
+			Element displayObjectData = GlobalData.GetDisplayObjectData(name);
 			if (displayObjectData == null) return;
-			displayObjectData.X = DisplayObject.ConvertX(pos.x);
-			displayObjectData.Y = DisplayObject.ConvertY(pos.y);
+			displayObjectData.X = Element.ConvertX(pos.x);
+			displayObjectData.Y = Element.ConvertY(pos.y);
 		}
 
 		public void OnPointerDown(PointerEventData eventData)
 		{
+			if (Input.GetMouseButton(2)) return;
 			bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(transform.name);
 			if (isSelect)
 			{

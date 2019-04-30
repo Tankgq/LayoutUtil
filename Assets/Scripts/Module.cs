@@ -10,6 +10,18 @@ namespace Assets.Scripts
 		public string Name;
 
 		[JsonProperty(PropertyName = "elements")]
-		public List<DisplayObject> Elements;
+		public List<Element> Elements;
+
+		[JsonProperty(PropertyName = "width")]
+		public float Width = 0.0f;
+
+		[JsonProperty(PropertyName = "height")]
+		public float Height = 0.0f;
+
+		[JsonProperty(PropertyName = "x")]
+		public float X = 0.0f;
+
+		[JsonProperty(PropertyName = "y")]
+		public float Y = 0.0f;
 	}
 }

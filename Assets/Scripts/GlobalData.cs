@@ -16,7 +16,7 @@ namespace Assets.Scripts
 
 		public static readonly Dictionary<string, Transform> CurrentSelectDisplayObjectDic = new Dictionary<string, Transform>();
 
-		public static readonly List<DisplayObject> CurrentCopyDisplayObjects = new List<DisplayObject>();
+		public static readonly List<Element> CurrentCopyDisplayObjects = new List<Element>();
 
 		public static void AddCurrentSelectObject(string currentModule, Transform displayObject)
 		{
@@ -36,8 +36,8 @@ namespace Assets.Scripts
 		public static readonly Dictionary<string, string> DisplayObjectPathDic = new Dictionary<string, string>();
 
 		public static readonly List<string> ModuleNames = new List<string>();
-		public static readonly Dictionary<string, List<DisplayObject>> Modules = new Dictionary<string, List<DisplayObject>>();
-		public static DisplayObject GetDisplayObjectData(string name)
+		public static readonly Dictionary<string, List<Element>> Modules = new Dictionary<string, List<Element>>();
+		public static Element GetDisplayObjectData(string name)
 		{
 			if (string.IsNullOrEmpty(name)) return null;
 			if (string.IsNullOrEmpty(CurrentModule)) return null;
@@ -72,7 +72,7 @@ namespace Assets.Scripts
 		private void Awake()
 		{
 			DefaultShader = Shader.Find("UI/Default");
-			DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
+			DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem2");
 			DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
 			ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");
 			DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");

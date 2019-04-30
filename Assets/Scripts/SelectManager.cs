@@ -53,7 +53,7 @@ namespace Assets.Scripts
 		{
 			if (!string.IsNullOrEmpty(GlobalData.CurrentModule) && _selectGameObject && _selectGameObject.activeSelf)
 			{
-				Vector2 leftTopPos = DisplayObject.ConvertTo(_selectRt.anchoredPosition);
+				Vector2 leftTopPos = Element.ConvertTo(_selectRt.anchoredPosition);
 				Vector2 scale = _selectRt.localScale;
 				Vector2 size = _selectRt.sizeDelta;
 				if (scale.x < 0) leftTopPos.x -= size.x;

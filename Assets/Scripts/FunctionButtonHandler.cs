@@ -22,7 +22,7 @@ namespace Assets.Scripts
 
 		public void OnAddButtonClick()
 		{
-			ContainerManager.AddDisplayObject(null, DisplayObject.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
+			ContainerManager.AddDisplayObject(null, Element.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
 		}
 
 		public void OnRemoveButtonClick()

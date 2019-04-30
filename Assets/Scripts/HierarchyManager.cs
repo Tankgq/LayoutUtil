@@ -35,17 +35,14 @@ namespace Assets.Scripts
 				.Sample(TimeSpan.FromMilliseconds(100))
 				.Subscribe(_ => RefreshDisplayObjectItem());
 
-			NameInputField.ObserveEveryValueChanged(element => element.isFocused)
-				.Where(isFocused => !isFocused && !string.IsNullOrEmpty(NameInputField.text))
-				.Subscribe(_ =>
-				{
-					if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-					if (GlobalData.CurrentDisplayObjectDic.ContainsKey(NameInputField.text)) return;
-					Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.First().Value;
-					int idx = DisplayObjectItems.FindIndex(element => element.name.Equals(displayObject.name));
-					if (idx < 0 || idx >= DisplayObjectItems.Count) return;
-					DisplayObjectItems[idx].GetComponentInChildren<Text>().text = NameInputField.text;
-				});
+			// NameInputField
+			// 	.ObserveEveryValueChanged(_ => _.isFocused)
+			// 	.Where(isFocused => !string.IsNullOrEmpty(GlobalData.CurrentModule) && !isFocused
+			// 						&& !string.IsNullOrEmpty(NameInputField.text)
+			// 						&& GlobalData.CurrentSelectDisplayObjectDic.Count == 1)
+			// 	.Delay(TimeSpan.Zero)
+			// 	.Subscribe(_ => RefreshDisplayObjectItem());
+
 			GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
 				.Sample(TimeSpan.FromMilliseconds(100))
 				.Subscribe(_ => RefreshModuleItem());
@@ -70,7 +67,7 @@ namespace Assets.Scripts
 		{
 			if (!displayObjectItem) return;
 			displayObjectItem.SetParent(null);
-			displayObjectItem.GetChild(1).gameObject.SetActive(false);
+			displayObjectItem.GetChild(0).gameObject.SetActive(false);
 			displayObjectItem.GetComponentInChildren<ImageHoverManager>().SimulatePointerExit();
 			DisplayObjectItemPool.Add(displayObjectItem);
 		}
@@ -121,12 +118,12 @@ namespace Assets.Scripts
 				if (ModuleItems[idx].name.IndexOf(SearchText) != -1)
 					ModuleItems[idx].GetComponentInChildren<Text>().text = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
 				int silbingIndex = ModuleItems[idx].GetSiblingIndex();
-				List<DisplayObject> displayObjects = GlobalData.Modules[GlobalData.ModuleNames[idx]];
+				List<Element> displayObjects = GlobalData.Modules[GlobalData.ModuleNames[idx]];
 				bool hasFind = false;
 				int count2 = displayObjects.Count;
 				for (int idx2 = 0; idx2 < count2; ++idx2)
 				{
-					DisplayObject displayObject = displayObjects[idx2];
+					Element displayObject = displayObjects[idx2];
 					if (displayObject.Name.IndexOf(SearchText) == -1) continue;
 					hasFind = true;
 					Transform displayObjectItem = GetDisplayObjectItem();
@@ -175,7 +172,7 @@ namespace Assets.Scripts
 			{
 				int idx = DisplayObjectItems.FindIndex(element => element.name.Equals(pair.Value.name));
 				if (idx < 0 || idx >= count) continue;
-				DisplayObjectItems[idx].GetChild(1).gameObject.SetActive(true);
+				DisplayObjectItems[idx].GetChild(0).gameObject.SetActive(true);
 			}
 		}
 
@@ -207,9 +204,10 @@ namespace Assets.Scripts
 		public static void UpdateDisplayObjectName(string originName, string newName)
 		{
 			if (string.IsNullOrWhiteSpace(originName) || string.IsNullOrWhiteSpace(newName)) return;
-			int idx = DisplayObjectItems.FindIndex(item => item.name.Equals(originName));
-			if (idx == -1) return;
-			DisplayObjectItems[idx].name = newName;
+			Transform displayObjectItem = DisplayObjectItems.Find(item => item.name.Equals(originName));
+			if (displayObjectItem == null) return;
+			displayObjectItem.name = newName;
+			displayObjectItem.GetComponentInChildren<Text>().text = newName;
 		}
 
 		public void MoveCurrentModuleUp()

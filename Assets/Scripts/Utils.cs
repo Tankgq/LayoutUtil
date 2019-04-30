@@ -134,11 +134,12 @@ namespace Assets.Scripts
 
 		public static Vector2 GetAnchoredPositionInContainer(Vector2 position, int type = 0)
 		{
-			return DisplayObject.ConvertTo(Utils.GetRealPositionInContainer(position, type));
+			return Element.ConvertTo(Utils.GetRealPositionInContainer(position, type));
 		}
 
 		public const float EPS = 0.000001f;
-		public static bool IsEqual(float rhs, float lhs) {
+		public static bool IsEqual(float rhs, float lhs)
+		{
 			return Math.Abs(rhs - lhs) < EPS;
 		}
 	}
