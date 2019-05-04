@@ -14,34 +14,22 @@ namespace Assets.Scripts
 		public static readonly string GlobalObservable = "Observable";
 		public static int UniqueId = 0;
 
-		public static readonly Dictionary<string, Transform> CurrentSelectDisplayObjectDic = new Dictionary<string, Transform>();
+		public static readonly SortedDictionary<string, Transform> CurrentSelectDisplayObjectDic = new SortedDictionary<string, Transform>();
 
 		public static readonly List<Element> CurrentCopyDisplayObjects = new List<Element>();
-
-		public static void AddCurrentSelectObject(string currentModule, Transform displayObject)
-		{
-			if (!displayObject) return;
-			Observable.Timer(TimeSpan.Zero)
-				.Subscribe(_ =>
-				{
-					if (string.IsNullOrEmpty(currentModule) || !currentModule.Equals(GlobalData.CurrentModule))
-						return;
-					CurrentSelectDisplayObjectDic[displayObject.name] = displayObject;
-				});
-		}
 
 		public static readonly List<Transform> CurrentDisplayObjects = new List<Transform>();
 		public static readonly Dictionary<string, Transform> CurrentDisplayObjectDic = new Dictionary<string, Transform>();
 
 		public static readonly Dictionary<string, string> DisplayObjectPathDic = new Dictionary<string, string>();
 
-		public static readonly List<string> ModuleNames = new List<string>();
-		public static readonly Dictionary<string, List<Element>> Modules = new Dictionary<string, List<Element>>();
+		public static readonly List<string> Modules = new List<string>();
+		public static readonly Dictionary<string, List<Element>> ModuleDic = new Dictionary<string, List<Element>>();
 		public static Element GetDisplayObjectData(string name)
 		{
 			if (string.IsNullOrEmpty(name)) return null;
 			if (string.IsNullOrEmpty(CurrentModule)) return null;
-			return Modules[CurrentModule].Find(element => element.Name.Equals(name));
+			return ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
 		}
 
 		public static string CurrentModule = null;
@@ -72,7 +60,7 @@ namespace Assets.Scripts
 		private void Awake()
 		{
 			DefaultShader = Shader.Find("UI/Default");
-			DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem2");
+			DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
 			DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
 			ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");
 			DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");

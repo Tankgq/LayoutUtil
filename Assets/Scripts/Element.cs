@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System;
+﻿using System;
 using UnityEngine;
 using Newtonsoft.Json;
 

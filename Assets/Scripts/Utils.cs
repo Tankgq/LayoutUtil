@@ -77,7 +77,7 @@ namespace Assets.Scripts
 
 		public static string CancelHighlight(string text)
 		{
-			return string.IsNullOrEmpty(text) ? text : Regex.Replace(text, @"<color=yellow><size=25><b>(?<str>.*?)</b></size></color>", @"${str}");
+			return string.IsNullOrEmpty(text) ? text : Regex.Replace(text, @"<color=[a-zA-Z]+><size=\d+><b>(?<str>.*?)</b></size></color>", @"${str}");
 		}
 
 		public static string GetHighlight(string text, string needHighlight)
@@ -104,7 +104,6 @@ namespace Assets.Scripts
 		{
 			Vector2 pos = Camera.main.WorldToScreenPoint(element.position);
 			RectTransform crt = GlobalData.RootCanvas.transform.GetComponent<RectTransform>();
-			RectTransform rt = element.GetComponent<RectTransform>();
 			pos.x = pos.x - crt.rect.width * crt.pivot.x;
 			pos.y = pos.y - crt.rect.height * crt.pivot.y;
 			return pos;
@@ -141,6 +140,10 @@ namespace Assets.Scripts
 		public static bool IsEqual(float rhs, float lhs)
 		{
 			return Math.Abs(rhs - lhs) < EPS;
+		}
+
+		public static void ChangeTitle(string title) {
+			WinTitleUtil.ChangeTitle(title);
 		}
 	}
 }

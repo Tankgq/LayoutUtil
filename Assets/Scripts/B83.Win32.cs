@@ -437,7 +437,7 @@ namespace B83.Win32
             IntPtr win = IntPtr.Zero;
             Window.EnumThreadWindows(aThreadId, (W, _) =>
             {
-                if (Window.IsWindowVisible(W) && (win == null || (aClassName != null && Window.GetClassName(W) == aClassName)))
+                if (Window.IsWindowVisible(W) && (aClassName != null && Window.GetClassName(W) == aClassName))
                     win = W;
                 return true;
             }, IntPtr.Zero);
