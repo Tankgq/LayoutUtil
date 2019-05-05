@@ -25,7 +25,7 @@ namespace Assets.Scripts
 
 		public static readonly List<string> Modules = new List<string>();
 		public static readonly Dictionary<string, List<Element>> ModuleDic = new Dictionary<string, List<Element>>();
-		public static Element GetDisplayObjectData(string name)
+		public static Element GetElement(string name)
 		{
 			if (string.IsNullOrEmpty(name)) return null;
 			if (string.IsNullOrEmpty(CurrentModule)) return null;

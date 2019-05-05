@@ -20,7 +20,7 @@ namespace Assets.Scripts
 
 		public void StartObserveImageChange(Action<bool> onImageChange = null)
 		{
-			if (HasObserveImageChange()) return;
+			if (HasObserveImageChange()) StopObserveImageChange();
 			GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
 			CancelObserveImageChange = this.ObserveEveryValueChanged(_ => IsSwap)
 				.Subscribe(isSwap =>

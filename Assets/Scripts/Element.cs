@@ -11,6 +11,9 @@ namespace Assets.Scripts
 		[JsonProperty(PropertyName = "name")]
 		public string Name { get; set; }
 
+		[JsonProperty(PropertyName = "visible")]
+		public bool Visible { get; set; }
+
 		public static Element ConvertTo(Transform displayObject)
 		{
 			if (!displayObject) return null;
