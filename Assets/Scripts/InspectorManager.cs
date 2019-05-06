@@ -70,7 +70,6 @@ namespace Assets.Scripts
 								HistoryManager.Do(new Behavior(() => ChangeXBehavior(module, name, offsetX, isAdd),
 															   () => ChangeXBehavior(module, name, -offsetX, isAdd)));
 							})(GlobalData.CurrentModule, pair.Key, x, true);
-
 						}
 					XInputField.text = "0";
 				});

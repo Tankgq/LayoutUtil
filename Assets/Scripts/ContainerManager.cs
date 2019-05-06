@@ -52,18 +52,19 @@ namespace Assets.Scripts
 		private void LoadAllDisplayObject()
 		{
 			if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-			List<Element> displayObjectDataList = GlobalData.ModuleDic[GlobalData.CurrentModule];
-			int count = displayObjectDataList.Count;
+			List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
+			int count = elements.Count;
 			for (var idx = 0; idx < count; ++idx)
 			{
 				Transform displayObject = GetDisplayObject();
 				displayObject.GetComponent<Image>().color = Color.clear;
 				displayObject.SetParent(transform);
 				displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
-				Element displayObjectData = displayObjectDataList[idx];
-				displayObjectData.InvConvertTo(displayObject);
+				Element element = elements[idx];
+				element.InvConvertTo(displayObject);
 				GlobalData.CurrentDisplayObjects.Add(displayObject);
 				GlobalData.CurrentDisplayObjectDic[displayObject.name] = displayObject;
+				displayObject.gameObject.SetActive(element.Visible);
 			}
 		}
 
@@ -529,7 +530,8 @@ namespace Assets.Scripts
 						X = element.X,
 						Y = element.Y,
 						Width = element.Width,
-						Height = element.Height
+						Height = element.Height,
+						Visible = true
 					});
 				}
 			}

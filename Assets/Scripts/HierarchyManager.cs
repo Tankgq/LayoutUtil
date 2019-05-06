@@ -65,7 +65,12 @@ namespace Assets.Scripts
 		private static Transform GetDisplayObjectItem()
 		{
 			int length = DisplayObjectItemPool.Count;
-			if (length == 0) return Instantiate(GlobalData.DisplayObjectItemPrefab.transform, GlobalData.HierarchyContainer.transform);
+			if (length == 0)
+			{
+				DisplayObjectItemPool.Add(Instantiate(GlobalData.DisplayObjectItemPrefab.transform,
+													  GlobalData.HierarchyContainer.transform));
+				length = 1;
+			}
 			Transform result = DisplayObjectItemPool[length - 1];
 			DisplayObjectItemPool.RemoveAt(length - 1);
 			return result;
@@ -86,7 +91,9 @@ namespace Assets.Scripts
 			if (length == 0) return Instantiate(GlobalData.ModuleItemPrefab.transform, GlobalData.HierarchyContainer.transform);
 			Transform result = ModuleItemPool[length - 1];
 			SwapImageManager swapImage = result.GetComponentInChildren<SwapImageManager>();
+			swapImage.IsSwap = false;
 			swapImage.StartObserveImageChange();
+			result.GetChild(0).gameObject.SetActive(false);
 			ModuleItemPool.RemoveAt(length - 1);
 			return result;
 		}
@@ -145,7 +152,6 @@ namespace Assets.Scripts
 				{
 					SwapImageManager swapImage = ModuleItems[idx].GetComponentInChildren<SwapImageManager>();
 					swapImage.IsSwap = true;
-					swapImage.ForceUpdate();
 				}
 			}
 		}

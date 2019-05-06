@@ -28,7 +28,8 @@ namespace Assets.Scripts
 				X = ConvertX(pos.x),
 				Y = ConvertY(pos.y),
 				Width = size.x,
-				Height = size.y
+				Height = size.y,
+				Visible = true
 			};
 			return result;
 		}

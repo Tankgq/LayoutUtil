@@ -60,13 +60,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: b8c2a956bc9743b47b39a0f6c6992f09, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 300b8d879fe779047bb3b429c6a69714, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -89,7 +89,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OriginImage: {fileID: 21300000, guid: 300b8d879fe779047bb3b429c6a69714, type: 3}
   SwapImage: {fileID: 21300000, guid: b8c2a956bc9743b47b39a0f6c6992f09, type: 3}
-  IsSwap: 1
+  IsSwap: 0
 --- !u!1 &1338148577653316
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,7 +260,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &224385453642658072
 RectTransform:
   m_ObjectHideFlags: 0
