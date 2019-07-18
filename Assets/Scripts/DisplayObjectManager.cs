@@ -1,12 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 namespace Assets.Scripts
 {
 	public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 	{
 		private Vector2 _offset;
+		public Vector2 Offset
+		{
+			set
+			{
+				_offset = value;
+			}
+		}
 		private AlignInfo _alignInfo;
 		private static GameObject HorizontalAlignLine = null;
 		private static GameObject VerticalAlignLine = null;
@@ -24,28 +32,53 @@ namespace Assets.Scripts
 		}
 
 		private static string _copying = null;
+		private Vector2 _startPos = Vector2.zero;
 		void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
 		{
-			print($"startDrag: {transform.name}");
 			if (KeyboardEventManager.GetAlt() && _copying == null)
 			{
-				print("copy");
 				string imageUrl = null;
 				string key = $"{GlobalData.CurrentModule}_{transform.name}";
 				if (GlobalData.DisplayObjectPathDic.ContainsKey(key))
 					imageUrl = GlobalData.DisplayObjectPathDic[key];
 				Vector2 pos = Element.InvConvertTo(SelfRect.anchoredPosition);
-				Transform newDisplayObject = GlobalData.ContainerManager.AddDisplayObject(imageUrl, pos, SelfRect.sizeDelta, transform.name);
-				if (newDisplayObject != null)
+				Transform copyDisplayObject = GlobalData.ContainerManager.AddDisplayObject(imageUrl, pos, SelfRect.sizeDelta, transform.name + "_copy");
+				if (copyDisplayObject == null) return;
+				DisplayObjectManager dom = copyDisplayObject.GetComponent<DisplayObjectManager>();
+				if (dom) dom.Offset = _offset;
+				List<Transform> copies = new List<Transform>();
+				copies.Add(copyDisplayObject);
+				_copying = copyDisplayObject.name;
+				foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 				{
-					_copying = newDisplayObject.name;
-					GlobalData.CurrentSelectDisplayObjectDic.Clear();
-					GlobalData.CurrentSelectDisplayObjectDic.Add(newDisplayObject.name, newDisplayObject);
-					MessageBroker.Send(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT);
-					ExecuteEvents.Execute<IEndDragHandler>(gameObject, eventData, ExecuteEvents.endDragHandler);
-					eventData.pointerDrag = newDisplayObject.gameObject;
-					ExecuteEvents.Execute<IBeginDragHandler>(newDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
+					if (pair.Value == this.transform) continue;
+					Element element = GlobalData.GetElement(pair.Key);
+					if (element == null) continue;
+					key = $"{GlobalData.CurrentModule}_{pair.Key}";
+					if (GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key))
+						imageUrl = GlobalData.DisplayObjectPathDic[key];
+					copyDisplayObject = GlobalData.ContainerManager.AddDisplayObject(imageUrl,
+																					 new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint),
+																					 new Vector2(element.Width, element.Height),
+																					 pair.Key + "_copy");
+					copies.Add(copyDisplayObject);
 				}
+
+				GlobalData.CurrentSelectDisplayObjectDic.Clear();
+				foreach (Transform displayObject in copies)
+				{
+					if (displayObject == null) continue;
+					GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
+				}
+
+				MessageBroker.Send(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT);
+				ExecuteEvents.Execute<IEndDragHandler>(gameObject, eventData, ExecuteEvents.endDragHandler);
+				eventData.pointerDrag = copies[0].gameObject;
+				ExecuteEvents.Execute<IBeginDragHandler>(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
+			}
+			else
+			{
+				_startPos = SelfRect.anchoredPosition;
 			}
 		}
 
@@ -113,31 +146,54 @@ namespace Assets.Scripts
 				pos.y = Element.InvConvertY(pos.y);
 				HorizontalAlignLine.SetActive(false);
 			}
-			Vector2 offset = pos - SelfRect.anchoredPosition;
-			UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
-			if (GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
+			List<String> selectedDisplayObjects = new List<String>();
+			selectedDisplayObjects.Add(transform.name);
 			foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 			{
 				if (pair.Value == transform) continue;
-				RectTransform rt = pair.Value.GetComponent<RectTransform>();
-				UpdateDisplayObjectPosition(rt, pair.Key, rt.anchoredPosition + offset);
+				selectedDisplayObjects.Add(pair.Key);
+			}
+			new Action<string, List<String>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) =>
+			{
+				HistoryManager.Do(new Behavior(() => UpdateDisplayObjectsPosition(module, displayObjects, targetPos),
+												() => UpdateDisplayObjectsPosition(module, displayObjects, originPos)));
+			})(GlobalData.CurrentModule, selectedDisplayObjects, _startPos, pos);
+		}
+
+		private void UpdateDisplayObjectsPosition(String module, List<String> displayObjects, Vector2 targetPos)
+		{
+			if (displayObjects == null) return;
+			int count = displayObjects.Count;
+			if (count == 0) return;
+			if (String.IsNullOrWhiteSpace(GlobalData.CurrentModule) || !GlobalData.CurrentModule.Equals(module))
+				return;
+			Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[0]];
+			RectTransform baseRect = baseDisplayObject.GetComponent<RectTransform>();
+			if (baseRect == null) return;
+			Vector2 offset = targetPos - baseRect.anchoredPosition;
+			UpdateDisplayObjectPosition(baseRect, transform.name, targetPos);
+			for (int idx = 1; idx < count; ++idx)
+			{
+				Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[idx]];
+				if (displayObject == null) continue;
+				RectTransform rt = displayObject.GetComponent<RectTransform>();
+				UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
 			}
 		}
 
 		private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)
 		{
 			rt.anchoredPosition = pos;
-			Element displayObjectData = GlobalData.GetElement(name);
-			if (displayObjectData == null) return;
-			displayObjectData.X = Element.ConvertX(pos.x);
-			displayObjectData.Y = Element.ConvertY(pos.y);
+			Element element = GlobalData.GetElement(name);
+			if (element == null) return;
+			element.X = Element.ConvertX(pos.x);
+			element.Y = Element.ConvertY(pos.y);
 		}
 
 		public void OnPointerDown(PointerEventData eventData)
 		{
 			if (Input.GetMouseButton(2)) return;
 			bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(transform.name);
-			print($"point: {transform.name}");
 			if (isSelect)
 			{
 				if (KeyboardEventManager.GetControl())

@@ -11,10 +11,16 @@ namespace Assets.Scripts
 		public static void Do(Behavior behavior)
 		{
 			if (behavior == null) return;
+			Add(behavior);
+			behavior.Do();
+		}
+
+		public static void Add(Behavior behavior)
+		{
+			if (behavior == null) return;
 			if (_behaviors.Count == _current) _behaviors.Add(behavior);
 			else _behaviors[_current] = behavior;
 			++_current;
-			behavior.Do();
 		}
 
 		public static void Do()

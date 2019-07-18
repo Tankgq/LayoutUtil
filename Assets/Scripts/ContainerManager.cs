@@ -93,7 +93,7 @@ namespace Assets.Scripts
 					GetComponent<RectTransform>().localPosition = Vector2.zero;
 					LoadAllDisplayObject();
 				});
-			Subject<object[]> updateSelectDisplayObjectSubject = new Subject<object[]>();
+			Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT);
 			updateSelectDisplayObjectSubject.SampleFrame(1)
 				.Subscribe(_ =>
 				{
@@ -114,7 +114,6 @@ namespace Assets.Scripts
 					}
 					SelectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
 				});
-			MessageBroker.AddSubject(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT, updateSelectDisplayObjectSubject);
 			GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
 				.Subscribe(_ => MessageBroker.Send(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT));
 		}
@@ -318,9 +317,10 @@ namespace Assets.Scripts
 		public void MoveCurrentSelectDisplayObjectUp()
 		{
 			if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-			string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-			string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
-			Debug.Log(displayObjectName);
+			// string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
+			// string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
+			// Debug.Log(displayObjectName);
+			string displayObjectName = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
 			int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
 			if (idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count) return;
 			Transform tmp = GlobalData.CurrentDisplayObjects[idx];

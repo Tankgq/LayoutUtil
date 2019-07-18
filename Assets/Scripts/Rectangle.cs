@@ -79,12 +79,29 @@ namespace Assets.Scripts
 			return true;
 		}
 
+		public bool IsInFrame(Vector2 pos, float frameWidth = 16.0f)
+		{
+			float halfFrameWidth = frameWidth / 2;
+			if (!Contain(this.Left - halfFrameWidth, this.Right + halfFrameWidth, this.Top - halfFrameWidth, this.Bottom + halfFrameWidth, pos))
+				return false;
+			if (frameWidth > this.Width || frameWidth > this.Height)
+				return true;
+			if (Contain(this.Left + halfFrameWidth, this.Right - halfFrameWidth, this.Top + halfFrameWidth, this.Bottom - halfFrameWidth, pos))
+				return false;
+			return true;
+		}
+
 		public bool Contain(Vector2 pos)
 		{
-			if (pos.x < this.Left) return false;
-			if (pos.x > this.Right) return false;
-			if (pos.y < this.Top) return false;
-			if (pos.y > this.Bottom) return false;
+			return Contain(this.Left, this.Right, this.Top, this.Bottom, pos);
+		}
+
+		public static bool Contain(float left, float right, float top, float bottom, Vector2 pos)
+		{
+			if (pos.x < left) return false;
+			if (pos.x > right) return false;
+			if (pos.y < top) return false;
+			if (pos.y > bottom) return false;
 			return true;
 		}
 

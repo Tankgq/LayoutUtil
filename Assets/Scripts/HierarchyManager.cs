@@ -19,6 +19,7 @@ namespace Assets.Scripts
 		public InputField SearchInputField;
 
 		private static string SearchText = null;
+		private static bool IsGlobalSearchFlag = true;
 
 		private static readonly List<Transform> DisplayObjectItemPool = new List<Transform>();
 		private static readonly List<Transform> DisplayObjectItems = new List<Transform>();
@@ -30,10 +31,9 @@ namespace Assets.Scripts
 		{
 			GlobalData.CurrentDisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				.Subscribe(_ => RefreshDisplayObjectItem());
-			Subject<object[]> updateSelectDisplayObjectSubject = new Subject<object[]>();
+			Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT);
 			updateSelectDisplayObjectSubject.SampleFrame(1)
 											.Subscribe(_ => RefreshDisplayObjectItem());
-			MessageBroker.AddSubject(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT, updateSelectDisplayObjectSubject);
 			GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
 				// .Subscribe(_ => RefreshDisplayObjectItem());
 				.Subscribe(_ => MessageBroker.Send(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT));
@@ -49,7 +49,8 @@ namespace Assets.Scripts
 				.Sample(TimeSpan.FromMilliseconds(500))
 				.Subscribe(txt =>
 				{
-					GlobalData.CurrentModule = null;
+					if (IsGlobalSearchFlag)
+						GlobalData.CurrentModule = null;
 					SearchText = txt;
 					RefreshModuleItem();
 				});
@@ -127,11 +128,15 @@ namespace Assets.Scripts
 		private static void ShowAllSeachedDisplayObjectItem()
 		{
 			if (string.IsNullOrWhiteSpace(SearchText)) return;
+			if (!IsGlobalSearchFlag && string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
+				return;
 			int count = GlobalData.Modules.Count;
 			for (int idx = 0; idx < count; ++idx)
 			{
-				if (ModuleItems[idx].name.IndexOf(SearchText) != -1)
+				if (IsGlobalSearchFlag && ModuleItems[idx].name.IndexOf(SearchText) != -1)
 					ModuleItems[idx].GetComponentInChildren<Text>().text = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
+				if (!IsGlobalSearchFlag && !GlobalData.Modules[idx].Equals(GlobalData.CurrentModule))
+					continue;
 				int silbingIndex = ModuleItems[idx].GetSiblingIndex();
 				List<Element> displayObjects = GlobalData.ModuleDic[GlobalData.Modules[idx]];
 				bool hasFind = false;
@@ -210,7 +215,7 @@ namespace Assets.Scripts
 
 		private void RefreshModuleItem()
 		{
-			if (!string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
+			if (!string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && IsGlobalSearchFlag)
 			{
 				SearchText = string.Empty;
 				SearchInputField.text = string.Empty;
@@ -232,6 +237,14 @@ namespace Assets.Scripts
 		public static bool InSearchMode()
 		{
 			return !string.IsNullOrEmpty(SearchText);
+		}
+
+		public void SwitchSearchMode(Text searchModeText)
+		{
+			if (searchModeText == null) return;
+			IsGlobalSearchFlag = !IsGlobalSearchFlag;
+			searchModeText.text = IsGlobalSearchFlag ? "G" : "L";
+			RefreshModuleItem();
 		}
 
 		public static void UpdateDisplayObjectName(string originName, string newName)

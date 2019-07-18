@@ -138,12 +138,15 @@ namespace Assets.Scripts
 					else if ((isShiftDown && go == XInputField.gameObject) || (!isShiftDown && go == HeightInputField.gameObject))
 						EventSystem.current.SetSelectedGameObject(NameInputField.gameObject);
 				});
+			Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT);
+			updateDisplayObjectSubject.SampleFrame(1)
+									  .Subscribe(_ =>
+									  {
+										  if (GlobalData.CurrentSelectDisplayObjectDic.Count != 1) UpdateState(null);
+										  else UpdateState(GlobalData.CurrentSelectDisplayObjectDic.First().Value);
+									  });
 			GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-				.Subscribe(count =>
-				{
-					if (count != 1) UpdateState(null);
-					else UpdateState(GlobalData.CurrentSelectDisplayObjectDic.First().Value);
-				});
+				.Subscribe(count => MessageBroker.Send(MessageBroker.UPDATE_SELECT_DISPLAY_OBJECT));
 		}
 
 		private static float ParseFloat(string txt)

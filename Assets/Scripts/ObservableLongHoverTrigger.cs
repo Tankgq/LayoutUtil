@@ -6,44 +6,44 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts
 {
-    public class ObservableLongPointerDownTrigger : ObservableTriggerBase, IPointerEnterHandler, IPointerExitHandler
-    {
-        public float IntervalSecond = 1f;
+	public class ObservableLongPointerDownTrigger : ObservableTriggerBase, IPointerEnterHandler, IPointerExitHandler
+	{
+		public float IntervalSecond = 0.5f;
 
-        private Subject<Unit> onLongHoverDown;
+		private Subject<Unit> onLongHoverDown;
 
-        private float? raiseTime;
+		private float? raiseTime;
 
-        void Update()
-        {
-            if (raiseTime != null && raiseTime <= Time.realtimeSinceStartup)
-            {
-                if (onLongHoverDown != null) onLongHoverDown.OnNext(UniRx.Unit.Default);
-                raiseTime = null;
-            }
-        }
+		void Update()
+		{
+			if (raiseTime != null && raiseTime <= Time.realtimeSinceStartup)
+			{
+				if (onLongHoverDown != null) onLongHoverDown.OnNext(UniRx.Unit.Default);
+				raiseTime = null;
+			}
+		}
 
-        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
-        {
-            raiseTime = Time.realtimeSinceStartup + IntervalSecond;
-        }
+		void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
+		{
+			raiseTime = Time.realtimeSinceStartup + IntervalSecond;
+		}
 
-        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
-        {
-            raiseTime = null;
-        }
+		void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+		{
+			raiseTime = null;
+		}
 
-        public IObservable<Unit> OnLongHoverAsObservable()
-        {
-            return onLongHoverDown ?? (onLongHoverDown = new Subject<Unit>());
-        }
+		public IObservable<Unit> OnLongHoverAsObservable()
+		{
+			return onLongHoverDown ?? (onLongHoverDown = new Subject<Unit>());
+		}
 
-        protected override void RaiseOnCompletedOnDestroy()
-        {
-            if (onLongHoverDown != null)
-            {
-                onLongHoverDown.OnCompleted();
-            }
-        }
-    }
+		protected override void RaiseOnCompletedOnDestroy()
+		{
+			if (onLongHoverDown != null)
+			{
+				onLongHoverDown.OnCompleted();
+			}
+		}
+	}
 }
