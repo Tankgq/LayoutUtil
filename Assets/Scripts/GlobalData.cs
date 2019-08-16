@@ -34,6 +34,8 @@ namespace Assets.Scripts
 
 		public static string CurrentModule = null;
 
+		public static string CurrentFilePath = null;
+
 		public static readonly Vector2 OriginPoint = new Vector2(32, -32);
 		public static readonly Vector2 DefaultSize = new Vector2(64, 64);
 		public const string DefaultName = "DisplayObject";
@@ -51,11 +53,14 @@ namespace Assets.Scripts
 		public static GameObject TipPrefab;
 		public static GameObject SelectPrefab;
 		public static GameObject LinePrefab;
+		public static GameObject QuickTipPrefab;
 
 		public static GameObject RootCanvas;
 		public static GameObject DisplayObjectContainer;
 		public static ContainerManager ContainerManager;
 		public static GameObject HierarchyContainer;
+
+		public static GameObject QuickTipContainer;
 
 		private void Awake()
 		{
@@ -67,10 +72,12 @@ namespace Assets.Scripts
 			TipPrefab = Resources.Load<GameObject>("Prefabs/Tip");
 			SelectPrefab = Resources.Load<GameObject>("Prefabs/Select-Rect");
 			LinePrefab = Resources.Load<GameObject>("Prefabs/Line");
+			QuickTipPrefab = Resources.Load<GameObject>("Prefabs/Quick-Tip");
 			RootCanvas = GameObject.FindGameObjectWithTag("RootCanvas");
 			DisplayObjectContainer = GameObject.FindGameObjectWithTag("DisplayObjectContainer");
 			ContainerManager = DisplayObjectContainer.GetComponent<ContainerManager>();
 			HierarchyContainer = GameObject.FindGameObjectWithTag("HierarchyContainer");
+			QuickTipContainer = GameObject.FindGameObjectWithTag("QuickTipContainer");
 		}
 	}
 }

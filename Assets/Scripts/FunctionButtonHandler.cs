@@ -66,7 +66,7 @@ namespace Assets.Scripts
 
 		public void OnExportButtonClick()
 		{
-			ContainerManager.ExportModules();
+			ContainerManager.CheckExportModules();
 		}
 
 		public void OnHelpButtonClick()

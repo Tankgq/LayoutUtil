@@ -368,7 +368,7 @@ namespace Assets.Scripts
 			DialogManager.ShowInfo("已导出到剪切板");
 		}
 
-		public void ExportModules()
+		public void CheckExportModules()
 		{
 			if (GlobalData.Modules.Count == 0)
 			{
@@ -376,7 +376,13 @@ namespace Assets.Scripts
 				return;
 			}
 			string filePath = SaveFileUtil.SaveFile("json 文件(*.json)\0*.json");
+			ExportModules(filePath);
+		}
+
+		public void ExportModules(string filePath, bool showQuickTip = false)
+		{
 			if (string.IsNullOrEmpty(filePath)) return;
+			GlobalData.CurrentFilePath = filePath;
 			ContainerManager.UpdateCurrentDisplayObjectData();
 			List<Module> modules = new List<Module>();
 			int count = GlobalData.Modules.Count;
@@ -397,8 +403,25 @@ namespace Assets.Scripts
 			}
 			string jsonString = JsonConvert.SerializeObject(modules, Formatting.Indented);
 			bool result = Utils.WriteFile(filePath, System.Text.Encoding.UTF8.GetBytes(jsonString));
-			if (result) DialogManager.ShowInfo($"成功导出到 {filePath}");
-			else DialogManager.ShowError($"导出失败", 0, 0);
+			if (result)
+			{
+				if (showQuickTip)
+				{
+
+				}
+				else
+					DialogManager.ShowInfo($"成功导出到 {filePath}");
+				GlobalData.CurrentFilePath = filePath;
+			}
+			else
+			{
+				if (showQuickTip)
+				{
+
+				}
+				else
+					DialogManager.ShowError($"导出失败", 0, 0);
+			}
 		}
 
 		public Rectangle GetMinRectangleContainsDisplayObjects(List<Element> displayObjects)
@@ -448,6 +471,7 @@ namespace Assets.Scripts
 							GlobalData.Modules.Add(module.Name);
 							GlobalData.ModuleDic[module.Name] = module.Elements;
 						}
+						GlobalData.CurrentFilePath = filePath;
 					}
 					catch (Exception e)
 					{
