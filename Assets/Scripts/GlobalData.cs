@@ -44,6 +44,8 @@ namespace Assets.Scripts
 
 		public static bool IsDragGui = false;
 
+		public const int QuickTipMaxCount = 9;
+
 		public static Shader DefaultShader;
 
 		public static GameObject DisplayObjectItemPrefab;

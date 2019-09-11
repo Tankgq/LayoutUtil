@@ -176,8 +176,8 @@ namespace Assets.Scripts
 					  .Where(_ => Input.GetKeyDown(KeyCode.Y) && GetControl())
 					  .Subscribe(_ => HistoryManager.Do());
 			Observable.EveryUpdate()
-					  .Where(_ => Input.GetKeyDown(KeyCode.S) && GetControl())
-					  .Subscribe()
+					  .Where(_ => Input.GetKeyDown(KeyCode.S))
+					  .Subscribe(_ => QuickTipManager.ShowQuickTip("qwe"));
 		}
 	}
 }
