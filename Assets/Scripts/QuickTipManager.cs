@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
@@ -14,6 +13,8 @@ namespace Assets.Scripts
 		private static readonly List<Transform> QuickTipList = new List<Transform>();
 		private static readonly Dictionary<Transform, TweenerCore<Color, Color, ColorOptions>> TweenerDic
 										= new Dictionary<Transform, TweenerCore<Color, Color, ColorOptions>>();
+
+		private static readonly Color QuickTipColor = GlobalData.QuickTipPrefab.GetComponent<Graphic>().color;
 
 		private static Transform GetQuickTip()
 		{
@@ -30,9 +31,7 @@ namespace Assets.Scripts
 			if (!tip) return;
 			tip.gameObject.SetActive(false);
 			tip.GetComponent<Text>().text = "QuickTip";
-			Color color = tip.GetComponent<Graphic>().color;
-			color.a = 255;
-			tip.GetComponent<Graphic>().color = color;
+			tip.GetComponent<Graphic>().color = QuickTipColor;
 			QuickTipPool.Add(tip);
 		}
 
@@ -60,7 +59,8 @@ namespace Assets.Scripts
 			}
 			Text text = quickTip.GetComponent<Text>();
 			text.text = message;
-			TweenerCore<Color, Color, ColorOptions> tweener = DOTween.ToAlpha(() => text.color, (cl) => text.color = cl, 0, 3);
+			// TweenerCore<Color, Color, ColorOptions> tweener = DOTween.ToAlpha(() => text.color, (cl) => text.color = cl, 0, 1.5f);
+			TweenerCore<Color, Color, ColorOptions> tweener = text.DOFade(0, 1.5f);
 			tweener.onComplete = () => OnAlphaChangeComplete(quickTip);
 			if (TweenerDic.ContainsKey(quickTip))
 			{
@@ -90,6 +90,7 @@ namespace Assets.Scripts
 				if (tweener != null)
 				{
 					tweener.Kill();
+					tweener.onComplete = null;
 					TweenerDic[quickTip] = null;
 				}
 				RecycleTip(quickTip);
