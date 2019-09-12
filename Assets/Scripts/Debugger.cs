@@ -2,236 +2,234 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts
+public class Debugger : MonoBehaviour
 {
-    public class Debugger : MonoBehaviour
-    {
-        public static bool ShowDebugging = false;
+    public static bool ShowDebugging = false;
 
-        private DebugType _debugType = DebugType.Console;
-        private readonly List<LogData> LogInformationList = new List<LogData>();
-        private int _currentLogIndex = -1;
-        private int _infoLogCount = 0;
-        private int _warningLogCount = 0;
-        private int _errorLogCount = 0;
-        private int _fatalLogCount = 0;
-        private bool _showInfoLog = true;
-        private bool _showWarningLog = true;
-        private bool _showErrorLog = true;
-        private bool _showFatalLog = true;
-        private Vector2 _scrollLogView = Vector2.zero;
-        private Vector2 _scrollCurrentLogView = Vector2.zero;
-        private Vector2 _scrollSystemView = Vector2.zero;
-        private bool _expansion = false;
-        private Rect _windowRect = new Rect(16, 16, 100, 60);
+    private DebugType _debugType = DebugType.Console;
+    private readonly List<LogData> LogInformationList = new List<LogData>();
+    private int _currentLogIndex = -1;
+    private int _infoLogCount = 0;
+    private int _warningLogCount = 0;
+    private int _errorLogCount = 0;
+    private int _fatalLogCount = 0;
+    private bool _showInfoLog = true;
+    private bool _showWarningLog = true;
+    private bool _showErrorLog = true;
+    private bool _showFatalLog = true;
+    private Vector2 _scrollLogView = Vector2.zero;
+    private Vector2 _scrollCurrentLogView = Vector2.zero;
+    private Vector2 _scrollSystemView = Vector2.zero;
+    private bool _expansion = false;
+    private Rect _windowRect = new Rect(16, 16, 100, 60);
 
-        private int _fps = 0;
-        private Color _fpsColor = Color.white;
-        private int _frameNumber = 0;
-        private float _lastShowFPSTime = 0f;
+    private int _fps = 0;
+    private Color _fpsColor = Color.white;
+    private int _frameNumber = 0;
+    private float _lastShowFPSTime = 0f;
 
     
-        private void Awake()
+    private void Awake()
+    {
+        Application.logMessageReceived += LogHandler;
+    }
+    private void Update()
+    {
+        if (!ShowDebugging) return;
+        _frameNumber += 1;
+        float time = Time.realtimeSinceStartup - _lastShowFPSTime;
+        if (!(time >= 1)) return;
+        _fps = (int)(_frameNumber / time);
+        _frameNumber = 0;
+        _lastShowFPSTime = Time.realtimeSinceStartup;
+    }
+    private void OnDestory()
+    {
+        if (ShowDebugging)
         {
-            Application.logMessageReceived += LogHandler;
+            Application.logMessageReceived -= LogHandler;
         }
-        private void Update()
+    }
+    private void LogHandler(string condition, string stackTrace, LogType type)
+    {
+        LogData log = new LogData
         {
-            if (!ShowDebugging) return;
-            _frameNumber += 1;
-            float time = Time.realtimeSinceStartup - _lastShowFPSTime;
-            if (!(time >= 1)) return;
-            _fps = (int)(_frameNumber / time);
-            _frameNumber = 0;
-            _lastShowFPSTime = Time.realtimeSinceStartup;
-        }
-        private void OnDestory()
+            time = DateTime.Now.ToString("HH:mm:ss"), message = condition, stackTrace = stackTrace
+        };
+
+        switch (type)
         {
-            if (ShowDebugging)
-            {
-                Application.logMessageReceived -= LogHandler;
-            }
-        }
-        private void LogHandler(string condition, string stackTrace, LogType type)
-        {
-            LogData log = new LogData
-            {
-                time = DateTime.Now.ToString("HH:mm:ss"), message = condition, stackTrace = stackTrace
-            };
-
-            switch (type)
-            {
-                case LogType.Assert:
-                    log.type = "Fatal";
-                    _fatalLogCount += 1;
-                    break;
-                case LogType.Exception:
-                case LogType.Error:
-                    log.type = "Error";
-                    _errorLogCount += 1;
-                    break;
-                case LogType.Warning:
-                    log.type = "Warning";
-                    _warningLogCount += 1;
-                    break;
-                case LogType.Log:
-                    log.type = "Info";
-                    _infoLogCount += 1;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-
-            LogInformationList.Add(log);
-
-            if (_warningLogCount > 0)
-            {
-                _fpsColor = Color.yellow;
-            }
-            if (_errorLogCount > 0)
-            {
-                _fpsColor = Color.red;
-            }
+            case LogType.Assert:
+                log.type = "Fatal";
+                _fatalLogCount += 1;
+                break;
+            case LogType.Exception:
+            case LogType.Error:
+                log.type = "Error";
+                _errorLogCount += 1;
+                break;
+            case LogType.Warning:
+                log.type = "Warning";
+                _warningLogCount += 1;
+                break;
+            case LogType.Log:
+                log.type = "Info";
+                _infoLogCount += 1;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
-        private void OnGUI()
+        LogInformationList.Add(log);
+
+        if (_warningLogCount > 0)
         {
-            if (!ShowDebugging) return;
-            GlobalData.IsDragGui = GUIUtility.hotControl != 0;
-            _windowRect = _expansion ? GUI.Window(0, _windowRect, ExpansionGuiWindow, "DEBUGGER") : GUI.Window(0, _windowRect, ShrinkGuiWindow, "DEBUGGER");
+            _fpsColor = Color.yellow;
         }
-        private void ExpansionGuiWindow(int windowId)
+        if (_errorLogCount > 0)
         {
-            GUI.DragWindow(new Rect(0, 0, 10000, 20));
+            _fpsColor = Color.red;
+        }
+    }
 
-            #region title
-            GUILayout.BeginHorizontal();
-            GUI.contentColor = _fpsColor;
-            if (GUILayout.Button("FPS:" + _fps, GUILayout.Height(30)))
-            {
-                _expansion = false;
-                _windowRect.width = 100;
-                _windowRect.height = 60;
-            }
-            GUI.contentColor = (_debugType == DebugType.Console ? Color.white : Color.gray);
-            if (GUILayout.Button("Console", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.Console;
-            }
-            GUI.contentColor = (_debugType == DebugType.Memory ? Color.white : Color.gray);
-            if (GUILayout.Button("Memory", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.Memory;
-            }
-            GUI.contentColor = (_debugType == DebugType.System ? Color.white : Color.gray);
-            if (GUILayout.Button("System", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.System;
-            }
-            GUI.contentColor = (_debugType == DebugType.Screen ? Color.white : Color.gray);
-            if (GUILayout.Button("Screen", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.Screen;
-            }
-            GUI.contentColor = (_debugType == DebugType.Quality ? Color.white : Color.gray);
-            if (GUILayout.Button("Quality", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.Quality;
-            }
-            GUI.contentColor = (_debugType == DebugType.Environment ? Color.white : Color.gray);
-            if (GUILayout.Button("Environment", GUILayout.Height(30)))
-            {
-                _debugType = DebugType.Environment;
-            }
-            GUI.contentColor = Color.white;
-            GUILayout.EndHorizontal();
-            #endregion
+    private void OnGUI()
+    {
+        if (!ShowDebugging) return;
+        GlobalData.IsDragGui = GUIUtility.hotControl != 0;
+        _windowRect = _expansion ? GUI.Window(0, _windowRect, ExpansionGuiWindow, "DEBUGGER") : GUI.Window(0, _windowRect, ShrinkGuiWindow, "DEBUGGER");
+    }
+    private void ExpansionGuiWindow(int windowId)
+    {
+        GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
-            #region console
-            switch (_debugType)
+        #region title
+        GUILayout.BeginHorizontal();
+        GUI.contentColor = _fpsColor;
+        if (GUILayout.Button("FPS:" + _fps, GUILayout.Height(30)))
+        {
+            _expansion = false;
+            _windowRect.width = 100;
+            _windowRect.height = 60;
+        }
+        GUI.contentColor = (_debugType == DebugType.Console ? Color.white : Color.gray);
+        if (GUILayout.Button("Console", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.Console;
+        }
+        GUI.contentColor = (_debugType == DebugType.Memory ? Color.white : Color.gray);
+        if (GUILayout.Button("Memory", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.Memory;
+        }
+        GUI.contentColor = (_debugType == DebugType.System ? Color.white : Color.gray);
+        if (GUILayout.Button("System", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.System;
+        }
+        GUI.contentColor = (_debugType == DebugType.Screen ? Color.white : Color.gray);
+        if (GUILayout.Button("Screen", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.Screen;
+        }
+        GUI.contentColor = (_debugType == DebugType.Quality ? Color.white : Color.gray);
+        if (GUILayout.Button("Quality", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.Quality;
+        }
+        GUI.contentColor = (_debugType == DebugType.Environment ? Color.white : Color.gray);
+        if (GUILayout.Button("Environment", GUILayout.Height(30)))
+        {
+            _debugType = DebugType.Environment;
+        }
+        GUI.contentColor = Color.white;
+        GUILayout.EndHorizontal();
+        #endregion
+
+        #region console
+        switch (_debugType)
+        {
+            case DebugType.Console:
             {
-                case DebugType.Console:
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Clear"))
                 {
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Clear"))
+                    LogInformationList.Clear();
+                    _fatalLogCount = 0;
+                    _warningLogCount = 0;
+                    _errorLogCount = 0;
+                    _infoLogCount = 0;
+                    _currentLogIndex = -1;
+                    _fpsColor = Color.white;
+                }
+                GUI.contentColor = (_showInfoLog ? Color.white : Color.gray);
+                _showInfoLog = GUILayout.Toggle(_showInfoLog, "Info [" + _infoLogCount + "]");
+                GUI.contentColor = (_showWarningLog ? Color.white : Color.gray);
+                _showWarningLog = GUILayout.Toggle(_showWarningLog, "Warning [" + _warningLogCount + "]");
+                GUI.contentColor = (_showErrorLog ? Color.white : Color.gray);
+                _showErrorLog = GUILayout.Toggle(_showErrorLog, "Error [" + _errorLogCount + "]");
+                GUI.contentColor = (_showFatalLog ? Color.white : Color.gray);
+                _showFatalLog = GUILayout.Toggle(_showFatalLog, "Fatal [" + _fatalLogCount + "]");
+                GUI.contentColor = Color.white;
+                GUILayout.EndHorizontal();
+
+                _scrollLogView = GUILayout.BeginScrollView(_scrollLogView, "Box", GUILayout.Height(165));
+                for (int i = 0; i < LogInformationList.Count; i++)
+                {
+                    bool show = false;
+                    Color color = Color.white;
+                    switch (LogInformationList[i].type)
                     {
-                        LogInformationList.Clear();
-                        _fatalLogCount = 0;
-                        _warningLogCount = 0;
-                        _errorLogCount = 0;
-                        _infoLogCount = 0;
-                        _currentLogIndex = -1;
-                        _fpsColor = Color.white;
+                        case "Fatal":
+                            show = _showFatalLog;
+                            color = Color.red;
+                            break;
+                        case "Error":
+                            show = _showErrorLog;
+                            color = Color.red;
+                            break;
+                        case "Info":
+                            show = _showInfoLog;
+                            color = Color.white;
+                            break;
+                        case "Warning":
+                            show = _showWarningLog;
+                            color = Color.yellow;
+                            break;
+                        default:
+                            break;
                     }
-                    GUI.contentColor = (_showInfoLog ? Color.white : Color.gray);
-                    _showInfoLog = GUILayout.Toggle(_showInfoLog, "Info [" + _infoLogCount + "]");
-                    GUI.contentColor = (_showWarningLog ? Color.white : Color.gray);
-                    _showWarningLog = GUILayout.Toggle(_showWarningLog, "Warning [" + _warningLogCount + "]");
-                    GUI.contentColor = (_showErrorLog ? Color.white : Color.gray);
-                    _showErrorLog = GUILayout.Toggle(_showErrorLog, "Error [" + _errorLogCount + "]");
-                    GUI.contentColor = (_showFatalLog ? Color.white : Color.gray);
-                    _showFatalLog = GUILayout.Toggle(_showFatalLog, "Fatal [" + _fatalLogCount + "]");
+
+                    if (!show) continue;
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Toggle(_currentLogIndex == i, ""))
+                    {
+                        _currentLogIndex = i;
+                    }
+                    GUI.contentColor = color;
+                    GUILayout.Label("[" + LogInformationList[i].type + "] ");
+                    GUILayout.Label("[" + LogInformationList[i].time + "] ");
+                    GUILayout.Label(LogInformationList[i].message);
+                    GUILayout.FlexibleSpace();
                     GUI.contentColor = Color.white;
                     GUILayout.EndHorizontal();
-
-                    _scrollLogView = GUILayout.BeginScrollView(_scrollLogView, "Box", GUILayout.Height(165));
-                    for (int i = 0; i < LogInformationList.Count; i++)
-                    {
-                        bool show = false;
-                        Color color = Color.white;
-                        switch (LogInformationList[i].type)
-                        {
-                            case "Fatal":
-                                show = _showFatalLog;
-                                color = Color.red;
-                                break;
-                            case "Error":
-                                show = _showErrorLog;
-                                color = Color.red;
-                                break;
-                            case "Info":
-                                show = _showInfoLog;
-                                color = Color.white;
-                                break;
-                            case "Warning":
-                                show = _showWarningLog;
-                                color = Color.yellow;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        if (!show) continue;
-                        GUILayout.BeginHorizontal();
-                        if (GUILayout.Toggle(_currentLogIndex == i, ""))
-                        {
-                            _currentLogIndex = i;
-                        }
-                        GUI.contentColor = color;
-                        GUILayout.Label("[" + LogInformationList[i].type + "] ");
-                        GUILayout.Label("[" + LogInformationList[i].time + "] ");
-                        GUILayout.Label(LogInformationList[i].message);
-                        GUILayout.FlexibleSpace();
-                        GUI.contentColor = Color.white;
-                        GUILayout.EndHorizontal();
-                    }
-                    GUILayout.EndScrollView();
-
-                    _scrollCurrentLogView = GUILayout.BeginScrollView(_scrollCurrentLogView, "Box", GUILayout.Height(100));
-                    if (_currentLogIndex != -1)
-                    {
-                        GUILayout.Label(LogInformationList[_currentLogIndex].message + "\r\n\r\n" + LogInformationList[_currentLogIndex].stackTrace);
-                    }
-                    GUILayout.EndScrollView();
-                    break;
                 }
-                case DebugType.Memory:
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Memory Information");
-                    GUILayout.EndHorizontal();
+                GUILayout.EndScrollView();
 
-                    GUILayout.BeginVertical("Box");
+                _scrollCurrentLogView = GUILayout.BeginScrollView(_scrollCurrentLogView, "Box", GUILayout.Height(100));
+                if (_currentLogIndex != -1)
+                {
+                    GUILayout.Label(LogInformationList[_currentLogIndex].message + "\r\n\r\n" + LogInformationList[_currentLogIndex].stackTrace);
+                }
+                GUILayout.EndScrollView();
+                break;
+            }
+            case DebugType.Memory:
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Memory Information");
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginVertical("Box");
 #if UNITY_5
             GUILayout.Label("总内存：" + Profiler.GetTotalReservedMemory() / 1000000 + "MB");
             GUILayout.Label("已占用内存：" + Profiler.GetTotalAllocatedMemory() / 1000000 + "MB");
@@ -246,159 +244,158 @@ namespace Assets.Scripts
             GUILayout.Label("总Mono堆内存：" + Profiler.GetMonoHeapSizeLong() / 1000000 + "MB");
             GUILayout.Label("已占用Mono堆内存：" + Profiler.GetMonoUsedSizeLong() / 1000000 + "MB");
 #endif
-                    GUILayout.EndVertical();
+                GUILayout.EndVertical();
 
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("卸载未使用的资源"))
-                    {
-                        Resources.UnloadUnusedAssets();
-                    }
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("使用GC垃圾回收"))
-                    {
-                        GC.Collect();
-                    }
-                    GUILayout.EndHorizontal();
-                    break;
-                }
-                case DebugType.System:
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("System Information");
-                    GUILayout.EndHorizontal();
-
-                    _scrollSystemView = GUILayout.BeginScrollView(_scrollSystemView, "Box");
-                    GUILayout.Label("操作系统：" + SystemInfo.operatingSystem);
-                    GUILayout.Label("系统内存：" + SystemInfo.systemMemorySize + "MB");
-                    GUILayout.Label("处理器：" + SystemInfo.processorType);
-                    GUILayout.Label("处理器数量：" + SystemInfo.processorCount);
-                    GUILayout.Label("显卡：" + SystemInfo.graphicsDeviceName);
-                    GUILayout.Label("显卡类型：" + SystemInfo.graphicsDeviceType);
-                    GUILayout.Label("显存：" + SystemInfo.graphicsMemorySize + "MB");
-                    GUILayout.Label("显卡标识：" + SystemInfo.graphicsDeviceID);
-                    GUILayout.Label("显卡供应商：" + SystemInfo.graphicsDeviceVendor);
-                    GUILayout.Label("显卡供应商标识码：" + SystemInfo.graphicsDeviceVendorID);
-                    GUILayout.Label("设备模式：" + SystemInfo.deviceModel);
-                    GUILayout.Label("设备名称：" + SystemInfo.deviceName);
-                    GUILayout.Label("设备类型：" + SystemInfo.deviceType);
-                    GUILayout.Label("设备标识：" + SystemInfo.deviceUniqueIdentifier);
-                    GUILayout.EndScrollView();
-                    break;
-                case DebugType.Screen:
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("卸载未使用的资源"))
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Screen Information");
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginVertical("Box");
-                    GUILayout.Label("DPI：" + Screen.dpi);
-                    GUILayout.Label("分辨率：" + Screen.currentResolution.ToString());
-                    GUILayout.EndVertical();
-
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("全屏"))
-                    {
-                        Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, !Screen.fullScreen);
-                    }
-                    GUILayout.EndHorizontal();
-                    break;
+                    Resources.UnloadUnusedAssets();
                 }
-                case DebugType.Quality:
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("使用GC垃圾回收"))
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Quality Information");
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginVertical("Box");
-                    string value = "";
-                    if (QualitySettings.GetQualityLevel() == 0)
-                    {
-                        value = " [最低]";
-                    }
-                    else if (QualitySettings.GetQualityLevel() == QualitySettings.names.Length - 1)
-                    {
-                        value = " [最高]";
-                    }
-
-                    GUILayout.Label("图形质量：" + QualitySettings.names[QualitySettings.GetQualityLevel()] + value);
-                    GUILayout.EndVertical();
-
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("降低一级图形质量"))
-                    {
-                        QualitySettings.DecreaseLevel();
-                    }
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("提升一级图形质量"))
-                    {
-                        QualitySettings.IncreaseLevel();
-                    }
-                    GUILayout.EndHorizontal();
-                    break;
+                    GC.Collect();
                 }
-                case DebugType.Environment:
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Environment Information");
-                    GUILayout.EndHorizontal();
+                GUILayout.EndHorizontal();
+                break;
+            }
+            case DebugType.System:
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("System Information");
+                GUILayout.EndHorizontal();
 
-                    GUILayout.BeginVertical("Box");
-                    GUILayout.Label("项目名称：" + Application.productName);
+                _scrollSystemView = GUILayout.BeginScrollView(_scrollSystemView, "Box");
+                GUILayout.Label("操作系统：" + SystemInfo.operatingSystem);
+                GUILayout.Label("系统内存：" + SystemInfo.systemMemorySize + "MB");
+                GUILayout.Label("处理器：" + SystemInfo.processorType);
+                GUILayout.Label("处理器数量：" + SystemInfo.processorCount);
+                GUILayout.Label("显卡：" + SystemInfo.graphicsDeviceName);
+                GUILayout.Label("显卡类型：" + SystemInfo.graphicsDeviceType);
+                GUILayout.Label("显存：" + SystemInfo.graphicsMemorySize + "MB");
+                GUILayout.Label("显卡标识：" + SystemInfo.graphicsDeviceID);
+                GUILayout.Label("显卡供应商：" + SystemInfo.graphicsDeviceVendor);
+                GUILayout.Label("显卡供应商标识码：" + SystemInfo.graphicsDeviceVendorID);
+                GUILayout.Label("设备模式：" + SystemInfo.deviceModel);
+                GUILayout.Label("设备名称：" + SystemInfo.deviceName);
+                GUILayout.Label("设备类型：" + SystemInfo.deviceType);
+                GUILayout.Label("设备标识：" + SystemInfo.deviceUniqueIdentifier);
+                GUILayout.EndScrollView();
+                break;
+            case DebugType.Screen:
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Screen Information");
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginVertical("Box");
+                GUILayout.Label("DPI：" + Screen.dpi);
+                GUILayout.Label("分辨率：" + Screen.currentResolution.ToString());
+                GUILayout.EndVertical();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("全屏"))
+                {
+                    Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, !Screen.fullScreen);
+                }
+                GUILayout.EndHorizontal();
+                break;
+            }
+            case DebugType.Quality:
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Quality Information");
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginVertical("Box");
+                string value = "";
+                if (QualitySettings.GetQualityLevel() == 0)
+                {
+                    value = " [最低]";
+                }
+                else if (QualitySettings.GetQualityLevel() == QualitySettings.names.Length - 1)
+                {
+                    value = " [最高]";
+                }
+
+                GUILayout.Label("图形质量：" + QualitySettings.names[QualitySettings.GetQualityLevel()] + value);
+                GUILayout.EndVertical();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("降低一级图形质量"))
+                {
+                    QualitySettings.DecreaseLevel();
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("提升一级图形质量"))
+                {
+                    QualitySettings.IncreaseLevel();
+                }
+                GUILayout.EndHorizontal();
+                break;
+            }
+            case DebugType.Environment:
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Environment Information");
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginVertical("Box");
+                GUILayout.Label("项目名称：" + Application.productName);
 #if UNITY_5
             GUILayout.Label("项目ID：" + Application.bundleIdentifier);
 #endif
 #if UNITY_7
             GUILayout.Label("项目ID：" + Application.identifier);
 #endif
-                    GUILayout.Label("项目版本：" + Application.version);
-                    GUILayout.Label("Unity版本：" + Application.unityVersion);
-                    GUILayout.Label("公司名称：" + Application.companyName);
-                    GUILayout.EndVertical();
+                GUILayout.Label("项目版本：" + Application.version);
+                GUILayout.Label("Unity版本：" + Application.unityVersion);
+                GUILayout.Label("公司名称：" + Application.companyName);
+                GUILayout.EndVertical();
 
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button("退出程序"))
-                    {
-                        Application.Quit();
-                    }
-                    GUILayout.EndHorizontal();
-                    break;
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("退出程序"))
+                {
+                    Application.Quit();
                 }
-                default:
-                    throw new ArgumentOutOfRangeException();
+                GUILayout.EndHorizontal();
+                break;
             }
-            #endregion
+            default:
+                throw new ArgumentOutOfRangeException();
         }
-        private void ShrinkGuiWindow(int windowId)
-        {
-            GUI.DragWindow(new Rect(0, 0, 10000, 20));
+        #endregion
+    }
+    private void ShrinkGuiWindow(int windowId)
+    {
+        GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
-            GUI.contentColor = _fpsColor;
-            if (GUILayout.Button("FPS:" + _fps, GUILayout.Width(80), GUILayout.Height(30)))
-            {
-                _expansion = true;
-                _windowRect.width = 600;
-                _windowRect.height = 360;
-            }
-            GUI.contentColor = Color.white;
+        GUI.contentColor = _fpsColor;
+        if (GUILayout.Button("FPS:" + _fps, GUILayout.Width(80), GUILayout.Height(30)))
+        {
+            _expansion = true;
+            _windowRect.width = 600;
+            _windowRect.height = 360;
         }
+        GUI.contentColor = Color.white;
     }
-    public struct LogData
-    {
-        public string time;
-        public string type;
-        public string message;
-        public string stackTrace;
-    }
-    public enum DebugType
-    {
-        Console,
-        Memory,
-        System,
-        Screen,
-        Quality,
-        Environment
-    }
+}
+public struct LogData
+{
+    public string time;
+    public string type;
+    public string message;
+    public string stackTrace;
+}
+public enum DebugType
+{
+    Console,
+    Memory,
+    System,
+    Screen,
+    Quality,
+    Environment
 }

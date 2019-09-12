@@ -293,10 +293,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b761f59514a984ea67f97c41d0487c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContainerManager: {fileID: 505979763}
-  HierarchyManager: {fileID: 552774003}
-  ContainerRect: {fileID: 505979762}
-  ScaleSlider: {fileID: 129925333}
+  containerManager: {fileID: 505979763}
+  hierarchyManager: {fileID: 552774003}
+  containerRect: {fileID: 505979762}
+  scaleSlider: {fileID: 129925333}
 --- !u!1 &25782673
 GameObject:
   m_ObjectHideFlags: 0
@@ -2092,10 +2092,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a449a06c1132f2c47ad9e2a9672994e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContainerScrollView: {fileID: 1166037060}
-  ModuleNameText: {fileID: 1331939913}
-  SelectedDisplayObjectText: {fileID: 399195385}
-  ScaleSlider: {fileID: 129925333}
+  containerScrollView: {fileID: 1166037060}
+  moduleNameText: {fileID: 1331939913}
+  selectedDisplayObjectText: {fileID: 399195385}
+  scaleSlider: {fileID: 129925333}
 --- !u!114 &505979764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4442,7 +4442,6 @@ GameObject:
   - component: {fileID: 1192413180}
   - component: {fileID: 1192413179}
   - component: {fileID: 1192413178}
-  - component: {fileID: 1192413182}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: RootCanvas
@@ -4532,18 +4531,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1192413182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192413177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17ddb88ccf13fcc42a4c46394bbf0eca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1201610148
 GameObject:
   m_ObjectHideFlags: 0
@@ -7295,11 +7282,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d163221aecd164419e50a4ee7f6b6c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContainerManager: {fileID: 505979763}
-  ContainerScrollRect: {fileID: 1166037062}
-  ContainerRect: {fileID: 505979762}
-  ContainerKeyMoveSensitivity: 1
-  ScaleSlider: {fileID: 129925333}
+  containerManager: {fileID: 505979763}
+  containerScrollRect: {fileID: 1166037062}
+  containerRect: {fileID: 505979762}
+  containerKeyMoveSensitivity: 3
+  scaleSlider: {fileID: 129925333}
 --- !u!1 &2071653546
 GameObject:
   m_ObjectHideFlags: 0
