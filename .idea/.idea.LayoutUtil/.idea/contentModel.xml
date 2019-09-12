@@ -8,6 +8,18 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Plugins" t="Include">
+          <e p="DOTween" t="Include">
+            <e p="Modules" t="Include">
+              <e p="DOTweenModuleAudio.cs" t="Include" />
+              <e p="DOTweenModulePhysics.cs" t="Include" />
+              <e p="DOTweenModulePhysics2D.cs" t="Include" />
+              <e p="DOTweenModuleSprite.cs" t="Include" />
+              <e p="DOTweenModuleUI.cs" t="Include" />
+              <e p="DOTweenModuleUnityVersion.cs" t="Include" />
+              <e p="DOTweenModuleUtils.cs" t="Include" />
+            </e>
+            <e p="ReadMe.txt" t="Include" />
+          </e>
           <e p="Json.Net" t="Include">
             <e p="JsonNetSample" t="Include">
               <e p="JsonNetSample.cs" t="Include" />
@@ -396,31 +408,39 @@
           </e>
         </e>
         <e p="Scripts" t="Include">
+          <e p="AlignInfo.cs" t="Include" />
           <e p="B83.Win32.cs" t="Include" />
+          <e p="Behavior.cs" t="Include" />
           <e p="ContainerManager.cs" t="Include" />
           <e p="Debugger.cs" t="Include" />
           <e p="DialogManager.cs" t="Include" />
-          <e p="DisplayObject.cs" t="Include" />
           <e p="DisplayObjectManager.cs" t="Include" />
           <e p="DragFileHandler.cs" t="Include" />
+          <e p="Element.cs" t="Include" />
           <e p="ExportDisplayObject.cs" t="Include" />
-          <e p="ExportModule.cs" t="Include" />
           <e p="FileExplorerDialog.cs" t="Include" />
           <e p="FunctionButtonHandler.cs" t="Include" />
           <e p="GlobalData.cs" t="Include" />
           <e p="HierarchyItemManager.cs" t="Include" />
           <e p="HierarchyManager.cs" t="Include" />
+          <e p="HistoryManager.cs" t="Include" />
           <e p="ImageHoverManager.cs" t="Include" />
           <e p="InspectorManager.cs" t="Include" />
           <e p="KeyboardEventManager.cs" t="Include" />
+          <e p="LocalDialog.cs" t="Include" />
           <e p="MessageBoxUtil.cs" t="Include" />
-          <e p="MoveCanvasHandler.cs" t="Include" />
+          <e p="MessageBroker.cs" t="Include" />
+          <e p="Module.cs" t="Include" />
           <e p="ObservableLongHoverTrigger.cs" t="Include" />
-          <e p="RightMenuManager.cs" t="Include" />
-          <e p="SearchHandler.cs" t="Include" />
+          <e p="OpenFileUtil.cs" t="Include" />
+          <e p="QuickTipManager.cs" t="Include" />
+          <e p="Rectangle.cs" t="Include" />
+          <e p="SaveFileUtil.cs" t="Include" />
+          <e p="SelectManager.cs" t="Include" />
           <e p="SwapImageManager.cs" t="Include" />
           <e p="TipManager.cs" t="Include" />
           <e p="Utils.cs" t="Include" />
+          <e p="WinTitleUtil.cs" t="Include" />
           <e p="WorkSpaceManager.cs" t="Include" />
         </e>
       </e>

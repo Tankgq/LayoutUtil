@@ -1,13 +1,10 @@
-namespace Assets.Scripts
+public class ExportDisplayObject
 {
-	public class ExportDisplayObject
-	{
-		public float x;
+	public float x;
 
-		public float y;
+	public float y;
 
-		public float width;
+	public float width;
 
-		public float height;
-	}
+	public float height;
 }

@@ -3,43 +3,40 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts
+public class SwapImageManager : MonoBehaviour
 {
-	public class SwapImageManager : MonoBehaviour
+	public Sprite OriginImage;
+	public Sprite SwapImage;
+	public bool IsSwap = false;
+
+	private IDisposable CancelObserveImageChange = null;
+
+	public bool HasObserveImageChange()
 	{
-		public Sprite OriginImage;
-		public Sprite SwapImage;
-		public bool IsSwap = false;
+		return CancelObserveImageChange != null;
+	}
 
-		private IDisposable CancelObserveImageChange = null;
+	public void StartObserveImageChange(Action<bool> onImageChange = null)
+	{
+		if (HasObserveImageChange()) StopObserveImageChange();
+		GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+		CancelObserveImageChange = this.ObserveEveryValueChanged(_ => IsSwap)
+									   .Subscribe(isSwap =>
+									   {
+										   GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+										   onImageChange?.Invoke(isSwap);
+									   });
+	}
 
-		public bool HasObserveImageChange()
-		{
-			return CancelObserveImageChange != null;
-		}
+	public void ForceUpdate()
+	{
+		GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
+	}
 
-		public void StartObserveImageChange(Action<bool> onImageChange = null)
-		{
-			if (HasObserveImageChange()) StopObserveImageChange();
-			GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-			CancelObserveImageChange = this.ObserveEveryValueChanged(_ => IsSwap)
-				.Subscribe(isSwap =>
-				{
-					GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-					onImageChange?.Invoke(isSwap);
-				});
-		}
-
-		public void ForceUpdate()
-		{
-			GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-		}
-
-		public void StopObserveImageChange()
-		{
-			if (CancelObserveImageChange == null) return;
-			CancelObserveImageChange.Dispose();
-			CancelObserveImageChange = null;
-		}
+	public void StopObserveImageChange()
+	{
+		if (CancelObserveImageChange == null) return;
+		CancelObserveImageChange.Dispose();
+		CancelObserveImageChange = null;
 	}
 }
