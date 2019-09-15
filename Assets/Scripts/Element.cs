@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Element : Rectangle
 {
-	private const int DIGITS = 1;
+	private const int Digits = 1;
 
 	[JsonProperty(PropertyName = "name")]
 	public string Name { get; set; }
@@ -16,11 +16,11 @@ public class Element : Rectangle
 	{
 		if (!displayObject) return null;
 
-		var rect = displayObject.GetComponent<RectTransform>();
-		var pos = rect.anchoredPosition;
-		var size = rect.sizeDelta;
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Vector2 pos = rect.anchoredPosition;
+		Vector2 size = rect.sizeDelta;
 
-		var result = new Element
+		Element result = new Element
 		{
 			Name = displayObject.name,
 			X = ConvertX(pos.x),
@@ -36,7 +36,7 @@ public class Element : Rectangle
 	{
 		if (!displayObject) return false;
 		displayObject.name = Name;
-		var rect = displayObject.GetComponent<RectTransform>();
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
 		rect.sizeDelta = new Vector2(Width, Height);
 		rect.anchoredPosition = new Vector2(InvConvertX(X), InvConvertY(Y));
 		return true;
@@ -54,22 +54,22 @@ public class Element : Rectangle
 
 	public static float ConvertX(float x)
 	{
-		return (float)Math.Round(x - GlobalData.OriginPoint.x, DIGITS);
+		return (float)Math.Round(x - GlobalData.OriginPoint.x, Digits);
 	}
 
 	public static float InvConvertX(float x)
 	{
-		return (float)Math.Round(x + GlobalData.OriginPoint.x, DIGITS);
+		return (float)Math.Round(x + GlobalData.OriginPoint.x, Digits);
 	}
 
 	public static float ConvertY(float y)
 	{
-		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), DIGITS);
+		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), Digits);
 	}
 
 	public static float InvConvertY(float y)
 	{
-		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), DIGITS);
+		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), Digits);
 	}
 
 	public override string ToString()
