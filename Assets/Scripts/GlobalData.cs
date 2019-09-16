@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class GlobalData : MonoBehaviour
 {
-	public const string ProductName = "LayoutUtil";
-	
 	public const int CloseValue = 10;
 	public const int AlignExtensionValue = 16;
 	public const int AlignLineThickness = 1;
@@ -44,7 +42,7 @@ public class GlobalData : MonoBehaviour
 	public const int QuickTipMaxCount = 9;
 	public const float QuickTipDuration = 2.0f;
 
-	public static int ModifyCount = 0;
+	public static bool HaveModify = false;
 
 	public static Shader DefaultShader;
 

@@ -1,6 +1,10 @@
-﻿using UniRx;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
 {
@@ -33,10 +37,10 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
 		if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
 		Transform displayObject = GlobalData.CurrentDisplayObjectDic[gameObject.name];
 		if (displayObject.parent == null) return;
-		SwapImageManager sim = transform.GetComponentInChildren<SwapImageManager>();
-		if (sim && Utils.IsPointOverGameObject(sim.gameObject))
+		SwapImageManager si = transform.GetComponentInChildren<SwapImageManager>();
+		if (si && Utils.IsPointOverGameObject(si.gameObject))
 		{
-			sim.IsSwap = !sim.IsSwap;
+			si.IsSwap = !si.IsSwap;
 			return;
 		}
 		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(gameObject.name);
