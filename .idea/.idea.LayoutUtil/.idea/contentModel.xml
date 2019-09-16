@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="$PROJECT_DIR$" t="IncludeRecursive">
+    <e p="C:\Users\TankGq\.Rider2019.2\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\TankGq\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_LayoutUtil.-1913328976.00" t="ExcludeRecursive" />
+    <e p="C:\Workspaces\Unity\LayoutUtil" t="IncludeRecursive">
       <e p="Assembly-CSharp-firstpass.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -415,7 +417,6 @@
           <e p="DisplayObjectManager.cs" t="Include" />
           <e p="DragFileHandler.cs" t="Include" />
           <e p="Element.cs" t="Include" />
-          <e p="ExportDisplayObject.cs" t="Include" />
           <e p="FileExplorerDialog.cs" t="Include" />
           <e p="FunctionButtonHandler.cs" t="Include" />
           <e p="GlobalData.cs" t="Include" />
@@ -445,13 +446,11 @@
       <e p="LayoutUtil.sln" t="IncludeFlat" />
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
-      <e p="Temp/bin" t="ExcludeRecursive" />
+      <e p="Temp\bin" t="ExcludeRecursive" />
       <e p="UniRx.Async.csproj" t="IncludeRecursive" />
       <e p="UniRx.Async.Editor.csproj" t="IncludeRecursive" />
       <e p="UniRx.csproj" t="IncludeRecursive" />
       <e p="UniRx.Examples.csproj" t="IncludeRecursive" />
     </e>
-    <e p="$USER_HOME$/Library/Caches/Rider2019.2/extResources" t="IncludeRecursive" />
-    <e p="$USER_HOME$/Library/Caches/Rider2019.2/resharper-host/local/Transient/ReSharperHost/v192/SolutionCaches/_LayoutUtil.-614185591.00" t="ExcludeRecursive" />
   </component>
 </project>

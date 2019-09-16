@@ -24,7 +24,7 @@ public class SwapImageManager : MonoBehaviour
 									   .Subscribe(isSwap =>
 									   {
 										   GetComponent<Image>().sprite = IsSwap ? SwapImage : OriginImage;
-										   onImageChange?.Invoke(isSwap);
+//										   onImageChange?.Invoke(isSwap);
 									   });
 	}
 

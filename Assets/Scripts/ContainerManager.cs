@@ -124,9 +124,12 @@ public class ContainerManager : MonoBehaviour
             .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.UpdateModifyCount));
         haveModifySubject.SampleFrame(1)
             .Subscribe(_ =>
-                Utils.ChangeTitle(GlobalData.ModifyCount != 0
-                    ? $"* ${GlobalData.ProductName}"
-                    : GlobalData.ProductName));
+            {
+                string title = GlobalData.ProductName;
+                if (!string.IsNullOrWhiteSpace(GlobalData.CurrentFilePath))
+                    title = GlobalData.CurrentFilePath;
+                Utils.ChangeTitle(GlobalData.ModifyCount != 0 ? $"* {title}" : title);
+            });
     }
 
     private static Texture2D LoadTexture2DbyIo(string imageUrl)
