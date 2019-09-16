@@ -4,6 +4,7 @@ using UniRx;
 public static class MessageBroker
 {
 	public const int UpdateSelectDisplayObject = 1;
+	public const int UpdateModifyCount = 2;
 
 	private static readonly Dictionary<int, Subject<object[]>> SubjectDic = new Dictionary<int, Subject<object[]>>();
 

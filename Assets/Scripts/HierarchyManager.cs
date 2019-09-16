@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class HierarchyManager : MonoBehaviour
 {
 	public Transform HierarchyListContainer;
 
-	public InputField NameInputField;
 	public Button UpButton;
 	public Button DownButton;
 
@@ -183,24 +181,18 @@ public class HierarchyManager : MonoBehaviour
 			displayObjectItem.SetSiblingIndex(currentModuleIdx + idx + 1);
 			displayObjectItem.name = GlobalData.CurrentDisplayObjects[idx].name;
 			displayObjectItem.GetComponentInChildren<Text>().text = GlobalData.CurrentDisplayObjects[idx].name;
-			SwapImageManager si = displayObjectItem.GetComponentInChildren<SwapImageManager>();
-			if (si)
-			{
-				Element element = GlobalData.GetElement(displayObjectItem.name);
-				if (element != null) si.IsSwap = !element.Visible;
-				new Action<string, string>((module, name) =>
-				{
-					si.StartObserveImageChange(isSwap =>
-					{
-						if (string.IsNullOrEmpty(module) || !module.Equals(GlobalData.CurrentModule))
-							return;
-						Transform displayObject = GlobalData.CurrentDisplayObjectDic[name];
-						displayObject.gameObject.SetActive(!isSwap);
-						Element element2 = GlobalData.GetElement(name);
-						element2.Visible = !isSwap;
-					});
-				})(GlobalData.CurrentModule, displayObjectItem.name);
-			}
+			SwapImageManager sim = displayObjectItem.GetComponentInChildren<SwapImageManager>();
+			if (! sim) continue;
+			Element element = GlobalData.GetElement(displayObjectItem.name);
+			if (element != null) sim.IsSwap = !element.Visible;
+			new Action<string, string>((currentModule, elementName) => {
+				sim.StartObserveImageChange(isSwap => {
+					new Action<string, string, bool>((currentModule2, elementName2, isSwap2) => {
+						HistoryManager.Do(new Behavior(() => SwapImageBehavior(currentModule2, elementName2, isSwap, true),
+													   () => SwapImageBehavior(currentModule2, elementName2, ! isSwap, false)));
+					})(currentModule, elementName, isSwap);
+				});
+			})(GlobalData.CurrentModule, displayObjectItem.name);
 		}
 		if (count == 0 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
 		foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
@@ -209,6 +201,17 @@ public class HierarchyManager : MonoBehaviour
 			if (displayObjectItem == null) continue;
 			displayObjectItem.GetChild(0).gameObject.SetActive(true);
 		}
+	}
+
+	private static void SwapImageBehavior(string currentModule, string elementName, bool isSwap, bool isModify) {
+		if(string.IsNullOrWhiteSpace(currentModule) || !GlobalData.CurrentModule.Equals(currentModule))
+			return;
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+		if(displayObject) displayObject.gameObject.SetActive(! isSwap);
+		Element element = GlobalData.GetElement(elementName);
+		if(element != null) element.Visible = !isSwap;
+		GlobalData.ModifyCount += isModify ? 1 : -1;
+		Debug.Log($"currentModule: {currentModule}, elementName: {elementName}, isSwap: {isSwap}, isModify: {isModify}");
 	}
 
 	private void RefreshModuleItem()

@@ -153,23 +153,23 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		}
 		new Action<string, List<String>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) =>
 		{
-			HistoryManager.Do(new Behavior(() => UpdateDisplayObjectsPosition(module, displayObjects, targetPos),
-										   () => UpdateDisplayObjectsPosition(module, displayObjects, originPos)));
+			HistoryManager.Do(new Behavior(() => UpdateDisplayObjectsPosition(module, displayObjects, targetPos, true),
+										   () => UpdateDisplayObjectsPosition(module, displayObjects, originPos, false)));
 		})(GlobalData.CurrentModule, selectedDisplayObjects, _startPos, pos);
 	}
 
-	private void UpdateDisplayObjectsPosition(String module, List<String> displayObjects, Vector2 targetPos)
+	private void UpdateDisplayObjectsPosition(String module, List<String> displayObjects, Vector2 targetPos, bool isModify)
 	{
-		if (displayObjects == null) return;
-		int count = displayObjects.Count;
-		if (count == 0) return;
 		if (String.IsNullOrWhiteSpace(GlobalData.CurrentModule) || !GlobalData.CurrentModule.Equals(module))
 			return;
+		if (displayObjects == null || displayObjects.Count == 0) return;
 		Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[0]];
+		if(baseDisplayObject == null) return;
 		RectTransform baseRect = baseDisplayObject.GetComponent<RectTransform>();
 		if (baseRect == null) return;
 		Vector2 offset = targetPos - baseRect.anchoredPosition;
 		UpdateDisplayObjectPosition(baseRect, transform.name, targetPos);
+		int count = displayObjects.Count;
 		for (int idx = 1; idx < count; ++idx)
 		{
 			Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[idx]];
@@ -177,6 +177,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
 		}
+		GlobalData.ModifyCount += isModify ? 1 : -1;
 	}
 
 	private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)
