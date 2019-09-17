@@ -176,8 +176,10 @@ public class InspectorManager : MonoBehaviour
 													  ? null
 													  : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 								  });
-		GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-				  .Subscribe(count => MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject));
+		Subject<object[]> updateDisplayObjectPosSubject =
+			MessageBroker.GetSubject(MessageBroker.UpdateDisplayOjectPos);
+		updateDisplayObjectPosSubject.SampleFrame(1)
+									 .Subscribe(_ => UpdateState(_displayObject));
 	}
 
 	private static float ParseFloat(string txt)
@@ -215,15 +217,15 @@ public class InspectorManager : MonoBehaviour
 		widthInputField.text = $"{element.Width:F1}";
 		heightInputField.text = $"{element.Height:F1}";
 
-		_disposable = _displayObject.GetComponent<RectTransform>()
-									.ObserveEveryValueChanged(rect => rect.anchoredPosition)
-									.Sample(TimeSpan.FromSeconds(1))
-									.Subscribe(anchoredPosition =>
-									{
-										var pos = Element.ConvertTo(anchoredPosition);
-										xInputField.text = $"{pos.x:F1}";
-										yInputField.text = $"{pos.y:F1}";
-									});
+		// _disposable = _displayObject.GetComponent<RectTransform>()
+		// 							.ObserveEveryValueChanged(rect => rect.anchoredPosition)
+		// 							.Sample(TimeSpan.FromSeconds(1))
+		// 							.Subscribe(anchoredPosition =>
+		// 							{
+		// 								var pos = Element.ConvertTo(anchoredPosition);
+		// 								xInputField.text = $"{pos.x:F1}";
+		// 								yInputField.text = $"{pos.y:F1}";
+		// 							});
 	}
 
 	private static void ChangeXBehavior(string currentModule, string elementName, float x, bool isAdd = false, bool isModify = true)

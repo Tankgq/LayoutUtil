@@ -1,57 +1,60 @@
-﻿using UniRx;
+﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler
 {
-	public int ItemType = 0;
+	public int itemType;
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		if (ItemType == 1)
+		string elementName = Utils.CancelHighlight(transform.name);
+		if (itemType == 1)
 		{
 			ContainerManager.UpdateCurrentDisplayObjectData();
-			if (gameObject.name.Equals(GlobalData.CurrentModule))
+			if (elementName.Equals(GlobalData.CurrentModule))
 			{
 				GlobalData.CurrentModule = null;
 				return;
 			}
-			GlobalData.CurrentModule = gameObject.name;
+			GlobalData.CurrentModule = elementName;
 			return;
 		}
-		if (ItemType != 2) return;
+		if (itemType != 2) return;
 		if (HierarchyManager.InSearchMode())
 		{
 			string module = HierarchyManager.GetModuleName(transform.GetSiblingIndex());
 			if (string.IsNullOrEmpty(module)) return;
 			GlobalData.CurrentModule = module;
-			string name = Utils.CancelHighlight(transform.name);
-			Observable.TimerFrame(1, FrameCountType.EndOfFrame)
-					  .Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Add(name, GlobalData.CurrentDisplayObjectDic[name]));
+			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, GlobalData.CurrentDisplayObjectDic[elementName]);
+			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
 			return;
 		}
 		if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		Transform displayObject = GlobalData.CurrentDisplayObjectDic[gameObject.name];
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
 		if (displayObject.parent == null) return;
 		SwapImageManager sim = transform.GetComponentInChildren<SwapImageManager>();
 		if (sim && Utils.IsPointOverGameObject(sim.gameObject))
 		{
-			sim.IsSwap = !sim.IsSwap;
+			new Action<string, string, bool>((currentModule2, elementName2, isSwap2) => {
+				HistoryManager.Do(new Behavior(() => MessageBroker.Send(MessageBroker.UpdateSwapImage, currentModule2, elementName2, isSwap2, true),
+											   () => MessageBroker.Send(MessageBroker.UpdateSwapImage, currentModule2, elementName2, ! isSwap2, false)));
+			})(GlobalData.CurrentModule, elementName, ! sim.isSwap);
 			return;
 		}
-		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(gameObject.name);
+		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(elementName);
 		if (isSelect)
 		{
 			if (KeyboardEventManager.GetControl())
 			{
-				GlobalData.CurrentSelectDisplayObjectDic.Remove(gameObject.name);
+				GlobalData.CurrentSelectDisplayObjectDic.Remove(elementName);
 			}
 		}
 		else
 		{
 			if (!KeyboardEventManager.GetShift())
 				DeselectAllDisplayObjectItem();
-			GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
+			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
 		}
 	}

@@ -3,10 +3,18 @@ using UniRx;
 
 public static class MessageBroker
 {
-	public const int UpdateSelectDisplayObject = 1;
-	public const int UpdateModifyCount = 2;
-
+	private static readonly int AutoIncreaseId = 0;
+	public static readonly int UpdateSelectDisplayObject = ++ AutoIncreaseId;
+	public static readonly int UpdateModifyCount = ++ AutoIncreaseId;
+	public static readonly int UpdateSwapImage = ++ AutoIncreaseId;
+	public static readonly int UpdateDisplayOjectPos = ++AutoIncreaseId;
+	
 	private static readonly Dictionary<int, Subject<object[]>> SubjectDic = new Dictionary<int, Subject<object[]>>();
+
+	public static bool HasSubject(int msgId)
+	{
+		return msgId != 0 && SubjectDic.ContainsKey(msgId);
+	}
 
 	public static void AddSubject(int msgId, Subject<object[]> subject)
 	{

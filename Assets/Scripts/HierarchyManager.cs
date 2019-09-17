@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class HierarchyManager : MonoBehaviour
 {
-	public Transform HierarchyListContainer;
+	public Button upButton;
+	public Button downButton;
 
-	public Button UpButton;
-	public Button DownButton;
+	public InputField searchInputField;
 
-	public InputField SearchInputField;
-
-	private static string SearchText = null;
+	private static string SearchText;
 	private static bool IsGlobalSearchFlag = true;
 
 	private static readonly List<Transform> DisplayObjectItemPool = new List<Transform>();
@@ -25,22 +24,21 @@ public class HierarchyManager : MonoBehaviour
 
 	private void Start()
 	{
-		GlobalData.CurrentDisplayObjects.ObserveEveryValueChanged(displayObjects => displayObjects.Count)
+		GlobalData.CurrentDisplayObjects
+				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UpdateSelectDisplayObject);
+		Subject<object[]> updateSelectDisplayObjectSubject =
+			MessageBroker.GetSubject(MessageBroker.UpdateSelectDisplayObject);
 		updateSelectDisplayObjectSubject.SampleFrame(1)
 										.Subscribe(_ => RefreshDisplayObjectItem());
-		GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-				  // .Subscribe(_ => RefreshDisplayObjectItem());
-				  .Subscribe(_ => MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject));
-		UpButton.OnClickAsObservable()
+		upButton.OnClickAsObservable()
 				.Sample(TimeSpan.FromMilliseconds(100))
 				.Subscribe(_ => RefreshDisplayObjectItem());
-		DownButton.OnClickAsObservable()
+		downButton.OnClickAsObservable()
 				  .Sample(TimeSpan.FromMilliseconds(100))
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 
-		SearchInputField.OnValueChangedAsObservable()
+		searchInputField.OnValueChangedAsObservable()
 						.Where(txt => !txt.Equals(SearchText))
 						.Sample(TimeSpan.FromMilliseconds(500))
 						.Subscribe(txt =>
@@ -57,6 +55,7 @@ public class HierarchyManager : MonoBehaviour
 		GlobalData.Modules.ObserveEveryValueChanged(moduleNames => moduleNames.Count)
 				  .Sample(TimeSpan.FromMilliseconds(100))
 				  .Subscribe(_ => RefreshModuleItem());
+		StartObserveSwapImage();
 	}
 
 	private static Transform GetDisplayObjectItem()
@@ -68,6 +67,7 @@ public class HierarchyManager : MonoBehaviour
 												  GlobalData.HierarchyContainer.transform));
 			length = 1;
 		}
+
 		Transform result = DisplayObjectItemPool[length - 1];
 		DisplayObjectItemPool.RemoveAt(length - 1);
 		return result;
@@ -85,11 +85,12 @@ public class HierarchyManager : MonoBehaviour
 	private static Transform GetModuleItem()
 	{
 		int length = ModuleItemPool.Count;
-		if (length == 0) return Instantiate(GlobalData.ModuleItemPrefab.transform, GlobalData.HierarchyContainer.transform);
+		if (length == 0)
+			return Instantiate(GlobalData.ModuleItemPrefab.transform,
+							   GlobalData.HierarchyContainer.transform);
 		Transform result = ModuleItemPool[length - 1];
 		SwapImageManager swapImage = result.GetComponentInChildren<SwapImageManager>();
-		swapImage.IsSwap = false;
-		swapImage.StartObserveImageChange();
+		swapImage.UpdateSwapImage(false);
 		result.GetChild(0).gameObject.SetActive(false);
 		ModuleItemPool.RemoveAt(length - 1);
 		return result;
@@ -101,8 +102,7 @@ public class HierarchyManager : MonoBehaviour
 		moduleItem.SetParent(null);
 		moduleItem.GetChild(0).gameObject.SetActive(false);
 		SwapImageManager swapImage = moduleItem.GetComponentInChildren<SwapImageManager>();
-		swapImage.StopObserveImageChange();
-		swapImage.IsSwap = false;
+		swapImage.UpdateSwapImage(false);
 		moduleItem.GetComponentInChildren<ImageHoverManager>().SimulatePointerExit();
 		ModuleItemPool.Add(moduleItem);
 	}
@@ -121,39 +121,44 @@ public class HierarchyManager : MonoBehaviour
 		ModuleItems.Clear();
 	}
 
-	private static void ShowAllSeachedDisplayObjectItem()
+	private static void ShowAllSearchedDisplayObjectItem()
 	{
 		if (string.IsNullOrWhiteSpace(SearchText)) return;
-		if (!IsGlobalSearchFlag && string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
+		if (!IsGlobalSearchFlag
+		 && string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
 			return;
 		int count = GlobalData.Modules.Count;
 		for (int idx = 0; idx < count; ++idx)
 		{
-			if (IsGlobalSearchFlag && ModuleItems[idx].name.IndexOf(SearchText) != -1)
-				ModuleItems[idx].GetComponentInChildren<Text>().text = Utils.GetHighlight(ModuleItems[idx].name, SearchText);
-			if (!IsGlobalSearchFlag && !GlobalData.Modules[idx].Equals(GlobalData.CurrentModule))
+			if (IsGlobalSearchFlag
+			 && ModuleItems[idx].name.IndexOf(SearchText, StringComparison.Ordinal) != -1)
+				ModuleItems[idx].GetComponentInChildren<Text>().text =
+					Utils.GetHighlight(ModuleItems[idx].name, SearchText);
+			if (!IsGlobalSearchFlag
+			 && !GlobalData.Modules[idx].Equals(GlobalData.CurrentModule))
 				continue;
-			int silbingIndex = ModuleItems[idx].GetSiblingIndex();
+			int siblingIndex = ModuleItems[idx].GetSiblingIndex();
 			List<Element> displayObjects = GlobalData.ModuleDic[GlobalData.Modules[idx]];
 			bool hasFind = false;
 			int count2 = displayObjects.Count;
 			for (int idx2 = 0; idx2 < count2; ++idx2)
 			{
 				Element displayObject = displayObjects[idx2];
-				if (displayObject.Name.IndexOf(SearchText) == -1) continue;
+				if (displayObject.Name.IndexOf(SearchText, StringComparison.Ordinal) == -1)
+					continue;
 				hasFind = true;
 				Transform displayObjectItem = GetDisplayObjectItem();
 				DisplayObjectItems.Add(displayObjectItem);
 				displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
-				displayObjectItem.SetSiblingIndex(++silbingIndex);
+				displayObjectItem.SetSiblingIndex(++siblingIndex);
 				displayObjectItem.name = Utils.GetHighlight(displayObject.Name, SearchText);
 				displayObjectItem.GetComponentInChildren<Text>().text = displayObjectItem.name;
 			}
-			if (hasFind)
-			{
-				SwapImageManager swapImage = ModuleItems[idx].GetComponentInChildren<SwapImageManager>();
-				swapImage.IsSwap = true;
-			}
+
+			if (!hasFind) continue;
+			SwapImageManager swapImage =
+				ModuleItems[idx].GetComponentInChildren<SwapImageManager>();
+			swapImage.UpdateSwapImage(true);
 		}
 	}
 
@@ -162,15 +167,17 @@ public class HierarchyManager : MonoBehaviour
 		RecycleAllDisplayObjectItem();
 		if (!string.IsNullOrWhiteSpace(SearchText))
 		{
-			ShowAllSeachedDisplayObjectItem();
+			ShowAllSearchedDisplayObjectItem();
 			return;
 		}
+
 		if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		int currentModuleIdx = ModuleItems.FindIndex(module => module.name.Equals(GlobalData.CurrentModule));
+		int currentModuleIdx =
+			ModuleItems.FindIndex(module => module.name.Equals(GlobalData.CurrentModule));
 		if (currentModuleIdx == -1) return;
-		SwapImageManager swapImage = ModuleItems[currentModuleIdx].GetComponentInChildren<SwapImageManager>();
-		swapImage.IsSwap = true;
-		swapImage.ForceUpdate();
+		SwapImageManager swapImage =
+			ModuleItems[currentModuleIdx].GetComponentInChildren<SwapImageManager>();
+		swapImage.UpdateSwapImage(true);
 		ModuleItems[currentModuleIdx].GetChild(0).gameObject.SetActive(true);
 		int count = GlobalData.CurrentDisplayObjects.Count;
 		for (int idx = 0; idx < count; ++idx)
@@ -180,38 +187,23 @@ public class HierarchyManager : MonoBehaviour
 			displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
 			displayObjectItem.SetSiblingIndex(currentModuleIdx + idx + 1);
 			displayObjectItem.name = GlobalData.CurrentDisplayObjects[idx].name;
-			displayObjectItem.GetComponentInChildren<Text>().text = GlobalData.CurrentDisplayObjects[idx].name;
+			displayObjectItem.GetComponentInChildren<Text>().text =
+				GlobalData.CurrentDisplayObjects[idx].name;
 			SwapImageManager sim = displayObjectItem.GetComponentInChildren<SwapImageManager>();
-			if (! sim) continue;
+			if (!sim) continue;
 			Element element = GlobalData.GetElement(displayObjectItem.name);
-			if (element != null) sim.IsSwap = !element.Visible;
-			new Action<string, string>((currentModule, elementName) => {
-				sim.StartObserveImageChange(isSwap => {
-					new Action<string, string, bool>((currentModule2, elementName2, isSwap2) => {
-						HistoryManager.Do(new Behavior(() => SwapImageBehavior(currentModule2, elementName2, isSwap, true),
-													   () => SwapImageBehavior(currentModule2, elementName2, ! isSwap, false)));
-					})(currentModule, elementName, isSwap);
-				});
-			})(GlobalData.CurrentModule, displayObjectItem.name);
+			if (element != null) sim.UpdateSwapImage(!element.Visible);
 		}
-		if (count == 0 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
+
+		if (count == 0
+		 || GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
 		foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 		{
-			Transform displayObjectItem = DisplayObjectItems.Find(element => element.name.Equals(pair.Key));
+			Transform displayObjectItem =
+				DisplayObjectItems.Find(element => element.name.Equals(pair.Key));
 			if (displayObjectItem == null) continue;
 			displayObjectItem.GetChild(0).gameObject.SetActive(true);
 		}
-	}
-
-	private static void SwapImageBehavior(string currentModule, string elementName, bool isSwap, bool isModify) {
-		if(string.IsNullOrWhiteSpace(currentModule) || !GlobalData.CurrentModule.Equals(currentModule))
-			return;
-		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
-		if(displayObject) displayObject.gameObject.SetActive(! isSwap);
-		Element element = GlobalData.GetElement(elementName);
-		if(element != null) element.Visible = !isSwap;
-		GlobalData.ModifyCount += isModify ? 1 : -1;
-		Debug.Log($"currentModule: {currentModule}, elementName: {elementName}, isSwap: {isSwap}, isModify: {isModify}");
 	}
 
 	private void RefreshModuleItem()
@@ -219,8 +211,9 @@ public class HierarchyManager : MonoBehaviour
 		if (!string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && IsGlobalSearchFlag)
 		{
 			SearchText = string.Empty;
-			SearchInputField.text = string.Empty;
+			searchInputField.text = string.Empty;
 		}
+
 		RecycleAllDisplayObjectItem();
 		RecycleAllModuleItem();
 		int length = GlobalData.Modules.Count;
@@ -232,6 +225,7 @@ public class HierarchyManager : MonoBehaviour
 			moduleItem.name = GlobalData.Modules[idx];
 			moduleItem.GetComponentInChildren<Text>().text = GlobalData.Modules[idx];
 		}
+
 		RefreshDisplayObjectItem();
 	}
 
@@ -248,20 +242,14 @@ public class HierarchyManager : MonoBehaviour
 		RefreshModuleItem();
 	}
 
-	public static void UpdateDisplayObjectName(string originName, string newName)
-	{
-		if (string.IsNullOrWhiteSpace(originName) || string.IsNullOrWhiteSpace(newName)) return;
-		Transform displayObjectItem = DisplayObjectItems.Find(item => item.name.Equals(originName));
-		if (displayObjectItem == null) return;
-		displayObjectItem.name = newName;
-		displayObjectItem.GetComponentInChildren<Text>().text = newName;
-	}
-
 	public void MoveCurrentModuleUp()
 	{
 		if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		int idx = GlobalData.Modules.FindIndex(0, name => GlobalData.CurrentModule.Equals(name));
-		if (idx == -1 || idx == 0) return;
+		int idx =
+			GlobalData
+				.Modules.FindIndex(0, elementName => GlobalData.CurrentModule.Equals(elementName));
+		if (idx == -1
+		 || idx == 0) return;
 		List<string> moduleNames = GlobalData.Modules;
 		string tmp = moduleNames[idx - 1];
 		moduleNames[idx - 1] = moduleNames[idx];
@@ -272,8 +260,11 @@ public class HierarchyManager : MonoBehaviour
 	public void MoveCurrentModuleDown()
 	{
 		if (string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		int idx = GlobalData.Modules.FindIndex(0, name => GlobalData.CurrentModule.Equals(name));
-		if (idx == -1 || idx == GlobalData.Modules.Count - 1) return;
+		int idx =
+			GlobalData
+				.Modules.FindIndex(0, elementName => GlobalData.CurrentModule.Equals(elementName));
+		if (idx == -1
+		 || idx == GlobalData.Modules.Count - 1) return;
 		List<string> moduleNames = GlobalData.Modules;
 		string tmp = moduleNames[idx + 1];
 		moduleNames[idx + 1] = moduleNames[idx];
@@ -292,6 +283,48 @@ public class HierarchyManager : MonoBehaviour
 			if (siblingIndex > displayObjectSiblingIndex)
 				return GlobalData.Modules[idx - 1];
 		}
+
 		return GlobalData.Modules[count - 1];
+	}
+
+	private static Transform GetDisplayObjectItem(string moduleName, string elementName)
+	{
+		if (string.IsNullOrWhiteSpace(moduleName) || !GlobalData.CurrentModule.Equals(moduleName))
+			return null;
+		return DisplayObjectItems.Find(item => item.name.Equals(elementName));
+	}
+
+	private static void StartObserveSwapImage()
+	{
+		if (MessageBroker.HasSubject(MessageBroker.UpdateSwapImage))
+			return;
+		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageBroker.UpdateSwapImage);
+		imageChangeSubject.Subscribe(param =>
+		{
+			Debug.Log(param);
+			if (param == null
+			 || param.Length != 4)
+				return;
+			string currentModule = param[0] as string;
+			if (string.IsNullOrWhiteSpace(currentModule)
+			 || !GlobalData.CurrentModule.Equals(currentModule))
+				return;
+			string elementName = param[1] as string;
+			if (string.IsNullOrWhiteSpace(elementName)) return;
+			bool swapped = (bool) param[2];
+			Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+			if (displayObject) displayObject.gameObject.SetActive(!swapped);
+			Transform item = GetDisplayObjectItem(currentModule, elementName);
+			if (item)
+			{
+				SwapImageManager sim = item.GetComponentInChildren<SwapImageManager>();
+				if (sim) sim.UpdateSwapImage(swapped);
+			}
+			Element element = GlobalData.GetElement(elementName);
+			if (element != null) element.Visible = !swapped;
+			bool isModify = (bool) param[3];
+			GlobalData.ModifyCount += isModify ? 1 : -1;
+			Debug.Log($"currentModule: {currentModule}, elementName: {elementName}, swapped: {swapped}, isModify: {isModify}");
+		});
 	}
 }

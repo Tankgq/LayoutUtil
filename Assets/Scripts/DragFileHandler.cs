@@ -33,7 +33,7 @@ public class DragFileHandler : MonoBehaviour
 
     private static readonly Regex REG_IMAGE_SUFFIX = new Regex(@"\.(jpe?g|png)$");
 
-    private void OnFiles(List<string> aFiles, POINT aPos)
+    private void OnFiles(IReadOnlyCollection<string> aFiles, POINT aPos)
     {
         Debug.Log("Dropped " + aFiles.Count + " files at: " + aPos + "\n" + aFiles.Aggregate((a, b) => a + "\n" + b));
         var sb = new StringBuilder();

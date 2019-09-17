@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class Element : Rectangle
 {
-	private const int Digits = 1;
+	private const int EnableDigits = 1;
 
 	[JsonProperty(PropertyName = "name")]
 	public string Name { get; set; }
 
 	[JsonProperty(PropertyName = "visible")]
 	public bool Visible { get; set; }
-
+	
 	public static Element ConvertTo(Transform displayObject)
 	{
 		if (!displayObject) return null;
@@ -54,22 +54,22 @@ public class Element : Rectangle
 
 	public static float ConvertX(float x)
 	{
-		return (float)Math.Round(x - GlobalData.OriginPoint.x, Digits);
+		return (float)Math.Round(x - GlobalData.OriginPoint.x, EnableDigits);
 	}
 
 	public static float InvConvertX(float x)
 	{
-		return (float)Math.Round(x + GlobalData.OriginPoint.x, Digits);
+		return (float)Math.Round(x + GlobalData.OriginPoint.x, EnableDigits);
 	}
 
 	public static float ConvertY(float y)
 	{
-		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), Digits);
+		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), EnableDigits);
 	}
 
 	public static float InvConvertY(float y)
 	{
-		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), Digits);
+		return (float)Math.Round(-(y - GlobalData.OriginPoint.y), EnableDigits);
 	}
 
 	public override string ToString()

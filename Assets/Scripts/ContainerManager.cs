@@ -54,7 +54,15 @@ public class ContainerManager : MonoBehaviour
         for (var idx = 0; idx < count; ++idx)
         {
             Transform displayObject = GetDisplayObject();
-            displayObject.GetComponent<Image>().color = Color.clear;
+            Image image = displayObject.GetComponent<Image>();
+            string displayKey = $"{GlobalData.CurrentModule}_{displayObject.name}";
+            string imageUrl;
+            GlobalData.DisplayObjectPathDic.TryGetValue(displayKey, out imageUrl);
+            Material material = null;
+            if(imageUrl != null)
+                MaterialDic.TryGetValue(imageUrl, out material);
+            if(material != null) image.material = material;
+            image.color = material ? Color.white : Color.clear;
             displayObject.SetParent(transform);
             displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
             Element element = elements[idx];
@@ -217,7 +225,8 @@ public class ContainerManager : MonoBehaviour
         rect.sizeDelta = new Vector2(size.x, size.y);
         pos = Element.ConvertTo(pos);
         rect.anchoredPosition = pos;
-        GlobalData.ModuleDic[GlobalData.CurrentModule].Add(Element.ConvertTo(imageElement));
+        Element element = Element.ConvertTo(imageElement);
+        GlobalData.ModuleDic[GlobalData.CurrentModule].Add(element);
         return imageElement;
     }
 
@@ -405,7 +414,6 @@ public class ContainerManager : MonoBehaviour
     public static void ExportModules(string filePath, bool showQuickTip = false)
     {
         if (string.IsNullOrWhiteSpace(filePath)) return;
-        GlobalData.CurrentFilePath = filePath;
         UpdateCurrentDisplayObjectData();
         List<Module> modules = new List<Module>();
         int count = GlobalData.Modules.Count;
@@ -436,6 +444,7 @@ public class ContainerManager : MonoBehaviour
                 DialogManager.ShowInfo(message);
             GlobalData.CurrentFilePath = filePath;
             GlobalData.ModifyCount = 0;
+            MessageBroker.Send(MessageBroker.UpdateModifyCount);
         }
         else
         {
@@ -498,6 +507,7 @@ public class ContainerManager : MonoBehaviour
                     }
 
                     GlobalData.CurrentFilePath = filePath;
+                    MessageBroker.Send(MessageBroker.UpdateModifyCount);
                 }
                 catch (Exception e)
                 {
@@ -551,7 +561,7 @@ public class ContainerManager : MonoBehaviour
         if (displayObjectData == null) return null;
         RectTransform rt = GlobalData.DisplayObjectContainer.GetComponent<RectTransform>();
         float closeValue = GlobalData.CloseValue / rt.localScale.x;
-        float lineThickness = GlobalData.AlignLineThickness; // * rt.localScale.x;
+        const float lineThickness = GlobalData.AlignLineThickness; // * rt.localScale.x;
         AlignInfo alignInfo = new AlignInfo(displayObjectData, closeValue, lineThickness);
         List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
         int count = elements.Count;

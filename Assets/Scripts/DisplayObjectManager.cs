@@ -6,30 +6,23 @@ using UnityEngine.EventSystems;
 public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 {
 	private Vector2 _offset;
-	public Vector2 Offset
-	{
-		set
-		{
-			_offset = value;
-		}
-	}
 	private AlignInfo _alignInfo;
-	private static GameObject HorizontalAlignLine = null;
-	private static GameObject VerticalAlignLine = null;
+	private static GameObject HorizontalAlignLine;
+	private static GameObject VerticalAlignLine;
 
-	public RectTransform SelfRect;
+	public RectTransform selfRect;
 
 	private void Start()
 	{
 		if (HorizontalAlignLine == null)
-			HorizontalAlignLine = Instantiate<GameObject>(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
+			HorizontalAlignLine = Instantiate(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
 		if (VerticalAlignLine == null)
-			VerticalAlignLine = Instantiate<GameObject>(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
+			VerticalAlignLine = Instantiate(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
 		HorizontalAlignLine.SetActive(false);
 		VerticalAlignLine.SetActive(false);
 	}
 
-	private static string _copying = null;
+	private static string _copying;
 	private Vector2 _startPos = Vector2.zero;
 	void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
 	{
@@ -39,17 +32,16 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			string key = $"{GlobalData.CurrentModule}_{transform.name}";
 			if (GlobalData.DisplayObjectPathDic.ContainsKey(key))
 				imageUrl = GlobalData.DisplayObjectPathDic[key];
-			Vector2 pos = Element.InvConvertTo(SelfRect.anchoredPosition);
-			Transform copyDisplayObject = GlobalData.ContainerManager.AddDisplayObject(imageUrl, pos, SelfRect.sizeDelta, transform.name + "_copy");
+			Vector2 pos = Element.InvConvertTo(selfRect.anchoredPosition);
+			Transform copyDisplayObject = GlobalData.ContainerManager.AddDisplayObject(imageUrl, pos, selfRect.sizeDelta, transform.name + "_copy");
 			if (copyDisplayObject == null) return;
 			DisplayObjectManager dom = copyDisplayObject.GetComponent<DisplayObjectManager>();
-			if (dom) dom.Offset = _offset;
-			List<Transform> copies = new List<Transform>();
-			copies.Add(copyDisplayObject);
+			if (dom) dom._offset = _offset;
+			List<Transform> copies = new List<Transform> {copyDisplayObject};
 			_copying = copyDisplayObject.name;
 			foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 			{
-				if (pair.Value == this.transform) continue;
+				if (pair.Value == transform) continue;
 				Element element = GlobalData.GetElement(pair.Key);
 				if (element == null) continue;
 				key = $"{GlobalData.CurrentModule}_{pair.Key}";
@@ -70,13 +62,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			}
 
 			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
-			ExecuteEvents.Execute<IEndDragHandler>(gameObject, eventData, ExecuteEvents.endDragHandler);
+			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
-			ExecuteEvents.Execute<IBeginDragHandler>(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
+			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
 		}
 		else
 		{
-			_startPos = SelfRect.anchoredPosition;
+			_startPos = selfRect.anchoredPosition;
 		}
 	}
 
@@ -84,8 +76,8 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	{
 		if (Input.GetMouseButton(2)) return;
 		Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) - _offset;
-		Vector2 offset = pos - SelfRect.anchoredPosition;
-		UpdateDisplayObjectPosition(SelfRect, transform.name, pos);
+		Vector2 offset = pos - selfRect.anchoredPosition;
+		UpdateDisplayObjectPosition(selfRect, transform.name, pos);
 		_alignInfo = GlobalData.ContainerManager.GetAlignLine(transform);
 		Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
 		if (horizontalAlignRect != null)
@@ -126,8 +118,8 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			VerticalAlignLine.SetActive(false);
 			return;
 		}
-		Vector2 pos = SelfRect.anchoredPosition;
-		Vector2 size = SelfRect.sizeDelta;
+		Vector2 pos = selfRect.anchoredPosition;
+		Vector2 size = selfRect.sizeDelta;
 		if (VerticalAlignLine.activeSelf && _alignInfo.VerticalAlignLine != null)
 		{
 			pos.x = _alignInfo.VerticalAlignLine.Left;
@@ -144,14 +136,14 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			pos.y = Element.InvConvertY(pos.y);
 			HorizontalAlignLine.SetActive(false);
 		}
-		List<String> selectedDisplayObjects = new List<String>();
-		selectedDisplayObjects.Add(transform.name);
+
+		List<string> selectedDisplayObjects = new List<String> {transform.name};
 		foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 		{
 			if (pair.Value == transform) continue;
 			selectedDisplayObjects.Add(pair.Key);
 		}
-		new Action<string, List<String>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) =>
+		new Action<string, List<string>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) =>
 		{
 			HistoryManager.Do(new Behavior(() => UpdateDisplayObjectsPosition(module, displayObjects, targetPos, true),
 										   () => UpdateDisplayObjectsPosition(module, displayObjects, originPos, false)));
@@ -160,7 +152,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	private void UpdateDisplayObjectsPosition(String module, List<String> displayObjects, Vector2 targetPos, bool isModify)
 	{
-		if (String.IsNullOrWhiteSpace(GlobalData.CurrentModule) || !GlobalData.CurrentModule.Equals(module))
+		if (string.IsNullOrWhiteSpace(GlobalData.CurrentModule) || !GlobalData.CurrentModule.Equals(module))
 			return;
 		if (displayObjects == null || displayObjects.Count == 0) return;
 		Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[0]];
@@ -178,12 +170,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
 		}
 		GlobalData.ModifyCount += isModify ? 1 : -1;
+		MessageBroker.Send(MessageBroker.UpdateDisplayOjectPos);
 	}
 
-	private void UpdateDisplayObjectPosition(RectTransform rt, string name, Vector3 pos)
+	private void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos)
 	{
 		rt.anchoredPosition = pos;
-		Element element = GlobalData.GetElement(name);
+		Element element = GlobalData.GetElement(elementName);
 		if (element == null) return;
 		element.X = Element.ConvertX(pos.x);
 		element.Y = Element.ConvertY(pos.y);
@@ -205,12 +198,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		{
 			if (!KeyboardEventManager.GetShift())
 				DeselectAllDisplayObject();
-			GlobalData.CurrentSelectDisplayObjectDic.Add(transform.name, transform);
+			Transform self = transform;
+			GlobalData.CurrentSelectDisplayObjectDic.Add(self.name, self);
 			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
 		}
 		var mousePos = eventData.position;
 		Vector2 offset;
-		var isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(SelfRect, mousePos, eventData.enterEventCamera, out offset);
+		var isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(selfRect, mousePos, eventData.enterEventCamera, out offset);
 		if (isRect) _offset = offset;
 	}
 
