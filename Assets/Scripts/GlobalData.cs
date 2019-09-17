@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalData : MonoBehaviour
-{
+public class GlobalData : MonoBehaviour {
 	public const string ProductName = "LayoutUtil";
-	
+
 	public const int CloseValue = 10;
 	public const int AlignExtensionValue = 16;
 	public const int AlignLineThickness = 1;
@@ -12,7 +11,8 @@ public class GlobalData : MonoBehaviour
 	public const string GlobalObservable = "Observable";
 	public static int UniqueId = 0;
 
-	public static readonly SortedDictionary<string, Transform> CurrentSelectDisplayObjectDic = new SortedDictionary<string, Transform>();
+	public static readonly SortedDictionary<string, Transform> CurrentSelectDisplayObjectDic =
+			new SortedDictionary<string, Transform>();
 
 	public static readonly List<Element> CurrentCopyDisplayObjects = new List<Element>();
 
@@ -23,13 +23,24 @@ public class GlobalData : MonoBehaviour
 
 	public static readonly List<string> Modules = new List<string>();
 	public static readonly Dictionary<string, List<Element>> ModuleDic = new Dictionary<string, List<Element>>();
-	public static Element GetElement(string name)
-	{
-		if (string.IsNullOrEmpty(name)) return null;
-		return string.IsNullOrWhiteSpace(CurrentModule) ? null : ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
+
+	public static Element GetElement(string name) {
+		if(string.IsNullOrEmpty(name)) return null;
+		return string.IsNullOrWhiteSpace(CurrentModule)
+					   ? null
+					   : ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
 	}
 
-	public static string CurrentModule = null;
+	public static string PreviousModule;
+	private static string _currentModule;
+
+	public static string CurrentModule {
+		get { return _currentModule; }
+		set {
+			PreviousModule = CurrentModule;
+			_currentModule = value;
+		}
+	}
 
 	public static string CurrentFilePath = null;
 
@@ -64,8 +75,7 @@ public class GlobalData : MonoBehaviour
 
 	public static GameObject QuickTipContainer;
 
-	private void Awake()
-	{
+	private void Awake() {
 		DefaultShader = Shader.Find("UI/Default");
 		DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
 		DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
