@@ -1,13 +1,14 @@
 using System;
 
-public class Behavior
-{
-	public Action Do;
-	public Action Undo;
+public class Behavior {
+	
+	public readonly Action Do;
+	public readonly Action Undo;
+	public readonly bool IsModify;
 
-	public Behavior(Action doBehavior, Action undoBehavior)
-	{
-		this.Do = doBehavior;
-		this.Undo = undoBehavior;
+	public Behavior(Action doBehavior, Action undoBehavior, bool isModify = true) {
+		Do = doBehavior;
+		Undo = undoBehavior;
+		IsModify = isModify;
 	}
 }

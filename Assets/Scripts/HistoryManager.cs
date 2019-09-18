@@ -1,40 +1,39 @@
 using System.Collections.Generic;
-using UnityEngine;
 
-public class HistoryManager
-{
-	public static readonly List<Behavior> _behaviors = new List<Behavior>();
-	public static int _current = 0;
+public static class HistoryManager {
+	private static readonly List<Behavior> Behaviors = new List<Behavior>();
+	private static int _current;
 
-	public static void Do(Behavior behavior)
-	{
-		if (behavior == null) return;
+	public static void Do(Behavior behavior) {
+		if(behavior == null) return;
 		Add(behavior);
 		behavior.Do();
 	}
 
-	public static void Add(Behavior behavior)
-	{
-		if (behavior == null) return;
-		if (_behaviors.Count == _current) _behaviors.Add(behavior);
-		else _behaviors[_current] = behavior;
-		++_current;
+	private static void Add(Behavior behavior) {
+		if(behavior == null) return;
+		if(Behaviors.Count == _current)
+			Behaviors.Add(behavior);
+		else
+			Behaviors[_current] = behavior;
+		++ _current;
 	}
 
-	public static void Do()
-	{
-		if (_current >= _behaviors.Count) return;
-		Behavior behavior = _behaviors[_current];
-		++_current;
-		behavior.Do();
+	public static void Do() {
+		while(_current < Behaviors.Count) {
+			Behavior behavior = Behaviors[_current];
+			behavior.Do();
+			++ _current;
+			if(behavior.IsModify) break;
+		}
 	}
 
-	public static void Undo()
-	{
-		if (_current > _behaviors.Count) return;
-		if (_current <= 0) return;
-		Behavior behavior = _behaviors[_current - 1];
-		--_current;
-		behavior.Undo();
+	public static void Undo() {
+		while(_current > 0) {
+			Behavior behavior = Behaviors[_current - 1];
+			behavior.Undo();
+			-- _current;
+			if(behavior.IsModify) break;
+		}
 	}
 }

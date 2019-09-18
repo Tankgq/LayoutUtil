@@ -34,18 +34,16 @@ public class ContainerManager : MonoBehaviour {
 		DisplayObjectPool.Add(displayObject);
 	}
 
-	private static void RemoveAllDisplayObjectBehavior(string moduleName, bool isModify) {
-		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.PreviousModule)) return;
+	private static void RemoveAllDisplayObjectBehavior() {
 		int count = GlobalData.CurrentDisplayObjects.Count;
 		for(int idx = 0; idx < count; ++ idx) RecycleDisplayObject(GlobalData.CurrentDisplayObjects[idx]);
 		GlobalData.CurrentDisplayObjects.Clear();
 		GlobalData.CurrentDisplayObjectDic.Clear();
-		GlobalData.ModifyCount += isModify ? 1 : -1;
 	}
 
-	private void AddAllDisplayObjectBehavior(string moduleName, bool isModify) {
-		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
-		List<Element> elements = GlobalData.ModuleDic[moduleName];
+	private void AddAllDisplayObjectBehavior() {
+		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule)) return;
+		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		int count = elements.Count;
 		Transform displayObjectContainer = transform;
 		for(int idx = 0; idx < count; ++ idx) {
@@ -54,13 +52,11 @@ public class ContainerManager : MonoBehaviour {
 			element.InvConvertTo(displayObject);
 			displayObject.SetParent(displayObjectContainer);
 			displayObject.gameObject.SetActive(element.Visible);
-			LoadImageBehavior(moduleName, element.Name, 0);
+			LoadImageBehavior(GlobalData.CurrentModule, element.Name, 0);
 			displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
 			GlobalData.CurrentDisplayObjects.Add(displayObject);
 			GlobalData.CurrentDisplayObjectDic[element.Name] = displayObject;
 		}
-
-		GlobalData.ModifyCount += isModify ? 1 : -1;
 	}
 
 	private static void LoadImageBehavior(string currentModule, string elementName, int modifyState) {
@@ -88,16 +84,18 @@ public class ContainerManager : MonoBehaviour {
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
 				  .SampleFrame(1)
 				  .Subscribe(module => {
-					   new Action<string, string>((previousModule, currentModule) => {
-						   HistoryManager.Do(new Behavior(() => {
-															  RemoveAllDisplayObjectBehavior(previousModule, true);
-															  AddAllDisplayObjectBehavior(currentModule, true);
-														  },
-														  () => {
-															  RemoveAllDisplayObjectBehavior(currentModule, false);
-															  AddAllDisplayObjectBehavior(previousModule, false);
-														  }));
-					   })(GlobalData.PreviousModule, GlobalData.CurrentModule);
+					   // new Action<string, string>((previousModule, currentModule) => {
+						  //  HistoryManager.Do(new Behavior(() => {
+								// 							  RemoveAllDisplayObjectBehavior(previousModule, true);
+								// 							  AddAllDisplayObjectBehavior(currentModule, true);
+								// 						  },
+								// 						  () => {
+								// 							  RemoveAllDisplayObjectBehavior(currentModule, false);
+								// 							  AddAllDisplayObjectBehavior(previousModule, false);
+								// 						  }));
+					   // })(GlobalData.PreviousModule, GlobalData.CurrentModule);
+					   RemoveAllDisplayObjectBehavior();
+		   			   AddAllDisplayObjectBehavior();
 					   Observable.Timer(TimeSpan.Zero)
 								 .Subscribe(_ => {
 									  RectTransform rt = moduleNameText.GetComponent<RectTransform>();
