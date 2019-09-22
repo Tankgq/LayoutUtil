@@ -1,14 +1,21 @@
 using System;
 
 public class Behavior {
-	
-	public readonly Action Do;
-	public readonly Action Undo;
-	public readonly bool IsModify;
+	// 参数为 isRedo
+	public readonly Action<bool> Do;
+	public int DoCount;
 
-	public Behavior(Action doBehavior, Action undoBehavior, bool isModify = true) {
+	// 参数为 isReUndo
+	public readonly Action<bool> Undo;
+	public int UndoCount;
+
+	// 是否要和
+	public readonly bool IsCombineWithNextBehavior;
+
+	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, bool combineWithNextBehavior = false) {
 		Do = doBehavior;
 		Undo = undoBehavior;
-		IsModify = isModify;
+		DoCount = UndoCount = 0;
+		IsCombineWithNextBehavior = combineWithNextBehavior;
 	}
 }

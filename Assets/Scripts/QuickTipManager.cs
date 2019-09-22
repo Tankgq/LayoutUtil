@@ -9,7 +9,7 @@ public class QuickTipManager : MonoBehaviour
 {
 	private static readonly List<Transform> QuickTipPool = new List<Transform>();
 	private static readonly List<Transform> QuickTipList = new List<Transform>();
-	private static readonly Dictionary<Transform, TweenerCore<Color, Color, ColorOptions>> TweenerDic
+	private static readonly Dictionary<Transform, TweenerCore<Color, Color, ColorOptions>> TweenDic
 		= new Dictionary<Transform, TweenerCore<Color, Color, ColorOptions>>();
 
 	private static Transform GetQuickTip()
@@ -33,12 +33,12 @@ public class QuickTipManager : MonoBehaviour
 		QuickTipPool.Add(tip);
 	}
 
-	public static void ShowQuickTip(string message)
+	public static void ShowQuickTip(string message, float duration = GlobalData.QuickTipDuration)
 	{
 		if (QuickTipList.Count >= GlobalData.QuickTipMaxCount)
 			RemoveTopQuickTip(QuickTipList.Count - GlobalData.QuickTipMaxCount + 1);
 
-		AddQuickTipAtTail(message);
+		AddQuickTipAtTail(message, duration);
 	}
 	
 	private static void OnAlphaChangeComplete(Transform quickTip)
@@ -48,7 +48,7 @@ public class QuickTipManager : MonoBehaviour
 		RemoveTopQuickTip(1);
 	}
 
-	private static void AddQuickTipAtTail(string message) {
+	private static void AddQuickTipAtTail(string message, float duration = GlobalData.QuickTipDuration) {
 		Transform quickTip = GetQuickTip();
 		if (quickTip == null) return;
 		QuickTipList.Add(quickTip);
@@ -68,15 +68,15 @@ public class QuickTipManager : MonoBehaviour
 		}
 		Text text = quickTip.GetComponent<Text>();
 		text.text = message;
-		TweenerCore<Color, Color, ColorOptions> tweener = text.DOFade(0, GlobalData.QuickTipDuration);
-		tweener.onComplete = () => OnAlphaChangeComplete(quickTip);
-		if (TweenerDic.ContainsKey(quickTip))
+		TweenerCore<Color, Color, ColorOptions> tween = text.DOFade(0, duration);
+		tween.onComplete = () => OnAlphaChangeComplete(quickTip);
+		if (TweenDic.ContainsKey(quickTip))
 		{
-			TweenerDic[quickTip]?.Kill();
-			TweenerDic[quickTip] = tweener;
+			TweenDic[quickTip]?.Kill();
+			TweenDic[quickTip] = tween;
 		}
 		else
-			TweenerDic.Add(quickTip, tweener);
+			TweenDic.Add(quickTip, tween);
 	}
 
 	private static void RemoveTopQuickTip(int removeCount)
@@ -86,11 +86,11 @@ public class QuickTipManager : MonoBehaviour
 		for (int idx = 0; idx < removeCount; ++idx)
 		{
 			Transform quickTip = QuickTipList[idx];
-			TweenerCore<Color, Color, ColorOptions> tweener = TweenerDic[quickTip];
-			if (tweener != null)
+			TweenerCore<Color, Color, ColorOptions> tween = TweenDic[quickTip];
+			if (tween != null)
 			{
-				tweener.Kill();
-				TweenerDic[quickTip] = null;
+				tween.Kill();
+				TweenDic[quickTip] = null;
 			}
 			RecycleTip(quickTip);
 		}

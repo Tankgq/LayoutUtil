@@ -5,9 +5,10 @@ public static class MessageBroker
 {
 	private static readonly int AutoIncreaseId = 0;
 	public static readonly int UpdateSelectDisplayObject = ++ AutoIncreaseId;
-	public static readonly int UpdateModifyCount = ++ AutoIncreaseId;
 	public static readonly int UpdateSwapImage = ++ AutoIncreaseId;
-	public static readonly int UpdateDisplayOjectPos = ++AutoIncreaseId;
+	public static readonly int UpdateDisplayObjectPos = ++AutoIncreaseId;
+	public static readonly int UpdateTitle = ++ AutoIncreaseId;
+	public static readonly int UpdateModuleTxtWidth = ++ AutoIncreaseId;
 	
 	private static readonly Dictionary<int, Subject<object[]>> SubjectDic = new Dictionary<int, Subject<object[]>>();
 

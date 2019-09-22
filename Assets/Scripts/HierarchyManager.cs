@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class HierarchyManager : MonoBehaviour
@@ -13,8 +11,8 @@ public class HierarchyManager : MonoBehaviour
 
 	public InputField searchInputField;
 
-	private static string SearchText;
-	private static bool IsGlobalSearchFlag = true;
+	private static string _searchText;
+	private static bool _isGlobalSearchFlag = true;
 
 	private static readonly List<Transform> DisplayObjectItemPool = new List<Transform>();
 	private static readonly List<Transform> DisplayObjectItems = new List<Transform>();
@@ -39,13 +37,13 @@ public class HierarchyManager : MonoBehaviour
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 
 		searchInputField.OnValueChangedAsObservable()
-						.Where(txt => !txt.Equals(SearchText))
+						.Where(txt => !txt.Equals(_searchText))
 						.Sample(TimeSpan.FromMilliseconds(500))
 						.Subscribe(txt =>
 						{
-							if (IsGlobalSearchFlag)
+							if (_isGlobalSearchFlag)
 								GlobalData.CurrentModule = null;
-							SearchText = txt;
+							_searchText = txt;
 							RefreshModuleItem();
 						});
 
@@ -123,18 +121,18 @@ public class HierarchyManager : MonoBehaviour
 
 	private static void ShowAllSearchedDisplayObjectItem()
 	{
-		if (string.IsNullOrWhiteSpace(SearchText)) return;
-		if (!IsGlobalSearchFlag
+		if (string.IsNullOrWhiteSpace(_searchText)) return;
+		if (!_isGlobalSearchFlag
 		 && string.IsNullOrWhiteSpace(GlobalData.CurrentModule))
 			return;
 		int count = GlobalData.Modules.Count;
 		for (int idx = 0; idx < count; ++idx)
 		{
-			if (IsGlobalSearchFlag
-			 && ModuleItems[idx].name.IndexOf(SearchText, StringComparison.Ordinal) != -1)
+			if (_isGlobalSearchFlag
+			 && ModuleItems[idx].name.IndexOf(_searchText, StringComparison.Ordinal) != -1)
 				ModuleItems[idx].GetComponentInChildren<Text>().text =
-					Utils.GetHighlight(ModuleItems[idx].name, SearchText);
-			if (!IsGlobalSearchFlag
+					Utils.GetHighlight(ModuleItems[idx].name, _searchText);
+			if (!_isGlobalSearchFlag
 			 && !GlobalData.Modules[idx].Equals(GlobalData.CurrentModule))
 				continue;
 			int siblingIndex = ModuleItems[idx].GetSiblingIndex();
@@ -144,14 +142,14 @@ public class HierarchyManager : MonoBehaviour
 			for (int idx2 = 0; idx2 < count2; ++idx2)
 			{
 				Element displayObject = displayObjects[idx2];
-				if (displayObject.Name.IndexOf(SearchText, StringComparison.Ordinal) == -1)
+				if (displayObject.Name.IndexOf(_searchText, StringComparison.Ordinal) == -1)
 					continue;
 				hasFind = true;
 				Transform displayObjectItem = GetDisplayObjectItem();
 				DisplayObjectItems.Add(displayObjectItem);
 				displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
 				displayObjectItem.SetSiblingIndex(++siblingIndex);
-				displayObjectItem.name = Utils.GetHighlight(displayObject.Name, SearchText);
+				displayObjectItem.name = Utils.GetHighlight(displayObject.Name, _searchText);
 				displayObjectItem.GetComponentInChildren<Text>().text = displayObjectItem.name;
 			}
 
@@ -165,7 +163,7 @@ public class HierarchyManager : MonoBehaviour
 	private static void RefreshDisplayObjectItem()
 	{
 		RecycleAllDisplayObjectItem();
-		if (!string.IsNullOrWhiteSpace(SearchText))
+		if (!string.IsNullOrWhiteSpace(_searchText))
 		{
 			ShowAllSearchedDisplayObjectItem();
 			return;
@@ -208,9 +206,9 @@ public class HierarchyManager : MonoBehaviour
 
 	private void RefreshModuleItem()
 	{
-		if (!string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && IsGlobalSearchFlag)
+		if (!string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && _isGlobalSearchFlag)
 		{
-			SearchText = string.Empty;
+			_searchText = string.Empty;
 			searchInputField.text = string.Empty;
 		}
 
@@ -231,14 +229,14 @@ public class HierarchyManager : MonoBehaviour
 
 	public static bool InSearchMode()
 	{
-		return !string.IsNullOrEmpty(SearchText);
+		return !string.IsNullOrEmpty(_searchText);
 	}
 
 	public void SwitchSearchMode(Text searchModeText)
 	{
 		if (searchModeText == null) return;
-		IsGlobalSearchFlag = !IsGlobalSearchFlag;
-		searchModeText.text = IsGlobalSearchFlag ? "G" : "L";
+		_isGlobalSearchFlag = !_isGlobalSearchFlag;
+		searchModeText.text = _isGlobalSearchFlag ? "G" : "L";
 		RefreshModuleItem();
 	}
 

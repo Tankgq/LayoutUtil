@@ -9,35 +9,35 @@ public class ObservableLongPointerDownTrigger : ObservableTriggerBase, IPointerE
 {
 	public float intervalSecond = 0.5f;
 
-	private Subject<Unit> onLongHoverDown;
+	private Subject<Unit> _onLongHoverDown;
 
-	private float? raiseTime;
+	private float? _raiseTime;
 
 	private void Update()
 	{
-		if (raiseTime == null
-		 || !(raiseTime <= Time.realtimeSinceStartup)) return;
-		onLongHoverDown?.OnNext(Unit.Default);
-		raiseTime = null;
+		if (_raiseTime == null
+		 || !(_raiseTime <= Time.realtimeSinceStartup)) return;
+		_onLongHoverDown?.OnNext(Unit.Default);
+		_raiseTime = null;
 	}
 
 	void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
 	{
-		raiseTime = Time.realtimeSinceStartup + intervalSecond;
+		_raiseTime = Time.realtimeSinceStartup + intervalSecond;
 	}
 
 	void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
 	{
-		raiseTime = null;
+		_raiseTime = null;
 	}
 
 	public IObservable<Unit> OnLongHoverAsObservable()
 	{
-		return onLongHoverDown ?? (onLongHoverDown = new Subject<Unit>());
+		return _onLongHoverDown ?? (_onLongHoverDown = new Subject<Unit>());
 	}
 
 	protected override void RaiseOnCompletedOnDestroy()
 	{
-		onLongHoverDown?.OnCompleted();
+		_onLongHoverDown?.OnCompleted();
 	}
 }

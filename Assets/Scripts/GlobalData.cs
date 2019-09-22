@@ -24,6 +24,8 @@ public class GlobalData : MonoBehaviour {
 	public static readonly List<string> Modules = new List<string>();
 	public static readonly Dictionary<string, List<Element>> ModuleDic = new Dictionary<string, List<Element>>();
 
+	public static readonly Dictionary<string, List<Element>> CacheModuleDic = new Dictionary<string, List<Element>>();
+
 	public static Element GetElement(string name) {
 		if(string.IsNullOrEmpty(name)) return null;
 		return string.IsNullOrWhiteSpace(CurrentModule)
@@ -37,12 +39,21 @@ public class GlobalData : MonoBehaviour {
 	public static string CurrentModule {
 		get { return _currentModule; }
 		set {
-			PreviousModule = CurrentModule;
+			PreviousModule = _currentModule;
 			_currentModule = value;
 		}
 	}
 
-	public static string CurrentFilePath = null;
+	public static string PreviousFilePath = null;
+	private static string _currentFilePath = null;
+
+	public static string CurrentFilePath {
+		get { return _currentFilePath; }
+		set {
+			PreviousFilePath = _currentFilePath;
+			_currentFilePath = value;
+		}
+	}
 
 	public static readonly Vector2 OriginPoint = new Vector2(32, -32);
 	public static readonly Vector2 DefaultSize = new Vector2(64, 64);

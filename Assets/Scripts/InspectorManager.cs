@@ -36,8 +36,8 @@ public class InspectorManager : MonoBehaviour
 						  }
 						  new Action<string, string, string>((module, originName1, newName1) =>
 						  {
-							  HistoryManager.Do(new Behavior(() => ChangeNameBehavior(module, originName1, newName1, true),
-															 () => ChangeNameBehavior(module, newName1, originName1, false)));
+							  HistoryManager.Do(new Behavior((isRedo) => ChangeNameBehavior(module, originName1, newName1, true),
+															 (isReUndo) => ChangeNameBehavior(module, newName1, originName1, false)));
 						  })(GlobalData.CurrentModule, originName, newName);
 					  });
 		xInputField.ObserveEveryValueChanged(element => element.isFocused)
@@ -52,8 +52,8 @@ public class InspectorManager : MonoBehaviour
 						   if (element == null || Utils.IsEqual(element.X, x)) return;
 						   new Action<string, string, float, float>((module, elementName, newX, originX) =>
 						   {
-							   HistoryManager.Do(new Behavior(() => ChangeXBehavior(module, elementName, newX, false, true),
-															  () => ChangeXBehavior(module, elementName, originX, false, false)));
+							   HistoryManager.Do(new Behavior((isRedo) => ChangeXBehavior(module, elementName, newX, false, true),
+															  (isReUndo) => ChangeXBehavior(module, elementName, originX, false, false)));
 						   })(GlobalData.CurrentModule, _displayObject.name, x, element.X);
 						   return;
 					   }
@@ -63,8 +63,8 @@ public class InspectorManager : MonoBehaviour
 						   {
 							   new Action<string, string, float, bool>((module, elementName, offsetX, isAdd) =>
 							   {
-								   HistoryManager.Do(new Behavior(() => ChangeXBehavior(module, elementName, offsetX, isAdd, true),
-																  () => ChangeXBehavior(module, elementName, -offsetX, isAdd, false)));
+								   HistoryManager.Do(new Behavior((isRedo) => ChangeXBehavior(module, elementName, offsetX, isAdd, true),
+																  (isReUndo) => ChangeXBehavior(module, elementName, -offsetX, isAdd, false)));
 							   })(GlobalData.CurrentModule, pair.Key, x, true);
 						   }
 					   xInputField.text = "0";
@@ -81,8 +81,8 @@ public class InspectorManager : MonoBehaviour
 						   if (element == null || Utils.IsEqual(element.Y, y)) return;
 						   new Action<string, string, float, float>((module, elementName, newY, originY) =>
 						   {
-							   HistoryManager.Do(new Behavior(() => ChangeYBehavior(module, elementName, newY, false, true),
-															  () => ChangeYBehavior(module, elementName, originY, false, false)));
+							   HistoryManager.Do(new Behavior((isRedo) => ChangeYBehavior(module, elementName, newY, false, true),
+															  (isReUndo) => ChangeYBehavior(module, elementName, originY, false, false)));
 						   })(GlobalData.CurrentModule, _displayObject.name, y, element.Y);
 						   return;
 					   }
@@ -92,8 +92,8 @@ public class InspectorManager : MonoBehaviour
 							   new Action<string, string, float, bool>((module, elementName, offsetY, isAdd) =>
 							   {
 								   HistoryManager.Do(new Behavior(
-									   () => ChangeYBehavior(module, elementName, offsetY, isAdd, true),
-									   () => ChangeYBehavior(module, elementName, -offsetY, isAdd, false)));
+									   (isRedo) => ChangeYBehavior(module, elementName, offsetY, isAdd, true),
+									   (isReUndo) => ChangeYBehavior(module, elementName, -offsetY, isAdd, false)));
 							   })(GlobalData.CurrentModule, pair.Key, y, true);
 					   yInputField.text = "0";
 				   });
@@ -109,8 +109,8 @@ public class InspectorManager : MonoBehaviour
 							   if (element == null || Utils.IsEqual(element.Width, width)) return;
 							   new Action<string, string, float, float>((module, elementName, newWidth, originWidth) =>
 							   {
-								   HistoryManager.Do(new Behavior(() => ChangeWidthBehavior(module, elementName, newWidth, false, true),
-																  () => ChangeWidthBehavior(module, elementName, originWidth, false, false)));
+								   HistoryManager.Do(new Behavior((isRedo) => ChangeWidthBehavior(module, elementName, newWidth, false, true),
+																  (isReUndo) => ChangeWidthBehavior(module, elementName, originWidth, false, false)));
 								   })(GlobalData.CurrentModule, _displayObject.name, width, element.Width);
 								   return;
 						   }
@@ -119,8 +119,8 @@ public class InspectorManager : MonoBehaviour
 							   foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 								   new Action<string, string, float, bool>((module, elementName, newWidth, isAdd) =>
 								   {
-									   HistoryManager.Do(new Behavior(() => ChangeWidthBehavior(module, elementName, newWidth, isAdd, true),
-										   () => ChangeWidthBehavior(module, elementName, -newWidth, isAdd, false)));
+									   HistoryManager.Do(new Behavior((isRedo) => ChangeWidthBehavior(module, elementName, newWidth, isAdd, true),
+										   (isReUndo) => ChangeWidthBehavior(module, elementName, -newWidth, isAdd, false)));
 								   })(GlobalData.CurrentModule, pair.Key, width, true);
 						   widthInputField.text = "0";
 					   });
@@ -136,8 +136,8 @@ public class InspectorManager : MonoBehaviour
 								if (element == null || Utils.IsEqual(element.Height, height)) return;
 								new Action<string, string, float, float>((module, elementName, newHeight, originHeight) =>
 								{
-									HistoryManager.Do(new Behavior(() => ChangeHeightBehavior(module, elementName, newHeight, false, true),
-										() => ChangeHeightBehavior(module, elementName, originHeight, false, false)));
+									HistoryManager.Do(new Behavior((isRedo) => ChangeHeightBehavior(module, elementName, newHeight, false, true),
+										(isReUndo) => ChangeHeightBehavior(module, elementName, originHeight, false, false)));
 								})(GlobalData.CurrentModule, _displayObject.name, height, element.Height);
 								return;
 							}
@@ -146,8 +146,8 @@ public class InspectorManager : MonoBehaviour
 								foreach (var pair in GlobalData.CurrentSelectDisplayObjectDic)
 									new Action<string, string, float, bool>((module, elementName, newHeight, isAdd) =>
 									{
-										HistoryManager.Do(new Behavior(() => ChangeHeightBehavior(module, elementName, newHeight, isAdd, true),
-											() => ChangeHeightBehavior(module, elementName, -newHeight, isAdd, false)));
+										HistoryManager.Do(new Behavior((isRedo) => ChangeHeightBehavior(module, elementName, newHeight, isAdd, true),
+											(isReUndo) => ChangeHeightBehavior(module, elementName, -newHeight, isAdd, false)));
 									})(GlobalData.CurrentModule, pair.Key, height, true);
 							heightInputField.text = "0";
 						});
@@ -177,7 +177,7 @@ public class InspectorManager : MonoBehaviour
 													  : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 								  });
 		Subject<object[]> updateDisplayObjectPosSubject =
-			MessageBroker.GetSubject(MessageBroker.UpdateDisplayOjectPos);
+			MessageBroker.GetSubject(MessageBroker.UpdateDisplayObjectPos);
 		updateDisplayObjectPosSubject.SampleFrame(1)
 									 .Subscribe(_ => UpdateState(_displayObject));
 	}
