@@ -321,7 +321,7 @@ public class HierarchyManager : MonoBehaviour
 			Element element = GlobalData.GetElement(elementName);
 			if (element != null) element.Visible = !swapped;
 			bool isModify = (bool) param[3];
-			GlobalData.ModifyCount += isModify ? 1 : -1;
+			GlobalData.ModifyDic += isModify ? 1 : -1;
 			Debug.Log($"currentModule: {currentModule}, elementName: {elementName}, swapped: {swapped}, isModify: {isModify}");
 		});
 	}

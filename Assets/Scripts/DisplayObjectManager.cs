@@ -121,12 +121,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			selectedDisplayObjects.Add(pair.Key);
 		}
 		new Action<string, List<string>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) => {
+			string modifyKey = $"update_display_object_position_{Time.frameCount}";
 			HistoryManager.Do(new Behavior((isReDo) => UpdateDisplayObjectsPosition(module, displayObjects, targetPos, true),
 										   (isReUndo) => UpdateDisplayObjectsPosition(module, displayObjects, originPos, false)));
 		})(GlobalData.CurrentModule, selectedDisplayObjects, _startPos, pos);
 	}
 
-	private void UpdateDisplayObjectsPosition(string module, IReadOnlyList<string> displayObjects, Vector2 targetPos, bool isModify) {
+	private void UpdateDisplayObjectsPosition(string module, IReadOnlyList<string> displayObjects, Vector2 targetPos) {
 		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule) || ! GlobalData.CurrentModule.Equals(module)) return;
 		if(displayObjects == null || displayObjects.Count == 0) return;
 		Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[0]];
@@ -142,7 +143,6 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
 		}
-		GlobalData.ModifyCount += isModify ? 1 : -1;
 		MessageBroker.Send(MessageBroker.UpdateDisplayObjectPos);
 	}
 

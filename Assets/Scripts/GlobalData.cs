@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 
 public class GlobalData : MonoBehaviour {
 	public const string ProductName = "LayoutUtil";
@@ -66,7 +69,17 @@ public class GlobalData : MonoBehaviour {
 	public const int QuickTipMaxCount = 9;
 	public const float QuickTipDuration = 2.0f;
 
-	public static int ModifyCount = 0;
+	public static Dictionary<string, bool> ModifyDic = new Dictionary<string, bool>();
+
+	public static int ModifyCount {
+		get { return ModifyDic.Count(pair => pair.Value); }
+		set {
+			if(value != 0) return;
+			foreach(var pair in ModifyDic) {
+				ModifyDic[pair.Key] = false;
+			}
+		}
+	}
 
 	public static Shader DefaultShader;
 

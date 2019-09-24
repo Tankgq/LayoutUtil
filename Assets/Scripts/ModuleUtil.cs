@@ -15,7 +15,7 @@ public static class ModuleUtil {
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);
 		if(selectModule) GlobalData.CurrentModule = moduleName;
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 		return true;
 	}
 
@@ -28,7 +28,7 @@ public static class ModuleUtil {
 		GlobalData.Modules.Remove(moduleName);
 		GlobalData.ModuleDic.Remove(moduleName);
 		if(moduleName.Equals(GlobalData.CurrentModule)) GlobalData.CurrentModule = null;
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 		return true;
 	}
 
@@ -151,7 +151,7 @@ public static class ModuleUtil {
 			else
 				DialogManager.ShowInfo(message);
 			GlobalData.CurrentFilePath = filePath;
-			GlobalData.ModifyCount = 0;
+			GlobalData.ModifyDic = 0;
 		} else {
 			const string message = "导出失败";
 			if(showQuickTip)

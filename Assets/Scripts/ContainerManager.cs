@@ -67,7 +67,7 @@ public class ContainerManager : MonoBehaviour {
 										 });
 		GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
 				  .Subscribe(_ => MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject));
-		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyCount)
+		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
 				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.UpdateTitle));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentFilePath)

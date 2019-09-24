@@ -244,7 +244,7 @@ public class InspectorManager : MonoBehaviour
 		if (isAdd) element.X += x;
 		else element.X = x;
 		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
-		GlobalData.ModifyCount += isModify ? 1 : -1;
+		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
 	private static void ChangeYBehavior(string currentModule, string elementName, float y, bool isAdd = false, bool isModify = true)
@@ -263,7 +263,7 @@ public class InspectorManager : MonoBehaviour
 		if (isAdd) element.Y += y;
 		else element.Y = y;
 		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
-		GlobalData.ModifyCount += isModify ? 1 : -1;
+		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
 	private static void ChangeWidthBehavior(string currentModule, string elementName, float width, bool isAdd = false, bool isModify = true)
@@ -281,7 +281,7 @@ public class InspectorManager : MonoBehaviour
 		if (isAdd) element.Width += width;
 		else element.Width = width;
 		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
-		GlobalData.ModifyCount += isModify ? 1 : -1;
+		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
 	private static void ChangeHeightBehavior(string currentModule, string elementName, float height, bool isAdd = false, bool isModify = true)
@@ -299,7 +299,7 @@ public class InspectorManager : MonoBehaviour
 		if (isAdd) element.Height += height;
 		else element.Height = height;
 		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
-		GlobalData.ModifyCount += isModify ? 1 : -1;
+		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
 	private void ChangeNameBehavior(string currentModule, string originName, string newName, bool isModify)
@@ -322,6 +322,6 @@ public class InspectorManager : MonoBehaviour
 			GlobalData.CurrentSelectDisplayObjectDic.Add(newName, displayObject);
 			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
 		}
-		GlobalData.ModifyCount += isModify ? 1 : -1;
+		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 }

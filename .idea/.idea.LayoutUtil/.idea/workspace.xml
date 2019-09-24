@@ -114,16 +114,16 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/MessageBroker.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Behavior.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/GlobalData.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ModuleUtil.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/KeyboardEventManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/DragFileUtil.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/FunctionButtonHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utils.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Element.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectUtil.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/GlobalData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs" />
       </list>
     </option>
   </component>
@@ -197,7 +197,8 @@
       <workItem from="1568730660485" duration="2112000" />
       <workItem from="1568732788978" duration="3415000" />
       <workItem from="1569062670859" duration="24002000" />
-      <workItem from="1569140129437" duration="13976000" />
+      <workItem from="1569140129437" duration="14237000" />
+      <workItem from="1569337740542" duration="2351000" />
     </task>
     <servers />
   </component>

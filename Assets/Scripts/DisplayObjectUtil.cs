@@ -56,7 +56,7 @@ public static class DisplayObjectUtil {
 		GlobalData.CurrentDisplayObjectDic[element.Name] = displayObject;
 		LoadImageBehavior(GlobalData.CurrentModule, element.Name, imageUrl);
 		displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 	}
 
 	private static void RemoveDisplayObjectBehavior(string moduleName, string elementName, int modifyCount = 0) {
@@ -69,7 +69,7 @@ public static class DisplayObjectUtil {
 		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		idx = elements.FindIndex(0, element => elementName.Equals(element.Name));
 		if(idx != -1) elements.RemoveAt(idx);
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 	}
 
 	private static void LoadImageBehavior(string moduleName, string elementName, string imageUrl = null, int modifyCount = 0) {
@@ -91,7 +91,7 @@ public static class DisplayObjectUtil {
 			GlobalData.DisplayObjectPathDic[displayKey] = null;
 			image.color = Color.clear;
 		}
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 	}
 
 	private static void RemoveImageBehavior(string moduleName, string elementName, int modifyCount = 0) {
@@ -102,7 +102,7 @@ public static class DisplayObjectUtil {
 		Image image = displayObject.GetComponent<Image>();
 		if(! image) return;
 		image.color = Color.clear;
-		GlobalData.ModifyCount += modifyCount;
+		GlobalData.ModifyDic += modifyCount;
 	}
 
 	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
