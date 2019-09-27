@@ -411,11 +411,13 @@
           <e p="AlignInfo.cs" t="Include" />
           <e p="B83.Win32.cs" t="Include" />
           <e p="Behavior.cs" t="Include" />
+          <e p="BehaviorUtil.cs" t="Include" />
           <e p="ContainerManager.cs" t="Include" />
           <e p="Debugger.cs" t="Include" />
           <e p="DialogManager.cs" t="Include" />
           <e p="DisplayObjectManager.cs" t="Include" />
-          <e p="DragFileHandler.cs" t="Include" />
+          <e p="DisplayObjectUtil.cs" t="Include" />
+          <e p="DragFileUtil.cs" t="Include" />
           <e p="Element.cs" t="Include" />
           <e p="FileExplorerDialog.cs" t="Include" />
           <e p="FunctionButtonHandler.cs" t="Include" />
@@ -430,6 +432,7 @@
           <e p="MessageBoxUtil.cs" t="Include" />
           <e p="MessageBroker.cs" t="Include" />
           <e p="Module.cs" t="Include" />
+          <e p="ModuleUtil.cs" t="Include" />
           <e p="ObservableLongHoverTrigger.cs" t="Include" />
           <e p="OpenFileUtil.cs" t="Include" />
           <e p="QuickTipManager.cs" t="Include" />
