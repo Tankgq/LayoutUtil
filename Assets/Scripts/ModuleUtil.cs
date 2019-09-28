@@ -6,7 +6,7 @@ using UniRx;
 using UnityEngine;
 
 public static class ModuleUtil {
-	private static bool CreateModuleBehavior(string moduleName, List<Element> elements = null, int modifyCount = 0, bool selectModule = true, bool isReDo = false) {
+	public static bool CreateModuleBehavior(string moduleName, List<Element> elements = null, bool selectModule = true, bool isReDo = false) {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
 		// 还原 module 时尝试取回删除时保存的数据
@@ -15,11 +15,10 @@ public static class ModuleUtil {
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);
 		if(selectModule) GlobalData.CurrentModule = moduleName;
-		GlobalData.ModifyDic += modifyCount;
 		return true;
 	}
 
-	private static bool RemoveModuleBehavior(string moduleName, int modifyCount = 0) {
+	public static bool RemoveModuleBehavior(string moduleName) {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(! GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
 
@@ -28,15 +27,11 @@ public static class ModuleUtil {
 		GlobalData.Modules.Remove(moduleName);
 		GlobalData.ModuleDic.Remove(moduleName);
 		if(moduleName.Equals(GlobalData.CurrentModule)) GlobalData.CurrentModule = null;
-		GlobalData.ModifyDic += modifyCount;
 		return true;
 	}
 
 	private static void RemoveCurrentModule() {
-		new Action<string>(moduleName => {
-			HistoryManager.Do(new Behavior((isRedo) => RemoveModuleBehavior(moduleName, 1),
-										   (isReUndo) => CreateModuleBehavior(moduleName, null, -1, true, isReUndo)));
-		})(GlobalData.CurrentModule);
+		HistoryManager.Do(BehaviorFactory.GetRemoveModuleBehavior(GlobalData.CurrentModule));
 	}
 
 	public static void CreateModule() {
@@ -52,10 +47,7 @@ public static class ModuleUtil {
 										   DialogManager.ShowError("module 已存在", 0, 0);
 										   return;
 									   }
-									   new Action<string>(moduleName => {
-										   HistoryManager.Do(new Behavior((isRedo) => ModuleUtil.CreateModuleBehavior(moduleName, null, 1, true, isRedo),
-																		  (isReUndo) => ModuleUtil.RemoveModuleBehavior(moduleName, -1)));
-									   })(txt);
+									   HistoryManager.Do(BehaviorFactory.GetCreateModuleBehavior(txt));
 								   });
 	}
 
@@ -87,21 +79,7 @@ public static class ModuleUtil {
 		if(GlobalData.Modules.Count == 0) return;
 		List<string> modules = new List<string>();
 		modules.AddRange(GlobalData.Modules);
-		new Action(() => {
-			HistoryManager.Do(new Behavior((isRedo) => {
-											   int count = modules.Count;
-											   for(int idx = 0; idx < count; ++ idx) {
-												   RemoveModuleBehavior(modules[idx], 1);
-											   }
-										   },
-										   (isReUndo) => {
-											   int count = modules.Count;
-											   for(int idx = 0; idx < count; ++ idx) {
-												   CreateModuleBehavior(modules[idx], null, -1, false);
-											   }
-										   },
-										   combineWithNextBehavior));
-		})();
+		HistoryManager.Do(BehaviorFactory.GetRemoveAllModuleBehavior(modules, combineWithNextBehavior));
 	}
 
 	public static void CheckRemoveCurrentModule() {
@@ -111,7 +89,7 @@ public static class ModuleUtil {
 		}
 
 		DialogManager.ShowQuestion($"是否删除当前打开的 module: {GlobalData.CurrentModule}",
-								   ModuleUtil.RemoveCurrentModule,
+								   RemoveCurrentModule,
 								   null);
 	}
 

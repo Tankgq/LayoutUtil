@@ -5,6 +5,8 @@ public class Behavior {
 	public enum BehaviorType {
 		Null,
 		CreateModule,
+		RemoveModule,
+		RemoveAllModule,
 		OpenModule,
 		ImportModule,
 		AddDisplayObject,
@@ -26,12 +28,16 @@ public class Behavior {
 	public readonly int CreateFrameCount;
 	public BehaviorType Type;
 
-	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, bool combineWithNextBehavior = false) {
+	// 当前的行为是否会修改数据
+	public readonly bool IsModify;
+
+	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, BehaviorType type, bool isModify = true, bool combineWithNextBehavior = false) {
 		Do = doBehavior;
 		Undo = undoBehavior;
 		DoCount = UndoCount = 0;
+		Type = type;
+		IsModify = isModify;
 		IsCombineWithNextBehavior = combineWithNextBehavior;
 		CreateFrameCount = Time.frameCount;
-		Type = BehaviorType.Null;
 	}
 }

@@ -32,7 +32,11 @@ public static class HistoryManager {
 			}
 			behavior.Type = Behavior.BehaviorType.OpenModule;
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
-			GlobalData.ModifyDic[key] = true;
+			if(GlobalData.ModifyDic.ContainsKey(key)
+			&& GlobalData.ModifyDic[key]) {
+				Debug.Log($"[WARN] [HistoryManager] Do() - key: {key}, behavior.Type: {behavior.Type}");
+			}
+			GlobalData.ModifyDic[key] = behavior.IsModify;
 			behavior.Do(behavior.DoCount > 0);
 			++ behavior.DoCount;
 			++ _currentIndex;
@@ -51,6 +55,10 @@ public static class HistoryManager {
 			}
 			behavior.Type = Behavior.BehaviorType.OpenModule;
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
+			if(! GlobalData.ModifyDic.ContainsKey(key)) {
+				Debug.Log($"[ERROR] [HistoryManager] Undo() - key: {key}, behavior.Type: {behavior.Type}");
+				return;
+			}
 			behavior.Undo(behavior.UndoCount > 0);
 			GlobalData.ModifyDic[key] = false;
 			++ behavior.UndoCount;

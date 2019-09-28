@@ -411,7 +411,7 @@
           <e p="AlignInfo.cs" t="Include" />
           <e p="B83.Win32.cs" t="Include" />
           <e p="Behavior.cs" t="Include" />
-          <e p="BehaviorUtil.cs" t="Include" />
+          <e p="BehaviorFactory.cs" t="Include" />
           <e p="ContainerManager.cs" t="Include" />
           <e p="Debugger.cs" t="Include" />
           <e p="DialogManager.cs" t="Include" />
