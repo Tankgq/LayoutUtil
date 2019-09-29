@@ -168,7 +168,7 @@ public class InspectorManager : MonoBehaviour
 					  else if ((isShiftDown && go == xInputField.gameObject) || (!isShiftDown && go == heightInputField.gameObject))
 						  EventSystem.current.SetSelectedGameObject(nameInputField.gameObject);
 				  });
-		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UpdateSelectDisplayObject);
+		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		updateDisplayObjectSubject.SampleFrame(1)
 								  .Subscribe(_ =>
 								  {
@@ -177,7 +177,7 @@ public class InspectorManager : MonoBehaviour
 													  : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 								  });
 		Subject<object[]> updateDisplayObjectPosSubject =
-			MessageBroker.GetSubject(MessageBroker.UpdateDisplayObjectPos);
+			MessageBroker.GetSubject(MessageBroker.Code.UpdateDisplayObjectPos);
 		updateDisplayObjectPosSubject.SampleFrame(1)
 									 .Subscribe(_ => UpdateState(_displayObject));
 	}
@@ -243,7 +243,7 @@ public class InspectorManager : MonoBehaviour
 		if (element == null) return;
 		if (isAdd) element.X += x;
 		else element.X = x;
-		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+		MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
@@ -262,7 +262,7 @@ public class InspectorManager : MonoBehaviour
 		if (element == null) return;
 		if (isAdd) element.Y += y;
 		else element.Y = y;
-		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+		MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
@@ -280,7 +280,7 @@ public class InspectorManager : MonoBehaviour
 		if (element == null) return;
 		if (isAdd) element.Width += width;
 		else element.Width = width;
-		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+		MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
@@ -298,7 +298,7 @@ public class InspectorManager : MonoBehaviour
 		if (element == null) return;
 		if (isAdd) element.Height += height;
 		else element.Height = height;
-		MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+		MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}
 
@@ -320,7 +320,7 @@ public class InspectorManager : MonoBehaviour
 				nameInputField.text = newName;
 			GlobalData.CurrentSelectDisplayObjectDic.Remove(originName);
 			GlobalData.CurrentSelectDisplayObjectDic.Add(newName, displayObject);
-			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		}
 		GlobalData.ModifyDic += isModify ? 1 : -1;
 	}

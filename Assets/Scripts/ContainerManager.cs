@@ -28,7 +28,7 @@ public class ContainerManager : MonoBehaviour {
 					   // })(GlobalData.PreviousModule, GlobalData.CurrentModule);
 					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
 					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
-					   MessageBroker.Send(MessageBroker.UpdateModuleTxtWidth);
+					   MessageBroker.Send(MessageBroker.Code.UpdateModuleTxtWidth);
 					   if(string.IsNullOrEmpty(module)) {
 						   moduleNameText.text = "null";
 						   return;
@@ -38,7 +38,7 @@ public class ContainerManager : MonoBehaviour {
 					   scaleSlider.value = 10f;
 					   GetComponent<RectTransform>().localPosition = Vector2.zero;
 				   });
-		Subject<object[]> updateModuleTxtWidthSubject = MessageBroker.GetSubject(MessageBroker.UpdateModuleTxtWidth);
+		Subject<object[]> updateModuleTxtWidthSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateModuleTxtWidth);
 		updateModuleTxtWidthSubject.SampleFrame(1)
 								   .DelayFrame(1)
 								   .Subscribe(_ => {
@@ -47,7 +47,7 @@ public class ContainerManager : MonoBehaviour {
 										rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30,
 																		   rt2.anchoredPosition.y);
 									});
-		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.UpdateSelectDisplayObject);
+		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		updateSelectDisplayObjectSubject.SampleFrame(1)
 										.Subscribe(_ => {
 											 foreach(Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
@@ -66,14 +66,14 @@ public class ContainerManager : MonoBehaviour {
 											 selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
 										 });
 		GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-				  .Subscribe(_ => MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject));
+				  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
-				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.UpdateTitle));
+				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.Code.UpdateTitle));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentFilePath)
 				  .SampleFrame(1)
-				  .Subscribe(_ => MessageBroker.Send(MessageBroker.UpdateTitle));
-		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageBroker.UpdateTitle);
+				  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateTitle));
+		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateTitle);
 		updateTitleSubject.SampleFrame(1)
 						  .Subscribe(_ => {
 							   string title = GlobalData.ProductName;

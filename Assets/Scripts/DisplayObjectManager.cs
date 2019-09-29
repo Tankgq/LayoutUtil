@@ -52,7 +52,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 				GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
 			}
 
-			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
 			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -143,10 +143,10 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
 		}
-		MessageBroker.Send(MessageBroker.UpdateDisplayObjectPos);
+		MessageBroker.Send(MessageBroker.Code.UpdateDisplayObjectPos);
 	}
 
-	private void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
+	private static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
 		rt.anchoredPosition = pos;
 		Element element = GlobalData.GetElement(elementName);
 		if(element == null) return;
@@ -160,13 +160,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(isSelect) {
 			if(KeyboardEventManager.GetControl()) {
 				GlobalData.CurrentSelectDisplayObjectDic.Remove(transform.name);
-				MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+				MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 			}
 		} else {
 			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObject();
 			Transform self = transform;
 			GlobalData.CurrentSelectDisplayObjectDic.Add(self.name, self);
-			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		}
 		Vector2 mousePos = eventData.position;
 		Vector2 offset;

@@ -129,7 +129,7 @@ public static class ModuleUtil {
 			else
 				DialogManager.ShowInfo(message);
 			GlobalData.CurrentFilePath = filePath;
-			GlobalData.ModifyDic = 0;
+			GlobalData.ModifyCount = 0;
 		} else {
 			const string message = "导出失败";
 			if(showQuickTip)
@@ -164,33 +164,14 @@ public static class ModuleUtil {
 				  .Subscribe(_ => {
 					   try {
 						   List<Module> modules = JsonConvert.DeserializeObject<List<Module>>(jsonStr);
-						   new Action<string, string>((currentFilePath, previousFilePath) => {
-							   HistoryManager.Do(new Behavior((isRedo) => {
-																  int count = modules.Count;
-																  for(int idx = 0; idx < count; ++ idx) {
-																	  Module module = modules[idx];
-																	  CreateModuleBehavior(module.Name, module.Elements, 1, false, isRedo);
-																  }
-																  GlobalData.CurrentFilePath = currentFilePath;
-															  },
-															  (isReUndo) => {
-																  int count = modules.Count;
-																  for(int idx = 0; idx < count; ++ idx) {
-																	  Module module = modules[idx];
-																	  RemoveModuleBehavior(module.Name, -1);
-																  }
-																  GlobalData.CurrentFilePath = previousFilePath;
-															  }));
-						   })(filePath, GlobalData.CurrentFilePath);
+						   HistoryManager.Do(BehaviorFactory.GetImportModulesBehavior(filePath, modules));
 					   } catch(Exception e) {
 						   DialogManager.ShowError($"导入失败({e})");
 					   }
 				   });
 	}
 
-	public static void SelectModule(string moduleName) {
-		new Action<string, string>((currentModule, targetModule) => {
-			HistoryManager.Do(new Behavior(isRedo => GlobalData.CurrentModule = moduleName, isReUndo => GlobalData.CurrentModule = currentModule));
-		})(GlobalData.CurrentModule, moduleName);
+	public static void OpenModule(string moduleName) {
+		HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(moduleName));
 	}
 }

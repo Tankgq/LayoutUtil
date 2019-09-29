@@ -11,7 +11,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			ContainerManager.UpdateCurrentDisplayObjectData();
 			string moduleName = elementName;
 			if(moduleName.Equals(GlobalData.CurrentModule)) moduleName = null;
-			ModuleUtil.SelectModule(moduleName);
+			ModuleUtil.OpenModule(moduleName);
 			return;
 		}
 		if(itemType != 2) return;
@@ -20,7 +20,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			if(string.IsNullOrEmpty(module)) return;
 			GlobalData.CurrentModule = module;
 			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, GlobalData.CurrentDisplayObjectDic[elementName]);
-			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 			return;
 		}
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
@@ -29,8 +29,8 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 		SwapImageManager sim = transform.GetComponentInChildren<SwapImageManager>();
 		if(sim && Utils.IsPointOverGameObject(sim.gameObject)) {
 			new Action<string, string, bool>((currentModule2, elementName2, isSwap2) => {
-				HistoryManager.Do(new Behavior((isRedo) => MessageBroker.Send(MessageBroker.UpdateSwapImage, currentModule2, elementName2, isSwap2, true),
-											   (isReUndo) => MessageBroker.Send(MessageBroker.UpdateSwapImage, currentModule2, elementName2, ! isSwap2, false)));
+				HistoryManager.Do(new Behavior((isRedo) => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, currentModule2, elementName2, isSwap2, true),
+											   (isReUndo) => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, currentModule2, elementName2, ! isSwap2, false)));
 			})(GlobalData.CurrentModule, elementName, ! sim.isSwap);
 			return;
 		}
@@ -42,7 +42,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 		} else {
 			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObjectItem();
 			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
-			MessageBroker.Send(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		}
 	}
 

@@ -26,7 +26,7 @@ public class HierarchyManager : MonoBehaviour
 				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 		Subject<object[]> updateSelectDisplayObjectSubject =
-			MessageBroker.GetSubject(MessageBroker.UpdateSelectDisplayObject);
+			MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		updateSelectDisplayObjectSubject.SampleFrame(1)
 										.Subscribe(_ => RefreshDisplayObjectItem());
 		upButton.OnClickAsObservable()
@@ -294,9 +294,9 @@ public class HierarchyManager : MonoBehaviour
 
 	private static void StartObserveSwapImage()
 	{
-		if (MessageBroker.HasSubject(MessageBroker.UpdateSwapImage))
+		if (MessageBroker.HasSubject(MessageBroker.Code.UpdateSwapImage))
 			return;
-		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageBroker.UpdateSwapImage);
+		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSwapImage);
 		imageChangeSubject.Subscribe(param =>
 		{
 			Debug.Log(param);

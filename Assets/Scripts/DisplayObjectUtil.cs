@@ -45,7 +45,7 @@ public static class DisplayObjectUtil {
 		}
 	}
 
-	private static void AddDisplayObjectBehavior(string moduleName, Element element, string imageUrl = null, int modifyCount = 0) {
+	public static void AddDisplayObjectBehavior(string moduleName, Element element, string imageUrl = null) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(element == null) return;
 		GlobalData.ModuleDic[moduleName].Add(element);
@@ -56,10 +56,9 @@ public static class DisplayObjectUtil {
 		GlobalData.CurrentDisplayObjectDic[element.Name] = displayObject;
 		LoadImageBehavior(GlobalData.CurrentModule, element.Name, imageUrl);
 		displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
-		GlobalData.ModifyDic += modifyCount;
 	}
 
-	private static void RemoveDisplayObjectBehavior(string moduleName, string elementName, int modifyCount = 0) {
+	public static void RemoveDisplayObjectBehavior(string moduleName, string elementName) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(string.IsNullOrWhiteSpace(elementName)) return;
 		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
@@ -69,10 +68,15 @@ public static class DisplayObjectUtil {
 		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		idx = elements.FindIndex(0, element => elementName.Equals(element.Name));
 		if(idx != -1) elements.RemoveAt(idx);
-		GlobalData.ModifyDic += modifyCount;
 	}
 
-	private static void LoadImageBehavior(string moduleName, string elementName, string imageUrl = null, int modifyCount = 0) {
+	public static void RemoveDisplayObjectsBehavior(string moduleName, List<string> elements) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		if(elements == null || elements.Count == 0) return;
+		
+	}
+
+	public static void LoadImageBehavior(string moduleName, string elementName, string imageUrl = null) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(string.IsNullOrWhiteSpace(elementName)) return;
 		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
@@ -91,10 +95,9 @@ public static class DisplayObjectUtil {
 			GlobalData.DisplayObjectPathDic[displayKey] = null;
 			image.color = Color.clear;
 		}
-		GlobalData.ModifyDic += modifyCount;
 	}
 
-	private static void RemoveImageBehavior(string moduleName, string elementName, int modifyCount = 0) {
+	public static void RemoveImageBehavior(string moduleName, string elementName) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(string.IsNullOrWhiteSpace(elementName)) return;
 		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
@@ -102,7 +105,6 @@ public static class DisplayObjectUtil {
 		Image image = displayObject.GetComponent<Image>();
 		if(! image) return;
 		image.color = Color.clear;
-		GlobalData.ModifyDic += modifyCount;
 	}
 
 	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
@@ -144,10 +146,7 @@ public static class DisplayObjectUtil {
 				break;
 			}
 			if(displayObject == null) return null;
-			new Action<string, string, string>((moduleName2, elementName2, imageUrl2) => {
-				HistoryManager.Do(new Behavior(isReDo => LoadImageBehavior(moduleName2, elementName2, imageUrl2),
-											   isReUndo => RemoveImageBehavior(moduleName2, elementName2, -1)));
-			})(GlobalData.CurrentModule, displayObject.name, imageUrl);
+			HistoryManager.Do(BehaviorFactory.GetLoadImageToDisplayObjectBehavior(GlobalData.CurrentModule, displayObject.name, imageUrl));
 			return displayObject;
 		}
 
@@ -156,20 +155,8 @@ public static class DisplayObjectUtil {
 							  : elementName;
 		pos = Element.ConvertTo(pos);
 		if(GlobalData.CurrentDisplayObjectDic.ContainsKey(elementName)) elementName += ++ GlobalData.UniqueId;
-		new Action<string, string, string, Vector2, Vector2>((moduleName2, elementName2, imageUrl2, pos2, size2) => {
-			HistoryManager.Do(new Behavior(isRedo => {
-											   Element element2 = new Element {
-												   Name = elementName,
-												   X = Element.ConvertX(pos.x),
-												   Y = Element.ConvertY(pos.y),
-												   Width = size.x,
-												   Height = size.y,
-												   Visible = true
-											   };
-											   AddDisplayObjectBehavior(moduleName2, element2, imageUrl2, 1);
-										   },
-										   isReUndo => RemoveDisplayObjectBehavior(moduleName2, elementName2, -1)));
-		})(GlobalData.CurrentModule, elementName, imageUrl, pos, size);
+		
+		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
 		return displayObject;
 	}
@@ -180,6 +167,7 @@ public static class DisplayObjectUtil {
 			DialogManager.ShowInfo("请先选择要删除的对象");
 			return;
 		}
+		
 		new Action<string>(moduleName => {
 			List<Element> elements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => GlobalData.GetElement(pair.Key)).ToList();
 			HistoryManager.Do(new Behavior(isRedo => {

@@ -3,49 +3,51 @@ using UniRx;
 
 public static class MessageBroker
 {
-	private static readonly int AutoIncreaseId = 0;
-	public static readonly int UpdateSelectDisplayObject = ++ AutoIncreaseId;
-	public static readonly int UpdateSwapImage = ++ AutoIncreaseId;
-	public static readonly int UpdateDisplayObjectPos = ++AutoIncreaseId;
-	public static readonly int UpdateTitle = ++ AutoIncreaseId;
-	public static readonly int UpdateModuleTxtWidth = ++ AutoIncreaseId;
+	public enum Code {
+		Null,
+		UpdateSelectDisplayObjectDic,
+		UpdateSwapImage,
+		UpdateDisplayObjectPos,
+		UpdateTitle,
+		UpdateModuleTxtWidth
+	}
 	
-	private static readonly Dictionary<int, Subject<object[]>> SubjectDic = new Dictionary<int, Subject<object[]>>();
+	private static readonly Dictionary<Code, Subject<object[]>> SubjectDic = new Dictionary<Code, Subject<object[]>>();
 
-	public static bool HasSubject(int msgId)
+	public static bool HasSubject(Code code)
 	{
-		return msgId != 0 && SubjectDic.ContainsKey(msgId);
+		return code != Code.Null && SubjectDic.ContainsKey(code);
 	}
 
-	public static void AddSubject(int msgId, Subject<object[]> subject)
+	public static void AddSubject(Code code, Subject<object[]> subject)
 	{
-		if (msgId == 0 || subject == null) return;
+		if (code == Code.Null || subject == null) return;
 		// DisposeSubject(msgId);
-		if (SubjectDic.ContainsKey(msgId))
-			SubjectDic[msgId].Subscribe(subject);
+		if (SubjectDic.ContainsKey(code))
+			SubjectDic[code].Subscribe(subject);
 		else
-			SubjectDic.Add(msgId, subject);
+			SubjectDic.Add(code, subject);
 	}
 
-	public static Subject<object[]> GetSubject(int msgId)
+	public static Subject<object[]> GetSubject(Code code)
 	{
 		Subject<object[]> subject;
-		if (SubjectDic.TryGetValue(msgId, out subject)) return subject;
+		if (SubjectDic.TryGetValue(code, out subject)) return subject;
 		subject = new Subject<object[]>();
-		SubjectDic.Add(msgId, subject);
+		SubjectDic.Add(code, subject);
 		return subject;
 	}
 
-	public static void Send(int msgId, params object[] msg)
+	public static void Send(Code code, params object[] msg)
 	{
-		if (msgId == 0 || !SubjectDic.ContainsKey(msgId)) return;
-		SubjectDic[msgId].OnNext(msg);
+		if (code == Code.Null || !SubjectDic.ContainsKey(code)) return;
+		SubjectDic[code].OnNext(msg);
 	}
 
-	public static void DisposeSubjct(int msgId)
+	public static void DisposeSubjct(Code code)
 	{
-		if (msgId == 0 || !SubjectDic.ContainsKey(msgId)) return;
-		SubjectDic[msgId].Dispose();
-		SubjectDic[msgId] = null;
+		if (code == Code.Null || !SubjectDic.ContainsKey(code)) return;
+		SubjectDic[code].Dispose();
+		SubjectDic[code] = null;
 	}
 }

@@ -7,11 +7,12 @@ public class Behavior {
 		CreateModule,
 		RemoveModule,
 		RemoveAllModule,
+		ImportModules,
 		OpenModule,
-		ImportModule,
 		AddDisplayObject,
 		LoadImageToDisplayObject,
-		SelectDisplayObject,
+		UpdateSelectDisplayObjectDic,
+		RemoveSelectedDisplayObject,
 	}
 	
 	// 参数为 isRedo
