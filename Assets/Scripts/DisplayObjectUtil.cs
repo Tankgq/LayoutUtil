@@ -73,7 +73,22 @@ public static class DisplayObjectUtil {
 	public static void RemoveDisplayObjectsBehavior(string moduleName, List<string> elements) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elements == null || elements.Count == 0) return;
-		
+		foreach(string elementName in elements)
+			RemoveDisplayObjectBehavior(moduleName, elementName);
+	}
+	
+	public static void RemoveDisplayObjectsBehavior(string moduleName, List<Element> elements) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		if(elements == null || elements.Count == 0) return;
+		foreach(Element element in elements)
+			RemoveDisplayObjectBehavior(moduleName, element.Name);
+	}
+
+	public static void AddDisplayObjectsBehavior(string moduleName, List<Element> elements) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		if(elements == null || elements.Count == 0) return;
+		foreach(Element element in elements)
+			AddDisplayObjectBehavior(moduleName, element);
 	}
 
 	public static void LoadImageBehavior(string moduleName, string elementName, string imageUrl = null) {

@@ -48,25 +48,34 @@ public class ContainerManager : MonoBehaviour {
 																		   rt2.anchoredPosition.y);
 									});
 		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
-		updateSelectDisplayObjectSubject.SampleFrame(1)
-										.Subscribe(_ => {
-											 foreach(Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
-												 displayObjectItem.GetComponent<Toggle>().isOn = false;
-											 int count = GlobalData.CurrentSelectDisplayObjectDic.Count;
-											 print($"count: {count}");
-											 if(count == 0) {
-												 selectedDisplayObjectText.text = "null";
-												 return;
-											 }
-											 StringBuilder sb = new StringBuilder();
-											 foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-												 sb.Append($"{pair.Value.name}, ");
-												 pair.Value.GetComponent<Toggle>().isOn = true;
-											 }
-											 selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
-										 });
-		GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-				  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic));
+		updateSelectDisplayObjectSubject.Subscribe(objects => {
+			if(objects.Length == 0) return;
+			if(objects.Length > 1 && objects[1] is List<string>) {
+				List<string> removeElements = (List<string>)objects[1];
+			}
+			if(objects.Length > 0 && objects[0] is List<string>) {
+				List<string> addElements = (List<string>)objects[0];
+			}
+		});
+		// updateSelectDisplayObjectSubject.SampleFrame(1)
+		// 								.Subscribe(_ => {
+		// 									 foreach(Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
+		// 										 displayObjectItem.GetComponent<Toggle>().isOn = false;
+		// 									 int count = GlobalData.CurrentSelectDisplayObjectDic.Count;
+		// 									 print($"count: {count}");
+		// 									 if(count == 0) {
+		// 										 selectedDisplayObjectText.text = "null";
+		// 										 return;
+		// 									 }
+		// 									 StringBuilder sb = new StringBuilder();
+		// 									 foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+		// 										 sb.Append($"{pair.Value.name}, ");
+		// 										 pair.Value.GetComponent<Toggle>().isOn = true;
+		// 									 }
+		// 									 selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
+		// 								 });
+		// GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
+		// 		  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
 				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.Code.UpdateTitle));

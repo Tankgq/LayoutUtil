@@ -107,30 +107,23 @@ public static class BehaviorFactory {
 							isModify);
 	}
 
-	public static Behavior GetUpdateSelectDisplayObjectDicBehavior(
-		string       moduleName,
-		List<string> addElements,
-		List<string> removeElements) {
-		return new Behavior();
-	}
-
 	public static Behavior GetRemoveSelectedDisplayObjectBehavior(string moduleName) {
 		List<Element> elements = GlobalData
 								.CurrentSelectDisplayObjectDic
 								.Select(pair => GlobalData.GetElement(pair.Key))
 								.ToList();
-		return new Behavior(isRedo => {
-								foreach(Element element in elements)
-									DisplayObjectUtil.RemoveDisplayObjectBehavior(moduleName,
-																				  element.Name);
-							},
+		int length = elements.Count;
+		List<string> elementNames = new List<string>();
+		for(int idx = 0; idx < length; ++ idx)
+			elementNames.Add(elements[idx].Name);
+		return new Behavior(isRedo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
 							isReUndo => {
-								foreach(Element element in elements) {
-									DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element);
-									Transform displayObject = GlobalData.CurrentDisplayObjectDic[element.Name];
-									GlobalData.CurrentSelectDisplayObjectDic.Add(element.Name,
-																				 displayObject);
+								DisplayObjectUtil.AddDisplayObjectsBehavior(moduleName, elements);
+								foreach(string elementName in elementNames) {
+									Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+									GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 								}
+								MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic, elementNames);
 							}, Behavior.BehaviorType.RemoveSelectedDisplayObject);                                                                                                                                                                                                                     
 	}
 }
