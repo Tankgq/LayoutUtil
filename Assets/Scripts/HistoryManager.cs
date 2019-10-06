@@ -16,7 +16,7 @@ public static class HistoryManager {
 		if(Behaviors.Count > _currentIndex) return;
 		if(Behaviors.Count == _currentIndex) {
 			Behaviors.Add(behavior);
-			++ _currentIndex;
+//			++ _currentIndex;
 			return;
 		}
 		Behaviors[_currentIndex] = behavior;

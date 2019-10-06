@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -65,7 +64,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(Input.GetMouseButton(2)) return;
 		Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) - _offset;
 		Vector2 offset = pos - selfRect.anchoredPosition;
-		UpdateDisplayObjectPosition(selfRect, transform.name, pos);
+		DisplayObjectUtil.UpdateDisplayObjectPosition(selfRect, transform.name, pos);
 		_alignInfo = DisplayObjectUtil.GetAlignLine(transform);
 		Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
 		if(horizontalAlignRect != null) {
@@ -89,7 +88,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 			if(pair.Value == transform) continue;
 			RectTransform rt = pair.Value.GetComponent<RectTransform>();
-			UpdateDisplayObjectPosition(rt, pair.Key, rt.anchoredPosition + offset);
+			DisplayObjectUtil.UpdateDisplayObjectPosition(rt, pair.Key, rt.anchoredPosition + offset);
 		}
 	}
 
@@ -115,43 +114,10 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			_horizontalAlignLine.SetActive(false);
 		}
 
-		List<string> selectedDisplayObjects = new List<String> {transform.name};
-		foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-			if(pair.Value == transform) continue;
-			selectedDisplayObjects.Add(pair.Key);
-		}
-		new Action<string, List<string>, Vector2, Vector2>((module, displayObjects, originPos, targetPos) => {
-			string modifyKey = $"update_display_object_position_{Time.frameCount}";
-			HistoryManager.Do(new Behavior((isReDo) => UpdateDisplayObjectsPosition(module, displayObjects, targetPos, true),
-										   (isReUndo) => UpdateDisplayObjectsPosition(module, displayObjects, originPos, false)));
-		})(GlobalData.CurrentModule, selectedDisplayObjects, _startPos, pos);
-	}
+		List<string> selectedDisplayObjects = new List<string> {transform.name};
+		selectedDisplayObjects.AddRange(from pair in GlobalData.CurrentSelectDisplayObjectDic where pair.Value != transform select pair.Key);
 
-	private void UpdateDisplayObjectsPosition(string module, IReadOnlyList<string> displayObjects, Vector2 targetPos) {
-		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule) || ! GlobalData.CurrentModule.Equals(module)) return;
-		if(displayObjects == null || displayObjects.Count == 0) return;
-		Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[0]];
-		if(baseDisplayObject == null) return;
-		RectTransform baseRect = baseDisplayObject.GetComponent<RectTransform>();
-		if(baseRect == null) return;
-		Vector2 offset = targetPos - baseRect.anchoredPosition;
-		UpdateDisplayObjectPosition(baseRect, transform.name, targetPos);
-		int count = displayObjects.Count;
-		for(int idx = 1; idx < count; ++ idx) {
-			Transform displayObject = GlobalData.CurrentDisplayObjectDic[displayObjects[idx]];
-			if(displayObject == null) continue;
-			RectTransform rt = displayObject.GetComponent<RectTransform>();
-			UpdateDisplayObjectPosition(rt, displayObjects[idx], rt.anchoredPosition + offset);
-		}
-		MessageBroker.Send(MessageBroker.Code.UpdateDisplayObjectPos);
-	}
-
-	private static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
-		rt.anchoredPosition = pos;
-		Element element = GlobalData.GetElement(elementName);
-		if(element == null) return;
-		element.X = Element.ConvertX(pos.x);
-		element.Y = Element.ConvertY(pos.y);
+		HistoryManager.Do(BehaviorFactory.GetUpdateDisplayObjectsPosBehavior(GlobalData.CurrentModule, selectedDisplayObjects, _startPos, pos));
 	}
 
 	public void OnPointerDown(PointerEventData eventData) {

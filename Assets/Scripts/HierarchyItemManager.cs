@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
@@ -28,10 +27,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 		if(displayObject.parent == null) return;
 		SwapImageManager sim = transform.GetComponentInChildren<SwapImageManager>();
 		if(sim && Utils.IsPointOverGameObject(sim.gameObject)) {
-			new Action<string, string, bool>((currentModule2, elementName2, isSwap2) => {
-				HistoryManager.Do(new Behavior((isRedo) => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, currentModule2, elementName2, isSwap2, true),
-											   (isReUndo) => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, currentModule2, elementName2, ! isSwap2, false)));
-			})(GlobalData.CurrentModule, elementName, ! sim.isSwap);
+			HistoryManager.Do(BehaviorFactory.GetUpdateSwapImageBehavior(GlobalData.CurrentModule, elementName, ! sim.isSwap));
 			return;
 		}
 		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(elementName);

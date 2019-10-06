@@ -11,8 +11,14 @@ public class Behavior {
 		OpenModule,
 		AddDisplayObject,
 		LoadImageToDisplayObject,
-		UpdateSelectDisplayObjectDic,
 		RemoveSelectedDisplayObject,
+		UpdateDisplayObjectsPos,
+		UpdateSwapImage,
+		ChangeName,
+		ChangeX,
+		ChangeY,
+		ChangeWidth,
+		ChangeHeight
 	}
 	
 	// 参数为 isRedo

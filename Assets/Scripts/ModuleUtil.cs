@@ -10,7 +10,7 @@ public static class ModuleUtil {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
 		// 还原 module 时尝试取回删除时保存的数据
-		if(isReDo && elements == null) GlobalData.CacheModuleDic.TryGetValue(moduleName, out elements);
+//		if(isReDo && elements == null) GlobalData.CacheModuleDic.TryGetValue(moduleName, out elements);
 		if(elements == null) elements = new List<Element>();
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);

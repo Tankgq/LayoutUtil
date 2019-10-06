@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UniRx;
@@ -16,16 +15,6 @@ public class ContainerManager : MonoBehaviour {
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
 				  .SampleFrame(1)
 				  .Subscribe(module => {
-					   // new Action<string, string>((previousModule, currentModule) => {
-					   //  HistoryManager.Do(new Behavior(() => {
-					   // 							  RemoveAllDisplayObjectBehavior(previousModule, true);
-					   // 							  AddAllDisplayObjectBehavior(currentModule, true);
-					   // 						  },
-					   // 						  () => {
-					   // 							  RemoveAllDisplayObjectBehavior(currentModule, false);
-					   // 							  AddAllDisplayObjectBehavior(previousModule, false);
-					   // 						  }));
-					   // })(GlobalData.PreviousModule, GlobalData.CurrentModule);
 					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
 					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
 					   MessageBroker.Send(MessageBroker.Code.UpdateModuleTxtWidth);
@@ -52,30 +41,25 @@ public class ContainerManager : MonoBehaviour {
 			if(objects.Length == 0) return;
 			if(objects.Length > 1 && objects[1] is List<string>) {
 				List<string> removeElements = (List<string>)objects[1];
+				foreach(Transform displayObject in removeElements.Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
+																 .Where(displayObject => displayObject)) {
+					displayObject.GetComponent<Toggle>().isOn = false;
+				}
 			}
 			if(objects.Length > 0 && objects[0] is List<string>) {
 				List<string> addElements = (List<string>)objects[0];
+				foreach(Transform displayObject in addElements.Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
+															  .Where(displayObject => displayObject)) {
+					displayObject.GetComponent<Toggle>().isOn = true;
+				}
 			}
+			StringBuilder sb = new StringBuilder();
+			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+				sb.Append($"{pair.Value.name}, ");
+				pair.Value.GetComponent<Toggle>().isOn = true;
+			}
+			selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
 		});
-		// updateSelectDisplayObjectSubject.SampleFrame(1)
-		// 								.Subscribe(_ => {
-		// 									 foreach(Transform displayObjectItem in GlobalData.CurrentDisplayObjects)
-		// 										 displayObjectItem.GetComponent<Toggle>().isOn = false;
-		// 									 int count = GlobalData.CurrentSelectDisplayObjectDic.Count;
-		// 									 print($"count: {count}");
-		// 									 if(count == 0) {
-		// 										 selectedDisplayObjectText.text = "null";
-		// 										 return;
-		// 									 }
-		// 									 StringBuilder sb = new StringBuilder();
-		// 									 foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-		// 										 sb.Append($"{pair.Value.name}, ");
-		// 										 pair.Value.GetComponent<Toggle>().isOn = true;
-		// 									 }
-		// 									 selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
-		// 								 });
-		// GlobalData.CurrentSelectDisplayObjectDic.ObserveEveryValueChanged(dic => dic.Count)
-		// 		  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
 				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.Code.UpdateTitle));
@@ -97,7 +81,7 @@ public class ContainerManager : MonoBehaviour {
 		else
 			ModuleUtil.CheckRemoveCurrentModule();
 	}
-	
+
 	public static void SelectDisplayObjectsInDisplayObject(Rectangle selectRect) {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
 		foreach(Element displayObject in GlobalData.ModuleDic[GlobalData.CurrentModule].Where(displayObject => displayObject.IsCrossing(selectRect)))
@@ -106,7 +90,7 @@ public class ContainerManager : MonoBehaviour {
 			else
 				GlobalData.CurrentSelectDisplayObjectDic[displayObject.Name] = GlobalData.CurrentDisplayObjectDic[displayObject.Name];
 	}
-	
+
 	public void PasteDisplayObjects() {
 		if(GlobalData.CurrentCopyDisplayObjects.Count == 0) return;
 		List<Element> copyList = GlobalData.CurrentCopyDisplayObjects;
@@ -121,13 +105,13 @@ public class ContainerManager : MonoBehaviour {
 			DisplayObjectUtil.AddDisplayObject(null, pos, new Vector2(copyList[idx].Width, copyList[idx].Height), copyList[idx].Name);
 		}
 	}
-	
+
 	public static bool CheckPointOnAnyDisplayObject() {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return false;
 		Vector2 pos = Element.ConvertTo(Utils.GetAnchoredPositionInContainer(Input.mousePosition));
 		return GlobalData.ModuleDic[GlobalData.CurrentModule].Any(displayObject => displayObject.Contain(pos));
 	}
-	
+
 	public static void UpdateCurrentDisplayObjectData() {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
 		List<Element> displayObjectDataList = GlobalData.ModuleDic[GlobalData.CurrentModule];

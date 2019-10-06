@@ -44,7 +44,11 @@ public static class MessageBroker
 		SubjectDic[code].OnNext(msg);
 	}
 
-	public static void DisposeSubjct(Code code)
+	public static void SendUpdateSelectDisplayObjectDic(List<string> addElements = null, List<string> removeElements = null) {
+		Send(Code.UpdateSelectDisplayObjectDic, addElements, removeElements);
+	}
+
+	public static void DisposeSubject(Code code)
 	{
 		if (code == Code.Null || !SubjectDic.ContainsKey(code)) return;
 		SubjectDic[code].Dispose();

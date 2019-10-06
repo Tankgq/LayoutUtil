@@ -73,22 +73,19 @@ public static class DisplayObjectUtil {
 	public static void RemoveDisplayObjectsBehavior(string moduleName, List<string> elements) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elements == null || elements.Count == 0) return;
-		foreach(string elementName in elements)
-			RemoveDisplayObjectBehavior(moduleName, elementName);
+		foreach(string elementName in elements) RemoveDisplayObjectBehavior(moduleName, elementName);
 	}
-	
+
 	public static void RemoveDisplayObjectsBehavior(string moduleName, List<Element> elements) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elements == null || elements.Count == 0) return;
-		foreach(Element element in elements)
-			RemoveDisplayObjectBehavior(moduleName, element.Name);
+		foreach(Element element in elements) RemoveDisplayObjectBehavior(moduleName, element.Name);
 	}
 
 	public static void AddDisplayObjectsBehavior(string moduleName, List<Element> elements) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elements == null || elements.Count == 0) return;
-		foreach(Element element in elements)
-			AddDisplayObjectBehavior(moduleName, element);
+		foreach(Element element in elements) AddDisplayObjectBehavior(moduleName, element);
 	}
 
 	public static void LoadImageBehavior(string moduleName, string elementName, string imageUrl = null) {
@@ -170,7 +167,7 @@ public static class DisplayObjectUtil {
 							  : elementName;
 		pos = Element.ConvertTo(pos);
 		if(GlobalData.CurrentDisplayObjectDic.ContainsKey(elementName)) elementName += ++ GlobalData.UniqueId;
-		
+
 		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
 		return displayObject;
@@ -182,20 +179,8 @@ public static class DisplayObjectUtil {
 			DialogManager.ShowInfo("请先选择要删除的对象");
 			return;
 		}
-		
-		new Action<string>(moduleName => {
-			List<Element> elements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => GlobalData.GetElement(pair.Key)).ToList();
-			HistoryManager.Do(new Behavior(isRedo => {
-											   foreach(Element element in elements) RemoveDisplayObjectBehavior(moduleName, element.Name, 1);
-										   },
-										   isReUndo => {
-											   foreach(Element element in elements) {
-												   AddDisplayObjectBehavior(moduleName, element, null, -1);
-												   Transform displayObject = GlobalData.CurrentDisplayObjectDic[element.Name];
-												   GlobalData.CurrentSelectDisplayObjectDic.Add(element.Name, displayObject);
-											   }
-										   }));
-		})(GlobalData.CurrentModule);
+
+		HistoryManager.Do(BehaviorFactory.GetRemoveSelectedDisplayObjectBehavior(GlobalData.CurrentModule));
 	}
 
 	public static void MoveCurrentSelectDisplayObjectUp() {
@@ -294,5 +279,146 @@ public static class DisplayObjectUtil {
 		}
 
 		return result;
+	}
+
+	public static void UpdateDisplayObjectsPosition(string moduleName, IReadOnlyList<string> elementNames, Vector2 targetPos) {
+		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		Transform baseDisplayObject = GlobalData.CurrentDisplayObjectDic[elementNames[0]];
+		if(baseDisplayObject == null) return;
+		RectTransform baseRect = baseDisplayObject.GetComponent<RectTransform>();
+		if(baseRect == null) return;
+		Vector2 offset = targetPos - baseRect.anchoredPosition;
+		UpdateDisplayObjectPosition(baseRect, elementNames[0], targetPos);
+		int count = elementNames.Count;
+		for(int idx = 1; idx < count; ++ idx) {
+			Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementNames[idx]];
+			if(displayObject == null) continue;
+			RectTransform rt = displayObject.GetComponent<RectTransform>();
+			UpdateDisplayObjectPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
+		}
+		MessageBroker.Send(MessageBroker.Code.UpdateDisplayObjectPos);
+	}
+
+	public static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
+		rt.anchoredPosition = pos;
+		Element element = GlobalData.GetElement(elementName);
+		if(element == null) return;
+		element.X = Element.ConvertX(pos.x);
+		element.Y = Element.ConvertY(pos.y);
+	}
+
+	public static void ChangeNameBehavior(string currentModule, string originName, string newName) {
+		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[originName];
+		if(displayObject == null) return;
+		displayObject.name = newName;
+		GlobalData.CurrentDisplayObjectDic.Add(newName, displayObject);
+		GlobalData.CurrentDisplayObjectDic.Remove(originName);
+		// HierarchyManager.UpdateDisplayObjectName(originName, newName);
+		Element element = GlobalData.GetElement(originName);
+		if(element != null) element.Name = newName;
+		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(originName)) return;
+		GlobalData.CurrentSelectDisplayObjectDic.Remove(originName);
+		GlobalData.CurrentSelectDisplayObjectDic.Add(newName, displayObject);
+		MessageBroker.SendUpdateSelectDisplayObjectDic(new List<string> {newName}, new List<string> {originName});
+	}
+
+	public static void ChangeXBehavior(string currentModule, List<string> elementNames, float x, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		int length = elementNames.Count;
+		for(int idx = 0; idx < length; ++ idx) ChangeXBehavior(elementNames[idx], x, isAdd);
+		MessageBroker.SendUpdateSelectDisplayObjectDic();
+	}
+
+	private static void ChangeXBehavior(string elementName, float x, bool isAdd = false) {
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+		if(! displayObject) return;
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Vector2 pos = rect.anchoredPosition;
+		if(isAdd)
+			pos.x += x;
+		else
+			pos.x = Element.InvConvertX(x);
+		rect.anchoredPosition = pos;
+		Element element = GlobalData.GetElement(elementName);
+		if(element == null) return;
+		if(isAdd)
+			element.X += x;
+		else
+			element.X = x;
+	}
+
+	public static void ChangeYBehavior(string currentModule, List<string> elementNames, float y, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		int length = elementNames.Count;
+		for(int idx = 0; idx < length; ++ idx) ChangeYBehavior(elementNames[idx], y, isAdd);
+		MessageBroker.SendUpdateSelectDisplayObjectDic();
+	}
+
+	private static void ChangeYBehavior(string elementName, float y, bool isAdd = false) {
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+		if(! displayObject) return;
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Vector2 pos = rect.anchoredPosition;
+		if(isAdd)
+			pos.y += y;
+		else
+			pos.y = Element.InvConvertY(y);
+		rect.anchoredPosition = pos;
+		Element element = GlobalData.GetElement(elementName);
+		if(element == null) return;
+		if(isAdd)
+			element.Y += y;
+		else
+			element.Y = y;
+	}
+
+	public static void ChangeWidthBehavior(string currentModule, List<string> elementNames, float width, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		int length = elementNames.Count;
+		for(int idx = 0; idx < length; ++ idx) ChangeWidthBehavior(elementNames[idx], width, isAdd);
+		MessageBroker.SendUpdateSelectDisplayObjectDic();
+	}
+
+	private static void ChangeWidthBehavior(string elementName, float width, bool isAdd = false) {
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+		if(! displayObject) return;
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Vector2 size = rect.sizeDelta;
+		size.x = isAdd ? Math.Max(size.x + width, 0) : Math.Max(width, 0);
+		rect.sizeDelta = size;
+		Element element = GlobalData.GetElement(elementName);
+		if(element == null) return;
+		if(isAdd)
+			element.Width += width;
+		else
+			element.Width = width;
+	}
+
+	public static void ChangeHeightBehavior(string currentModule, List<string> elementNames, float height, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		int length = elementNames.Count;
+		for(int idx = 0; idx < length; ++ idx) ChangeHeightBehavior(elementNames[idx], height, isAdd);
+		MessageBroker.SendUpdateSelectDisplayObjectDic();
+	}
+
+	private static void ChangeHeightBehavior(string elementName, float height, bool isAdd = false) {
+		Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
+		if(! displayObject) return;
+		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Vector2 size = rect.sizeDelta;
+		size.y = isAdd ? Math.Max(size.y + height, 0) : Math.Max(height, 0);
+		rect.sizeDelta = size;
+		Element element = GlobalData.GetElement(elementName);
+		if(element == null) return;
+		if(isAdd)
+			element.Height += height;
+		else
+			element.Height = height;
 	}
 }
