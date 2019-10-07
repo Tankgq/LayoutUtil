@@ -4,30 +4,25 @@ using UnityEngine;
 
 public static class BehaviorFactory {
 	public static Behavior GetCreateModuleBehavior(string moduleName) {
-		return new Behavior(isReDo => ModuleUtil.CreateModuleBehavior(moduleName,
-																	  null,
-																	  true,
-																	  isReDo),
+		return new Behavior(isReDo => ModuleUtil.CreateModuleBehavior(moduleName),
 							isReUndo => ModuleUtil.RemoveModuleBehavior(moduleName),
 							Behavior.BehaviorType.CreateModule);
 	}
 
 	public static Behavior GetRemoveModuleBehavior(string moduleName) {
 		return new Behavior(isReDo => ModuleUtil.RemoveModuleBehavior(moduleName),
-							isReUndo => ModuleUtil.CreateModuleBehavior(moduleName),
+							isReUndo => ModuleUtil.CreateModuleBehavior(moduleName, null, true, true),
 							Behavior.BehaviorType.RemoveModule);
 	}
 
-	public static Behavior GetRemoveAllModuleBehavior(List<string> modules,
-													  bool combineWithNextBehavior =
-															  false) {
+	public static Behavior GetRemoveAllModuleBehavior(List<string> modules, bool combineWithNextBehavior = false) {
 		return new Behavior(isRedo => {
 								int count = modules.Count;
 								for(int idx = 0; idx < count; ++ idx) ModuleUtil.RemoveModuleBehavior(modules[idx]);
 							},
 							isReUndo => {
 								int count = modules.Count;
-								for(int idx = 0; idx < count; ++ idx) ModuleUtil.CreateModuleBehavior(modules[idx], null, false);
+								for(int idx = 0; idx < count; ++ idx) ModuleUtil.CreateModuleBehavior(modules[idx], null, false, true );
 							},
 							Behavior.BehaviorType.RemoveAllModule,
 							combineWithNextBehavior);
@@ -111,14 +106,14 @@ public static class BehaviorFactory {
 		int length = elements.Count;
 		List<string> elementNames = new List<string>();
 		for(int idx = 0; idx < length; ++ idx) elementNames.Add(elements[idx].Name);
-		return new Behavior(isRedo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
+		return new Behavior(isReDo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
 							isReUndo => {
 								DisplayObjectUtil.AddDisplayObjectsBehavior(moduleName, elements);
 								foreach(string elementName in elementNames) {
 									Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
 									GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 								}
-								MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic, elementNames);
+								MessageBroker.SendUpdateSelectDisplayObjectDic(elementNames);
 							},
 							Behavior.BehaviorType.RemoveSelectedDisplayObject);
 	}
@@ -130,38 +125,50 @@ public static class BehaviorFactory {
 	}
 
 	public static Behavior GetUpdateSwapImageBehavior(string moduleName, string elementName, bool isSwap) {
-		return new Behavior(isRedo => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, moduleName, elementName, isSwap),
-							isReUndo => MessageBroker.Send(MessageBroker.Code.UpdateSwapImage, moduleName, elementName, ! isSwap),
+		return new Behavior(isReDo => MessageBroker.SendUpdateSwapImage(moduleName, elementName, isSwap),
+							isReUndo => MessageBroker.SendUpdateSwapImage(moduleName, elementName, ! isSwap),
 							Behavior.BehaviorType.UpdateSwapImage);
 	}
 
 	public static Behavior GetChangeNameBehavior(string moduleName, string originName, string newName) {
-		return new Behavior(isRedo => DisplayObjectUtil.ChangeNameBehavior(moduleName, originName, newName),
+		return new Behavior(isReDo => DisplayObjectUtil.ChangeNameBehavior(moduleName, originName, newName),
 							isReUndo => DisplayObjectUtil.ChangeNameBehavior(moduleName, newName, originName),
 							Behavior.BehaviorType.ChangeName);
 	}
 
 	public static Behavior GetChangeXBehavior(string moduleName, List<string> elementNames, float originX, float newX, bool isAdd = false) {
-		return new Behavior(isRedo => DisplayObjectUtil.ChangeXBehavior(moduleName, elementNames, newX, isAdd),
+		return new Behavior(isReDo => DisplayObjectUtil.ChangeXBehavior(moduleName, elementNames, newX, isAdd),
 							isReUndo => DisplayObjectUtil.ChangeXBehavior(moduleName, elementNames, originX, isAdd),
 							Behavior.BehaviorType.ChangeX);
 	}
 
 	public static Behavior GetChangeYBehavior(string moduleName, List<string> elementNames, float originY, float newY, bool isAdd = false) {
-		return new Behavior(isRedo => DisplayObjectUtil.ChangeYBehavior(moduleName, elementNames, newY, isAdd),
+		return new Behavior(isReDo => DisplayObjectUtil.ChangeYBehavior(moduleName, elementNames, newY, isAdd),
 							isReUndo => DisplayObjectUtil.ChangeYBehavior(moduleName, elementNames, originY, isAdd),
 							Behavior.BehaviorType.ChangeY);
 	}
 
 	public static Behavior GetChangeWidthBehavior(string moduleName, List<string> elementNames, float originWidth, float newWidth, bool isAdd = false) {
-		return new Behavior(isRedo => DisplayObjectUtil.ChangeWidthBehavior(moduleName, elementNames, newWidth, isAdd),
+		return new Behavior(isReDo => DisplayObjectUtil.ChangeWidthBehavior(moduleName, elementNames, newWidth, isAdd),
 							isReUndo => DisplayObjectUtil.ChangeWidthBehavior(moduleName, elementNames, originWidth, isAdd),
 							Behavior.BehaviorType.ChangeWidth);
 	}
 
 	public static Behavior GetChangeHeightBehavior(string moduleName, List<string> elementNames, float originHeight, float newHeight, bool isAdd = false) {
-		return new Behavior(isRedo => DisplayObjectUtil.ChangeHeightBehavior(moduleName, elementNames, newHeight, isAdd),
+		return new Behavior(isReDo => DisplayObjectUtil.ChangeHeightBehavior(moduleName, elementNames, newHeight, isAdd),
 							isReUndo => DisplayObjectUtil.ChangeHeightBehavior(moduleName, elementNames, originHeight, isAdd),
 							Behavior.BehaviorType.ChangeHeight);
+	}
+
+	public static Behavior GetMoveModuleUpBehavior(string moduleName) {
+		return new Behavior(isReDo => GlobalData.HierarchyManager.MoveModuleUpBehavior(moduleName),
+							isReUndo => GlobalData.HierarchyManager.MoveModuleDownBehavior(moduleName),
+							Behavior.BehaviorType.MoveModuleUp);
+	}
+	
+	public static Behavior GetMoveModuleDownBehavior(string moduleName) {
+		return new Behavior(isReDo => GlobalData.HierarchyManager.MoveModuleDownBehavior(moduleName),
+							isReUndo => GlobalData.HierarchyManager.MoveModuleUpBehavior(moduleName),
+							Behavior.BehaviorType.MoveModuleDown);
 	}
 }

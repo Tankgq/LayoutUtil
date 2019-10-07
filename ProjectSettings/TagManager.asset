@@ -8,6 +8,7 @@ TagManager:
   - DisplayObjectContainer
   - HierarchyContainer
   - QuickTipContainer
+  - ScaleSlider
   layers:
   - Default
   - TransparentFX

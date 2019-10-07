@@ -3,51 +3,49 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class FunctionButtonHandler : MonoBehaviour {
-	public HierarchyManager hierarchyManager;
-	public RectTransform containerRect;
-	public Slider scaleSlider;
-
-	public void OnCreateModuleButtonClick() {
+	public static void OnCreateModuleButtonClick() {
 		ModuleUtil.CreateModule();
 	}
 
-	public void OnAddButtonClick() {
+	public static void OnAddButtonClick() {
 		DisplayObjectUtil.AddDisplayObject(null, Element.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
 	}
 
-	public void OnRemoveButtonClick() {
+	public static void OnRemoveButtonClick() {
 		ContainerManager.RemoveSelectedDisplayObjectOrModules();
 	}
 
-	public void OnUpButtonClick() {
+	public static void OnUpButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
 			DisplayObjectUtil.MoveCurrentSelectDisplayObjectUp();
 		} else {
-			hierarchyManager.MoveCurrentModuleUp();
+			HistoryManager.Do(BehaviorFactory.GetMoveModuleUpBehavior(GlobalData.CurrentModule));
 		}
+//		MessageBroker.SendUpButtonDown();
 	}
 
-	public void OnDownButtonClick() {
+	public static void OnDownButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
 			DisplayObjectUtil.MoveCurrentSelectDisplayObjectDown();
 		} else {
-			hierarchyManager.MoveCurrentModuleDown();
+			HistoryManager.Do(BehaviorFactory.GetMoveModuleDownBehavior(GlobalData.CurrentModule));
 		}
+//		MessageBroker.SendDownButtonDown();
 	}
 
-	public void OnCopyButtonClick() {
+	public static void OnCopyButtonClick() {
 		ModuleUtil.ExportCurrentModule();
 	}
 
-	public void OnImportButtonClick() {
+	public static void OnImportButtonClick() {
 		ModuleUtil.CheckImportModules();
 	}
 
-	public void OnExportButtonClick() {
+	public static void OnExportButtonClick() {
 		ModuleUtil.CheckExportModules();
 	}
 
-	public void OnHelpButtonClick() {
+	public static void OnHelpButtonClick() {
 		DialogManager.ShowInfo("<color=yellow>00.</color> 项目地址: https://github.com/Tankgq/LayoutUtil\n"
 							 + "<color=yellow>01.</color> module 没有顺序的区别, displayObject 的顺序决定了相应的位置, 最下面的 displayObject 在最上层\n"
 							 + "<color=yellow>02.</color> Ctrl + 鼠标滚轮可以放大或缩小工作空间, Shift + 鼠标滚轮可以水平滚动工作空间, 方向键也可以移动工作空间\n"
@@ -65,14 +63,14 @@ public class FunctionButtonHandler : MonoBehaviour {
 							   330);
 	}
 
-	private void OnScaleSliderValueChanged(float value) {
+	private static void OnScaleSliderValueChanged(float value) {
 		value /= 10;
-		containerRect.localScale = new Vector3(value, value, value);
-		scaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";
+		GlobalData.ContainerRect.localScale = new Vector3(value, value, value);
+		GlobalData.ScaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";
 	}
 
 	private void Start() {
-		scaleSlider.OnValueChangedAsObservable()
-				   .Subscribe(OnScaleSliderValueChanged);
+		GlobalData.ScaleSlider.OnValueChangedAsObservable()
+				  .Subscribe(OnScaleSliderValueChanged);
 	}
 }

@@ -51,7 +51,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 				GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
 			}
 
-			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+			MessageBroker.SendUpdateSelectDisplayObjectDic();
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
 			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -126,13 +126,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(isSelect) {
 			if(KeyboardEventManager.GetControl()) {
 				GlobalData.CurrentSelectDisplayObjectDic.Remove(transform.name);
-				MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+				MessageBroker.SendUpdateSelectDisplayObjectDic();
 			}
 		} else {
 			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObject();
 			Transform self = transform;
 			GlobalData.CurrentSelectDisplayObjectDic.Add(self.name, self);
-			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+			MessageBroker.SendUpdateSelectDisplayObjectDic();
 		}
 		Vector2 mousePos = eventData.position;
 		Vector2 offset;

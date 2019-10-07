@@ -29,13 +29,12 @@ public static class WinTitleUtil {
 
 	public static void ChangeTitle(string title) {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-		if (WindowHandle == IntPtr.Zero)
-		{
+		if(_windowHandle == IntPtr.Zero) {
 			IntPtr handle = (IntPtr)System.Diagnostics.Process.GetCurrentProcess().Id;
 			EnumWindows(EnumWindCallback, handle);
 		}
-		
-		SetWindowTextW(WindowHandle, title);
+
+		SetWindowTextW(_windowHandle, title);
 #endif
 	}
 }

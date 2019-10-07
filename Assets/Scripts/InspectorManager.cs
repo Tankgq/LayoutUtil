@@ -99,7 +99,7 @@ public class InspectorManager : MonoBehaviour {
 							 if(_displayObject && length == 1) {
 								 Element element = GlobalData.GetElement(_displayObject.name);
 								 if(element == null || Utils.IsEqual(element.Height, height)) return;
-								 HistoryManager.Do(BehaviorFactory.GetChangeWidthBehavior(GlobalData.CurrentModule,
+								 HistoryManager.Do(BehaviorFactory.GetChangeHeightBehavior(GlobalData.CurrentModule,
 																						  new List<string> {element.Name},
 																						  element.Height,
 																						  height));
@@ -107,7 +107,7 @@ public class InspectorManager : MonoBehaviour {
 							 }
 							 if(Utils.IsEqual(height, 0.0f) || length < 2) return;
 							 List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-							 HistoryManager.Do(BehaviorFactory.GetChangeWidthBehavior(GlobalData.CurrentModule, elementNames, -height, height, true));
+							 HistoryManager.Do(BehaviorFactory.GetChangeHeightBehavior(GlobalData.CurrentModule, elementNames, -height, height, true));
 							 heightInputField.text = "0";
 						 });
 		Observable.EveryUpdate()

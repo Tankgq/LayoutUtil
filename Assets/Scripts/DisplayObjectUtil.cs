@@ -41,14 +41,14 @@ public static class DisplayObjectUtil {
 		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		int count = elements.Count;
 		for(int idx = 0; idx < count; ++ idx) {
-			AddDisplayObjectBehavior(GlobalData.CurrentModule, elements[idx]);
+			AddDisplayObjectBehavior(GlobalData.CurrentModule, elements[idx], null, false);
 		}
 	}
 
-	public static void AddDisplayObjectBehavior(string moduleName, Element element, string imageUrl = null) {
+	public static void AddDisplayObjectBehavior(string moduleName, Element element, string imageUrl = null, bool addToModule = true) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(element == null) return;
-		GlobalData.ModuleDic[moduleName].Add(element);
+		if(addToModule) GlobalData.ModuleDic[moduleName].Add(element);
 		Transform displayObject = GetDisplayObject();
 		displayObject.SetParent(GlobalData.DisplayObjectContainer.transform);
 		element.InvConvertTo(displayObject);
@@ -198,6 +198,14 @@ public static class DisplayObjectUtil {
 		displayObjectDataList[idx] = displayObjectDataList[idx - 1];
 		displayObjectDataList[idx - 1] = tmp2;
 	}
+	
+	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		List<int> elementIdxList = elementNames.Select(elementName => GlobalData.CurrentDisplayObjects.FindIndex(elementName.Equals)).ToList();
+		elementNames.Sort();
+		elementIdxList.ForEach(idx => Debug.Log(idx));
+	}
 
 	public static void MoveCurrentSelectDisplayObjectDown() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
@@ -297,7 +305,7 @@ public static class DisplayObjectUtil {
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateDisplayObjectPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
 		}
-		MessageBroker.Send(MessageBroker.Code.UpdateDisplayObjectPos);
+		MessageBroker.SendUpdateDisplayObjectPos();
 	}
 
 	public static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {

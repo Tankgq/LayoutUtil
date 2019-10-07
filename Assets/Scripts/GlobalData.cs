@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.PlayerLoop;
+using UnityEngine.UI;
 
 public class GlobalData : MonoBehaviour {
 	public const string ProductName = "LayoutUtil";
@@ -64,6 +65,8 @@ public class GlobalData : MonoBehaviour {
 	public const float MinFloat = -100000000;
 	public const float MaxFloat = 100000000;
 
+	public const int TargetFrameRate = 60;
+
 	public static bool IsDragGui = false;
 
 	public const int QuickTipMaxCount = 9;
@@ -94,12 +97,16 @@ public class GlobalData : MonoBehaviour {
 
 	public static GameObject RootCanvas;
 	public static GameObject DisplayObjectContainer;
-	public static ContainerManager ContainerManager;
 	public static GameObject HierarchyContainer;
-
 	public static GameObject QuickTipContainer;
+	
+//	public static ContainerManager ContainerManager;
+	public static HierarchyManager HierarchyManager;
+	public static RectTransform ContainerRect;
+	public static Slider ScaleSlider;
 
 	private void Awake() {
+		Application.targetFrameRate = TargetFrameRate;
 		DefaultShader = Shader.Find("UI/Default");
 		DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
 		DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
@@ -111,8 +118,11 @@ public class GlobalData : MonoBehaviour {
 		QuickTipPrefab = Resources.Load<GameObject>("Prefabs/Quick-Tip");
 		RootCanvas = GameObject.FindGameObjectWithTag("RootCanvas");
 		DisplayObjectContainer = GameObject.FindGameObjectWithTag("DisplayObjectContainer");
-		ContainerManager = DisplayObjectContainer.GetComponent<ContainerManager>();
 		HierarchyContainer = GameObject.FindGameObjectWithTag("HierarchyContainer");
 		QuickTipContainer = GameObject.FindGameObjectWithTag("QuickTipContainer");
+//		ContainerManager = DisplayObjectContainer.GetComponent<ContainerManager>();
+		HierarchyManager = HierarchyContainer.GetComponent<HierarchyManager>();
+		ContainerRect = DisplayObjectContainer.GetComponent<RectTransform>();
+		ScaleSlider = GameObject.FindGameObjectWithTag("ScaleSlider").GetComponent<Slider>();
 	}
 }

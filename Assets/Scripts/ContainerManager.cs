@@ -17,7 +17,7 @@ public class ContainerManager : MonoBehaviour {
 				  .Subscribe(module => {
 					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
 					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
-					   MessageBroker.Send(MessageBroker.Code.UpdateModuleTxtWidth);
+					   MessageBroker.SendUpdateModuleTxtWidth();
 					   if(string.IsNullOrEmpty(module)) {
 						   moduleNameText.text = "null";
 						   return;
@@ -62,10 +62,10 @@ public class ContainerManager : MonoBehaviour {
 		});
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
-				  .Subscribe(modifyCount => MessageBroker.Send(MessageBroker.Code.UpdateTitle));
+				  .Subscribe(modifyCount => MessageBroker.SendUpdateTitle());
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentFilePath)
 				  .SampleFrame(1)
-				  .Subscribe(_ => MessageBroker.Send(MessageBroker.Code.UpdateTitle));
+				  .Subscribe(_ => MessageBroker.SendUpdateTitle());
 		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateTitle);
 		updateTitleSubject.SampleFrame(1)
 						  .Subscribe(_ => {

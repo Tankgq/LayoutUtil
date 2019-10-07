@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class KeyboardEventManager : MonoBehaviour {
@@ -11,7 +10,6 @@ public class KeyboardEventManager : MonoBehaviour {
 	public RectTransform containerRect;
 	public float containerKeyMoveSensitivity;
 	public Slider scaleSlider;
-	public DragFileUtil dragFileUtil;
 
 	public static bool GetShift() {
 		return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
@@ -40,12 +38,6 @@ public class KeyboardEventManager : MonoBehaviour {
 	private Vector3 _containerOffset = Vector3.zero;
 
 	private void Start() {
-		Observable.EveryUpdate()
-				  .Where(_ => (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Delete)) && ! Utils.IsFocusOnInputText())
-				  .Subscribe(_ => ContainerManager.RemoveSelectedDisplayObjectOrModules());
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
-				  .Subscribe(_ => GlobalData.CurrentSelectDisplayObjectDic.Clear());
 		Observable.EveryUpdate()
 				  .Where(_ => GetControl() && Math.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.001f)
 				  .Select(_ => Input.GetAxis("Mouse ScrollWheel"))
@@ -93,44 +85,67 @@ public class KeyboardEventManager : MonoBehaviour {
 
 					   if(Utils.IsFocusOnInputText() || Utils.IsEqual(delta.x, 0) && Utils.IsEqual(delta.y, 0)) return;
 					   Debug.Log($"delta: {delta}");
-					   containerRect.anchoredPosition = containerRect.anchoredPosition + delta;
+					   containerRect.anchoredPosition += delta;
 				   });
+
 		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.N) && GetControl())
+				  .Where(_ => Input.anyKeyDown)
 				  .Subscribe(_ => {
-					   Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
-					   DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize);
+					   bool isFocusOnInputText = Utils.IsFocusOnInputText();
+					   bool isControlDown = GetControl();
+					   bool isShiftDown = GetShift();
+					   bool isAltDown = GetAlt();
+					   if(isControlDown) {
+						   if(Input.GetKeyDown(KeyCode.M))
+							   FunctionButtonHandler.OnCreateModuleButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.N)) {
+//							   FunctionButtonHandler.OnAddButtonClick();
+							   Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
+							   DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize);
+						   } else if(Input.GetKeyDown(KeyCode.Backspace))
+							   FunctionButtonHandler.OnRemoveButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.UpArrow))
+							   FunctionButtonHandler.OnUpButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.DownArrow))
+							   FunctionButtonHandler.OnDownButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.P))
+							   FunctionButtonHandler.OnCopyButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.I))
+							   FunctionButtonHandler.OnImportButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.E))
+							   FunctionButtonHandler.OnExportButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.H)) FunctionButtonHandler.OnHelpButtonClick();
+					   }
+					   if(Input.GetKeyDown(KeyCode.Delete) && ! isFocusOnInputText) FunctionButtonHandler.OnRemoveButtonClick();
+
+					   if(Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
+						   GlobalData.CurrentSelectDisplayObjectDic.Clear();
+
+					   if(isControlDown && ! isFocusOnInputText) {
+						   if(Input.GetKeyDown(KeyCode.C))
+							   DisplayObjectUtil.CopySelectDisplayObjects();
+						   else if(Input.GetKeyDown(KeyCode.V)) containerManager.PasteDisplayObjects();
+					   }
+
+					   if(isControlDown) {
+						   if(Input.GetKeyDown(KeyCode.Z))
+							   HistoryManager.Undo();
+						   else if(Input.GetKeyDown(KeyCode.Y)) HistoryManager.Do();
+					   }
+
+					   if(isControlDown && Input.GetKeyDown(KeyCode.S)) ModuleUtil.ExportModules(GlobalData.CurrentFilePath, true);
+
+					   if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.D)) {
+						   Debugger.ShowDebugging = ! Debugger.ShowDebugging;
+						   Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
+					   }
+
+					   if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.F)) Screen.fullScreen = ! Screen.fullScreen;
+
+					   if(Input.GetKeyDown(KeyCode.Q)) Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + containerRect.anchoredPosition}");
+					   if(Input.GetKeyDown(KeyCode.T))
+						   DisplayObjectUtil.MoveDisplayObjectsUpBehavior(GlobalData.CurrentModule,
+																		  GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList());
 				   });
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.D) && GetShift() && GetAlt())
-				  .Sample(TimeSpan.FromMilliseconds(100))
-				  .Subscribe(_ => {
-					   Debugger.ShowDebugging = ! Debugger.ShowDebugging;
-					   Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
-				   });
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.F) && GetShift() && GetAlt())
-				  .Subscribe(_ => Screen.fullScreen = ! Screen.fullScreen);
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.C) && GetControl() && ! Utils.IsFocusOnInputText())
-				  .Subscribe(_ => DisplayObjectUtil.CopySelectDisplayObjects());
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.V) && GetControl() && ! Utils.IsFocusOnInputText())
-				  .Subscribe(_ => containerManager.PasteDisplayObjects());
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.Q))
-				  .Subscribe(_ => Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + containerRect.anchoredPosition}"));
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.Z) && GetControl())
-				  .Subscribe(_ => HistoryManager.Undo());
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.Y) && GetControl())
-				  .Subscribe(_ => HistoryManager.Do());
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.S) && GetControl())
-				  .Subscribe(_ => ModuleUtil.ExportModules(GlobalData.CurrentFilePath, true));
-		Observable.EveryUpdate()
-				  .Where(_ => Input.GetKeyDown(KeyCode.M) && GetControl())
-				  .Subscribe(_ => ModuleUtil.CreateModule());
 	}
 }

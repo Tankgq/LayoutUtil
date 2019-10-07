@@ -293,10 +293,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b761f59514a984ea67f97c41d0487c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  containerManager: {fileID: 505979763}
-  hierarchyManager: {fileID: 552774003}
-  containerRect: {fileID: 505979762}
-  scaleSlider: {fileID: 129925333}
 --- !u!1 &25782673
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,7 +606,7 @@ GameObject:
   - component: {fileID: 129925333}
   m_Layer: 5
   m_Name: Scale
-  m_TagString: Untagged
+  m_TagString: ScaleSlider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2109,7 +2105,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94feadf12ab80c547885919240fa1c38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  containerManager: {fileID: 0}
 --- !u!114 &505979765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3004,7 +2999,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TipInfo: "\u79FB\u9664\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 modules
-    (Delete / Bakespace)"
+    (Delete / Ctrl + Bakespace)"
   OffsetX: 0
   OffsetY: 0
   IsOnLeft: 0
@@ -4154,7 +4149,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1633340172}
   m_HandleRect: {fileID: 1633340171}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4544,7 +4539,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94feadf12ab80c547885919240fa1c38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  containerManager: {fileID: 505979763}
 --- !u!1 &1201610148
 GameObject:
   m_ObjectHideFlags: 0

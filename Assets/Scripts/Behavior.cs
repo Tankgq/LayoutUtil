@@ -18,7 +18,11 @@ public class Behavior {
 		ChangeX,
 		ChangeY,
 		ChangeWidth,
-		ChangeHeight
+		ChangeHeight,
+		MoveModuleUp,
+		MoveModuleDown,
+		MoveSelectDisplayObjectsUp,
+		MoveSelectDisplayObjectsDown
 	}
 	
 	// 参数为 isRedo

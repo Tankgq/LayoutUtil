@@ -19,7 +19,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			if(string.IsNullOrEmpty(module)) return;
 			GlobalData.CurrentModule = module;
 			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, GlobalData.CurrentDisplayObjectDic[elementName]);
-			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+			MessageBroker.SendUpdateSelectDisplayObjectDic();
 			return;
 		}
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
@@ -38,7 +38,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 		} else {
 			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObjectItem();
 			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
-			MessageBroker.Send(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+			MessageBroker.SendUpdateSelectDisplayObjectDic();
 		}
 	}
 

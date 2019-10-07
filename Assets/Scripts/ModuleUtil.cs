@@ -6,11 +6,11 @@ using UniRx;
 using UnityEngine;
 
 public static class ModuleUtil {
-	public static bool CreateModuleBehavior(string moduleName, List<Element> elements = null, bool selectModule = true, bool isReDo = false) {
+	public static bool CreateModuleBehavior(string moduleName, List<Element> elements = null, bool selectModule = true, bool needCheckCache = false) {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
 		// 还原 module 时尝试取回删除时保存的数据
-//		if(isReDo && elements == null) GlobalData.CacheModuleDic.TryGetValue(moduleName, out elements);
+		if(needCheckCache && elements == null) GlobalData.CacheModuleDic.TryGetValue(moduleName, out elements);
 		if(elements == null) elements = new List<Element>();
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);
@@ -21,7 +21,6 @@ public static class ModuleUtil {
 	public static bool RemoveModuleBehavior(string moduleName) {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(! GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
-
 		// 删除时将数据保存起来, 避免还原时没有数据
 		GlobalData.CacheModuleDic[moduleName] = GlobalData.ModuleDic[moduleName];
 		GlobalData.Modules.Remove(moduleName);
