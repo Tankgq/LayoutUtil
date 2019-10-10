@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class KeyboardEventManager : MonoBehaviour {
 	public ContainerManager containerManager;
+	public FunctionButtonHandler functionButtonHandler;
 	public ScrollRect containerScrollRect;
 	public RectTransform containerRect;
 	public float containerKeyMoveSensitivity;
@@ -97,26 +98,26 @@ public class KeyboardEventManager : MonoBehaviour {
 					   bool isAltDown = GetAlt();
 					   if(isControlDown) {
 						   if(Input.GetKeyDown(KeyCode.M))
-							   FunctionButtonHandler.OnCreateModuleButtonClick();
+							   functionButtonHandler.OnCreateModuleButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.N)) {
-//							   FunctionButtonHandler.OnAddButtonClick();
+//							   functionButtonHandler.OnAddButtonClick();
 							   Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
 							   DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize);
 						   } else if(Input.GetKeyDown(KeyCode.Backspace))
-							   FunctionButtonHandler.OnRemoveButtonClick();
+							   functionButtonHandler.OnRemoveButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.UpArrow))
-							   FunctionButtonHandler.OnUpButtonClick();
+							   functionButtonHandler.OnUpButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.DownArrow))
-							   FunctionButtonHandler.OnDownButtonClick();
+							   functionButtonHandler.OnDownButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.P))
-							   FunctionButtonHandler.OnCopyButtonClick();
+							   functionButtonHandler.OnCopyButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.I))
-							   FunctionButtonHandler.OnImportButtonClick();
+							   functionButtonHandler.OnImportButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.E))
-							   FunctionButtonHandler.OnExportButtonClick();
-						   else if(Input.GetKeyDown(KeyCode.H)) FunctionButtonHandler.OnHelpButtonClick();
+							   functionButtonHandler.OnExportButtonClick();
+						   else if(Input.GetKeyDown(KeyCode.H)) functionButtonHandler.OnHelpButtonClick();
 					   }
-					   if(Input.GetKeyDown(KeyCode.Delete) && ! isFocusOnInputText) FunctionButtonHandler.OnRemoveButtonClick();
+					   if(Input.GetKeyDown(KeyCode.Delete) && ! isFocusOnInputText) functionButtonHandler.OnRemoveButtonClick();
 
 					   if(Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! Utils.IsFocusOnInputText())
 						   GlobalData.CurrentSelectDisplayObjectDic.Clear();

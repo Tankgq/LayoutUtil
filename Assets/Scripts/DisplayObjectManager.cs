@@ -22,10 +22,11 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	private Vector2 _startPos = Vector2.zero;
 
 	void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
-		if(KeyboardEventManager.GetAlt() && _copying == null) {
+		if(KeyboardEventManager.GetAlt()
+		&& _copying == null) {
 			string imageUrl = null;
 			string key = $"{GlobalData.CurrentModule}_{transform.name}";
-			if(GlobalData.DisplayObjectPathDic.ContainsKey(key)) imageUrl = GlobalData.DisplayObjectPathDic[key];
+			GlobalData.DisplayObjectPathDic.TryGetValue(key, out imageUrl);
 			Vector2 pos = Element.InvConvertTo(selfRect.anchoredPosition);
 			Transform copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl, pos, selfRect.sizeDelta, transform.name + "_copy");
 			if(copyDisplayObject == null) return;
@@ -40,18 +41,24 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 				key = $"{GlobalData.CurrentModule}_{pair.Key}";
 				if(GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key)) imageUrl = GlobalData.DisplayObjectPathDic[key];
 				copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl,
-																				 new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint),
-																				 new Vector2(element.Width, element.Height),
-																				 pair.Key + "_copy");
+																	   new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint),
+																	   new Vector2(element.Width, element.Height),
+																	   pair.Key + "_copy");
 				copies.Add(copyDisplayObject);
 			}
 
-			GlobalData.CurrentSelectDisplayObjectDic.Clear();
-			foreach(Transform displayObject in copies.Where(displayObject => displayObject != null)) {
+			List<string> addElements = copies.Select(element => element.name).ToList();
+			List<string> removeElements = null;
+			if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
+				removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+				GlobalData.CurrentSelectDisplayObjectDic.Clear();
+			}
+			foreach(Transform displayObject in copies) {
 				GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
 			}
 
-			MessageBroker.SendUpdateSelectDisplayObjectDic();
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements));
+			HistoryManager.JustAdd(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements));
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
 			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -75,6 +82,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			rt.sizeDelta = new Vector2(horizontalAlignRect.Width + (GlobalData.AlignExtensionValue << 1), horizontalAlignRect.Height);
 		} else
 			_horizontalAlignLine.SetActive(false);
+
 		Rectangle verticalAlignRect = _alignInfo.VerticalAlignLine;
 		if(verticalAlignRect != null) {
 			_verticalAlignLine.SetActive(true);
@@ -84,6 +92,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			rt.sizeDelta = new Vector2(verticalAlignRect.Width, verticalAlignRect.Height + (GlobalData.AlignExtensionValue << 1));
 		} else
 			_verticalAlignLine.SetActive(false);
+
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
 		foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 			if(pair.Value == transform) continue;
@@ -94,20 +103,25 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	public void OnEndDrag(PointerEventData eventData) {
 		if(transform.name.Equals(_copying)) _copying = null;
-		if(_alignInfo == null || KeyboardEventManager.GetControl()) {
+		if(_alignInfo == null
+		|| KeyboardEventManager.GetControl()) {
 			_horizontalAlignLine.SetActive(false);
 			_verticalAlignLine.SetActive(false);
 			return;
 		}
+
 		Vector2 pos = selfRect.anchoredPosition;
 		Vector2 size = selfRect.sizeDelta;
-		if(_verticalAlignLine.activeSelf && _alignInfo.VerticalAlignLine != null) {
+		if(_verticalAlignLine.activeSelf
+		&& _alignInfo.VerticalAlignLine != null) {
 			pos.x = _alignInfo.VerticalAlignLine.Left;
 			if(_alignInfo.VerticalAlignType == AlignInfo.ALIGN_RIGHT) pos.x -= size.x;
 			pos.x = Element.InvConvertX(pos.x);
 			_verticalAlignLine.SetActive(false);
 		}
-		if(_horizontalAlignLine.activeSelf && _alignInfo.HorizontalAlignLine != null) {
+
+		if(_horizontalAlignLine.activeSelf
+		&& _alignInfo.HorizontalAlignLine != null) {
 			pos.y = _alignInfo.HorizontalAlignLine.Top;
 			if(_alignInfo.HorizontalAlignType == AlignInfo.ALIGN_BOTTOM) pos.y -= size.y;
 			pos.y = Element.InvConvertY(pos.y);
@@ -122,18 +136,20 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	public void OnPointerDown(PointerEventData eventData) {
 		if(Input.GetMouseButton(2)) return;
-		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(transform.name);
+		Transform self = transform;
+		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(self.name);
 		if(isSelect) {
 			if(KeyboardEventManager.GetControl()) {
-				GlobalData.CurrentSelectDisplayObjectDic.Remove(transform.name);
-				MessageBroker.SendUpdateSelectDisplayObjectDic();
+				HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, null, new List<string> {self.name}));
 			}
 		} else {
-			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObject();
-			Transform self = transform;
-			GlobalData.CurrentSelectDisplayObjectDic.Add(self.name, self);
-			MessageBroker.SendUpdateSelectDisplayObjectDic();
+			List<string> removeElements = null;
+			if(! KeyboardEventManager.GetShift()) {
+				if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+			}
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{self.name}, removeElements));
 		}
+
 		Vector2 mousePos = eventData.position;
 		Vector2 offset;
 		bool isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(selfRect, mousePos, eventData.enterEventCamera, out offset);
@@ -145,9 +161,5 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) return false;
 		GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObject.name);
 		return true;
-	}
-
-	public static void DeselectAllDisplayObject() {
-		GlobalData.CurrentSelectDisplayObjectDic.Clear();
 	}
 }

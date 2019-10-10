@@ -3,19 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class FunctionButtonHandler : MonoBehaviour {
-	public static void OnCreateModuleButtonClick() {
+	public void OnCreateModuleButtonClick() {
+		Debug.Log("OnCreateModuleButtonClick");
 		ModuleUtil.CreateModule();
 	}
 
-	public static void OnAddButtonClick() {
+	public void OnAddButtonClick() {
 		DisplayObjectUtil.AddDisplayObject(null, Element.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
 	}
 
-	public static void OnRemoveButtonClick() {
+	public void OnRemoveButtonClick() {
 		ContainerManager.RemoveSelectedDisplayObjectOrModules();
 	}
 
-	public static void OnUpButtonClick() {
+	public void OnUpButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
 			DisplayObjectUtil.MoveCurrentSelectDisplayObjectUp();
 		} else {
@@ -24,7 +25,7 @@ public class FunctionButtonHandler : MonoBehaviour {
 //		MessageBroker.SendUpButtonDown();
 	}
 
-	public static void OnDownButtonClick() {
+	public void OnDownButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
 			DisplayObjectUtil.MoveCurrentSelectDisplayObjectDown();
 		} else {
@@ -33,19 +34,19 @@ public class FunctionButtonHandler : MonoBehaviour {
 //		MessageBroker.SendDownButtonDown();
 	}
 
-	public static void OnCopyButtonClick() {
+	public void OnCopyButtonClick() {
 		ModuleUtil.ExportCurrentModule();
 	}
 
-	public static void OnImportButtonClick() {
+	public void OnImportButtonClick() {
 		ModuleUtil.CheckImportModules();
 	}
 
-	public static void OnExportButtonClick() {
+	public void OnExportButtonClick() {
 		ModuleUtil.CheckExportModules();
 	}
 
-	public static void OnHelpButtonClick() {
+	public void OnHelpButtonClick() {
 		DialogManager.ShowInfo("<color=yellow>00.</color> 项目地址: https://github.com/Tankgq/LayoutUtil\n"
 							 + "<color=yellow>01.</color> module 没有顺序的区别, displayObject 的顺序决定了相应的位置, 最下面的 displayObject 在最上层\n"
 							 + "<color=yellow>02.</color> Ctrl + 鼠标滚轮可以放大或缩小工作空间, Shift + 鼠标滚轮可以水平滚动工作空间, 方向键也可以移动工作空间\n"
@@ -63,7 +64,7 @@ public class FunctionButtonHandler : MonoBehaviour {
 							   330);
 	}
 
-	private static void OnScaleSliderValueChanged(float value) {
+	private void OnScaleSliderValueChanged(float value) {
 		value /= 10;
 		GlobalData.ContainerRect.localScale = new Vector3(value, value, value);
 		GlobalData.ScaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";

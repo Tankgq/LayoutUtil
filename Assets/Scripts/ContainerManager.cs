@@ -22,6 +22,7 @@ public class ContainerManager : MonoBehaviour {
 						   moduleNameText.text = "null";
 						   return;
 					   }
+
 					   moduleNameText.text = module;
 					   GlobalData.CurrentSelectDisplayObjectDic.Clear();
 					   scaleSlider.value = 10f;
@@ -46,6 +47,7 @@ public class ContainerManager : MonoBehaviour {
 					displayObject.GetComponent<Toggle>().isOn = false;
 				}
 			}
+
 			if(objects.Length > 0 && objects[0] is List<string>) {
 				List<string> addElements = (List<string>)objects[0];
 				foreach(Transform displayObject in addElements.Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
@@ -53,11 +55,14 @@ public class ContainerManager : MonoBehaviour {
 					displayObject.GetComponent<Toggle>().isOn = true;
 				}
 			}
+
+			if(GlobalData.CurrentSelectDisplayObjectDic.Count < 1) return;
 			StringBuilder sb = new StringBuilder();
 			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 				sb.Append($"{pair.Value.name}, ");
 				pair.Value.GetComponent<Toggle>().isOn = true;
 			}
+
 			selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
 		});
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)

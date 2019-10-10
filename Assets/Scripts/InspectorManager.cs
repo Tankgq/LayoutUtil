@@ -133,7 +133,7 @@ public class InspectorManager : MonoBehaviour {
 									   UpdateState(GlobalData.CurrentSelectDisplayObjectDic.Count != 1 ? null : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 								   });
 		Subject<object[]> updateDisplayObjectPosSubject =
-				MessageBroker.GetSubject(MessageBroker.Code.UpdateDisplayObjectPos);
+				MessageBroker.GetSubject(MessageBroker.Code.UpdateInspectorInfo);
 		updateDisplayObjectPosSubject.SampleFrame(1)
 									 .Subscribe(_ => UpdateState(_displayObject));
 	}

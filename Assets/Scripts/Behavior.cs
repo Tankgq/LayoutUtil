@@ -12,6 +12,7 @@ public class Behavior {
 		AddDisplayObject,
 		LoadImageToDisplayObject,
 		RemoveSelectedDisplayObject,
+		UpdateSelectedDisplayObjectDic,
 		UpdateDisplayObjectsPos,
 		UpdateSwapImage,
 		ChangeName,
@@ -22,7 +23,8 @@ public class Behavior {
 		MoveModuleUp,
 		MoveModuleDown,
 		MoveSelectDisplayObjectsUp,
-		MoveSelectDisplayObjectsDown
+		MoveSelectDisplayObjectsDown,
+		CopyDisplayObjects
 	}
 	
 	// 参数为 isRedo

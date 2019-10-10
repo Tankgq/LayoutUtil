@@ -4,6 +4,7 @@ using UnityEngine;
 public static class HistoryManager {
 	private static readonly List<Behavior> Behaviors = new List<Behavior>();
 	private static int _currentIndex;
+	private static int _currentCount;
 
 	public static void Do(Behavior behavior) {
 		if(behavior == null) return;
@@ -13,28 +14,46 @@ public static class HistoryManager {
 
 	private static void Add(Behavior behavior) {
 		if(behavior == null) return;
-//		if(Behaviors.Count > _currentIndex) return;
 		if(Behaviors.Count == _currentIndex) {
 			Behaviors.Add(behavior);
-//			++ _currentIndex;
+			++ _currentCount;
 			return;
 		}
+
 		Behaviors[_currentIndex] = behavior;
+	}
+
+	public static void JustAdd(Behavior behavior) {
+		if(behavior == null) return;
+		if(Behaviors.Count == _currentIndex) {
+			Behaviors.Add(behavior);
+			++ _currentIndex;
+			++ _currentCount;
+			return;
+		}
+
+		Behaviors[_currentIndex] = behavior;
+		++ _currentIndex;
+		_currentCount = _currentIndex;
 	}
 
 	public static void Do() {
 		while(true) {
-			if(_currentIndex >= Behaviors.Count) return;
+			if(_currentIndex >= _currentCount) return;
 			Behavior behavior = Behaviors[_currentIndex];
-			if(behavior == null || behavior.Type == Behavior.BehaviorType.Null) {
+			if(behavior == null
+			|| behavior.Type == Behavior.BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}
+
 			Debug.Log($"[INFO] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior.Type}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
-			if(GlobalData.ModifyDic.ContainsKey(key) && GlobalData.ModifyDic[key]) {
+			if(GlobalData.ModifyDic.ContainsKey(key)
+			&& GlobalData.ModifyDic[key]) {
 				Debug.Log($"[WARN] [HistoryManager] Do() - key: {key}, behavior.Type: {behavior.Type}");
 			}
+
 			GlobalData.ModifyDic[key] = behavior.IsModify;
 			if(behavior.IsModify) MessageBroker.SendUpdateTitle();
 			behavior.Do(behavior.DoCount > 0);
@@ -49,16 +68,19 @@ public static class HistoryManager {
 		while(true) {
 			if(_currentIndex < 1) return;
 			Behavior behavior = Behaviors[_currentIndex - 1];
-			if(behavior == null || behavior.Type == Behavior.BehaviorType.Null) {
+			if(behavior == null
+			|| behavior.Type == Behavior.BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Undo() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}
+
 			Debug.Log($"[INFO] [HistoryManager] Undo() - behavior: {behavior}, behavior.Type: {behavior.Type}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
 			if(! GlobalData.ModifyDic.ContainsKey(key)) {
 				Debug.Log($"[ERROR] [HistoryManager] Undo() - key: {key}, behavior.Type: {behavior.Type}");
 				return;
 			}
+
 			behavior.Undo(behavior.UndoCount > 0);
 			if(GlobalData.ModifyDic[key]) MessageBroker.SendUpdateTitle();
 			GlobalData.ModifyDic[key] = false;

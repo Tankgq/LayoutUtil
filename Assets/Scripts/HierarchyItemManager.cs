@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
@@ -18,8 +20,8 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			string module = HierarchyManager.GetModuleName(transform.GetSiblingIndex());
 			if(string.IsNullOrEmpty(module)) return;
 			GlobalData.CurrentModule = module;
-			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, GlobalData.CurrentDisplayObjectDic[elementName]);
-			MessageBroker.SendUpdateSelectDisplayObjectDic();
+			HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(module, true));
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(module, new List<string>{elementName}));
 			return;
 		}
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
@@ -31,18 +33,17 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			return;
 		}
 		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(elementName);
+		List<string> addElements = null, removeElements = null; 
 		if(isSelect) {
 			if(KeyboardEventManager.GetControl()) {
-				GlobalData.CurrentSelectDisplayObjectDic.Remove(elementName);
+				removeElements = new List<string> {elementName};
 			}
 		} else {
-			if(! KeyboardEventManager.GetShift()) DeselectAllDisplayObjectItem();
-			GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
-			MessageBroker.SendUpdateSelectDisplayObjectDic();
+			if(! KeyboardEventManager.GetShift() && GlobalData.CurrentSelectDisplayObjectDic.Count > 0)
+				removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+			addElements = new List<string> {elementName};
 		}
-	}
-
-	public static void DeselectAllDisplayObjectItem() {
-		GlobalData.CurrentSelectDisplayObjectDic.Clear();
+		if(addElements != null || removeElements != null)
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements));
 	}
 }

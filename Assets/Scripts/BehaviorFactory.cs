@@ -22,7 +22,7 @@ public static class BehaviorFactory {
 							},
 							isReUndo => {
 								int count = modules.Count;
-								for(int idx = 0; idx < count; ++ idx) ModuleUtil.CreateModuleBehavior(modules[idx], null, false, true );
+								for(int idx = 0; idx < count; ++ idx) ModuleUtil.CreateModuleBehavior(modules[idx], null, false, true);
 							},
 							Behavior.BehaviorType.RemoveAllModule,
 							combineWithNextBehavior);
@@ -54,16 +54,16 @@ public static class BehaviorFactory {
 							Behavior.BehaviorType.ImportModules);
 	}
 
-	public static Behavior GetOpenModuleBehavior(string moduleName) {
+	public static Behavior GetOpenModuleBehavior(string moduleName, bool combineWithNextBehavior = false) {
 		string previousModuleName = GlobalData.CurrentModule;
 		return new Behavior(isRedo => GlobalData.CurrentModule = moduleName,
 							isReUndo => GlobalData.CurrentModule = previousModuleName,
-							Behavior.BehaviorType.OpenModule);
+							Behavior.BehaviorType.OpenModule, combineWithNextBehavior);
 	}
 
-	public static Behavior GetAddDisplayObjectBehavior(string moduleName,
-													   string elementName,
-													   string imageUrl,
+	public static Behavior GetAddDisplayObjectBehavior(string  moduleName,
+													   string  elementName,
+													   string  imageUrl,
 													   Vector2 pos,
 													   Vector2 size) {
 		Element element = new Element {
@@ -87,7 +87,7 @@ public static class BehaviorFactory {
 	public static Behavior GetLoadImageToDisplayObjectBehavior(string moduleName,
 															   string elementName,
 															   string imageUrl,
-															   bool isModify = true) {
+															   bool   isModify = true) {
 		return new Behavior(isReDo =>
 									DisplayObjectUtil.LoadImageBehavior(moduleName,
 																		elementName,
@@ -113,9 +113,16 @@ public static class BehaviorFactory {
 									Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
 									GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 								}
+
 								MessageBroker.SendUpdateSelectDisplayObjectDic(elementNames);
 							},
 							Behavior.BehaviorType.RemoveSelectedDisplayObject);
+	}
+
+	public static Behavior GetUpdateSelectDisplayObjectBehavior(string moduleName, List<string> addElements = null, List<string> removeElements = null) {
+		return new Behavior(isReDo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, addElements, removeElements),
+							isReUndo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, removeElements, addElements),
+							Behavior.BehaviorType.UpdateSelectedDisplayObjectDic, false);
 	}
 
 	public static Behavior GetUpdateDisplayObjectsPosBehavior(string moduleName, IReadOnlyList<string> elementNames, Vector2 originPos, Vector2 targetPos) {
@@ -165,10 +172,16 @@ public static class BehaviorFactory {
 							isReUndo => GlobalData.HierarchyManager.MoveModuleDownBehavior(moduleName),
 							Behavior.BehaviorType.MoveModuleUp);
 	}
-	
+
 	public static Behavior GetMoveModuleDownBehavior(string moduleName) {
 		return new Behavior(isReDo => GlobalData.HierarchyManager.MoveModuleDownBehavior(moduleName),
 							isReUndo => GlobalData.HierarchyManager.MoveModuleUpBehavior(moduleName),
 							Behavior.BehaviorType.MoveModuleDown);
+	}
+	
+	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
+		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
+							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
+							Behavior.BehaviorType.CopyDisplayObjects);
 	}
 }

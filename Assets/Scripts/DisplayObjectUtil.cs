@@ -139,11 +139,13 @@ public static class DisplayObjectUtil {
 				MaterialDic[imageUrl] = material;
 				SizeDic[imageUrl] = new Vector2(texture.width, texture.height);
 			}
+
 			if(size == Vector2.zero) {
 				if(! SizeDic.ContainsKey(imageUrl)) SizeDic[imageUrl] = GlobalData.DefaultSize;
 				size = SizeDic[imageUrl];
 			}
 		}
+
 		Transform displayObject = null;
 		// 按住 Alt 导入图片到 DisplayObject 中, 优先导入当前选择 displayObject
 		if(! string.IsNullOrEmpty(imageUrl) && KeyboardEventManager.GetAlt()) {
@@ -151,12 +153,14 @@ public static class DisplayObjectUtil {
 				displayObject = pair.Value;
 				break;
 			}
+
 			int length = GlobalData.CurrentDisplayObjects.Count;
 			for(int idx = length - 1; idx >= 0; -- idx) {
 				if(! Utils.IsPointOverTransform(GlobalData.CurrentDisplayObjects[idx])) continue;
 				displayObject = GlobalData.CurrentDisplayObjects[idx];
 				break;
 			}
+
 			if(displayObject == null) return null;
 			HistoryManager.Do(BehaviorFactory.GetLoadImageToDisplayObjectBehavior(GlobalData.CurrentModule, displayObject.name, imageUrl));
 			return displayObject;
@@ -198,7 +202,7 @@ public static class DisplayObjectUtil {
 		displayObjectDataList[idx] = displayObjectDataList[idx - 1];
 		displayObjectDataList[idx - 1] = tmp2;
 	}
-	
+
 	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
@@ -305,7 +309,8 @@ public static class DisplayObjectUtil {
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateDisplayObjectPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
 		}
-		MessageBroker.SendUpdateDisplayObjectPos();
+
+		MessageBroker.SendUpdateInspectorInfo();
 	}
 
 	public static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
@@ -316,8 +321,8 @@ public static class DisplayObjectUtil {
 		element.Y = Element.ConvertY(pos.y);
 	}
 
-	public static void ChangeNameBehavior(string currentModule, string originName, string newName) {
-		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+	public static void ChangeNameBehavior(string moduleName, string originName, string newName) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
 		Transform displayObject = GlobalData.CurrentDisplayObjectDic[originName];
 		if(displayObject == null) return;
 		displayObject.name = newName;
@@ -327,17 +332,15 @@ public static class DisplayObjectUtil {
 		Element element = GlobalData.GetElement(originName);
 		if(element != null) element.Name = newName;
 		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(originName)) return;
-		GlobalData.CurrentSelectDisplayObjectDic.Remove(originName);
-		GlobalData.CurrentSelectDisplayObjectDic.Add(newName, displayObject);
-		MessageBroker.SendUpdateSelectDisplayObjectDic(new List<string> {newName}, new List<string> {originName});
+		UpdateSelectDisplayObjectDicBehavior(moduleName, new List<string> {newName}, new List<string> {originName});
 	}
 
-	public static void ChangeXBehavior(string currentModule, List<string> elementNames, float x, bool isAdd = false) {
-		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+	public static void ChangeXBehavior(string moduleName, List<string> elementNames, float x, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeXBehavior(elementNames[idx], x, isAdd);
-		MessageBroker.SendUpdateSelectDisplayObjectDic();
+		MessageBroker.SendUpdateInspectorInfo();
 	}
 
 	private static void ChangeXBehavior(string elementName, float x, bool isAdd = false) {
@@ -358,12 +361,12 @@ public static class DisplayObjectUtil {
 			element.X = x;
 	}
 
-	public static void ChangeYBehavior(string currentModule, List<string> elementNames, float y, bool isAdd = false) {
-		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+	public static void ChangeYBehavior(string moduleName, List<string> elementNames, float y, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeYBehavior(elementNames[idx], y, isAdd);
-		MessageBroker.SendUpdateSelectDisplayObjectDic();
+		MessageBroker.SendUpdateInspectorInfo();
 	}
 
 	private static void ChangeYBehavior(string elementName, float y, bool isAdd = false) {
@@ -384,12 +387,12 @@ public static class DisplayObjectUtil {
 			element.Y = y;
 	}
 
-	public static void ChangeWidthBehavior(string currentModule, List<string> elementNames, float width, bool isAdd = false) {
-		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+	public static void ChangeWidthBehavior(string moduleName, List<string> elementNames, float width, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeWidthBehavior(elementNames[idx], width, isAdd);
-		MessageBroker.SendUpdateSelectDisplayObjectDic();
+		MessageBroker.SendUpdateInspectorInfo();
 	}
 
 	private static void ChangeWidthBehavior(string elementName, float width, bool isAdd = false) {
@@ -407,12 +410,12 @@ public static class DisplayObjectUtil {
 			element.Width = width;
 	}
 
-	public static void ChangeHeightBehavior(string currentModule, List<string> elementNames, float height, bool isAdd = false) {
-		if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
+	public static void ChangeHeightBehavior(string moduleName, List<string> elementNames, float height, bool isAdd = false) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeHeightBehavior(elementNames[idx], height, isAdd);
-		MessageBroker.SendUpdateSelectDisplayObjectDic();
+		MessageBroker.SendUpdateInspectorInfo();
 	}
 
 	private static void ChangeHeightBehavior(string elementName, float height, bool isAdd = false) {
@@ -428,5 +431,32 @@ public static class DisplayObjectUtil {
 			element.Height += height;
 		else
 			element.Height = height;
+	}
+
+	public static void UpdateSelectDisplayObjectDicBehavior(string moduleName, List<string> addElements = null, List<string> removeElements = null) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
+		if(addElements?.Count > 0) {
+			foreach(string elementName in addElements) {
+				GlobalData.CurrentSelectDisplayObjectDic[elementName] = GlobalData.CurrentDisplayObjectDic[elementName];
+			}
+		}
+
+		if(removeElements?.Count > 0) {
+			foreach(string elementName in removeElements) {
+				GlobalData.CurrentSelectDisplayObjectDic.Remove(elementName);
+			}
+		}
+
+		MessageBroker.SendUpdateSelectDisplayObjectDic(addElements, removeElements);
+	}
+
+	public static void CopySelectDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
+		if(elementNames == null || elementNames.Count == 0) return;
+		List<Element> elements = elementNames.Select(GlobalData.GetElement).ToList();
+		AddDisplayObjectsBehavior(moduleName, elements);
+		List<string> removeElements = null;
+		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, elementNames, removeElements));
 	}
 }

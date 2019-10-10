@@ -6,7 +6,7 @@ public static class MessageBroker {
 		Null,
 		UpdateSelectDisplayObjectDic,
 		UpdateSwapImage,
-		UpdateDisplayObjectPos,
+		UpdateInspectorInfo,
 		UpdateTitle,
 		UpdateModuleTxtWidth,
 		UpButtonDown,
@@ -49,8 +49,8 @@ public static class MessageBroker {
 		Send(Code.UpdateSwapImage, moduleName, elementName, isSwap);
 	}
 
-	public static void SendUpdateDisplayObjectPos() {
-		Send(Code.UpdateDisplayObjectPos);
+	public static void SendUpdateInspectorInfo() {
+		Send(Code.UpdateInspectorInfo);
 	}
 
 	public static void SendUpdateTitle() {
