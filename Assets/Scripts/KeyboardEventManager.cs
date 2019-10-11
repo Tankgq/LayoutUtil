@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,7 +52,8 @@ public class KeyboardEventManager : MonoBehaviour {
 				   });
 		Observable.EveryUpdate()
 				  .Subscribe(_ => {
-					   if(GetControl() || Input.GetMouseButton(0)) {
+					   bool isControlDown = GetControl();
+					   if(isControlDown || Input.GetMouseButton(0)) {
 						   containerScrollRect.horizontal = false;
 						   containerScrollRect.vertical = false;
 					   } else if(Input.GetMouseButton(2)) {
@@ -70,6 +70,7 @@ public class KeyboardEventManager : MonoBehaviour {
 						   containerScrollRect.vertical = ! isShiftDown;
 						   containerScrollRect.scrollSensitivity = Math.Abs(containerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
 					   }
+					   if(isControlDown) return;
 					   Vector2 delta = Vector2.zero;
 					   if(Input.GetKey(KeyCode.UpArrow)) {
 						   delta += Vector2.up * containerKeyMoveSensitivity;
@@ -100,7 +101,6 @@ public class KeyboardEventManager : MonoBehaviour {
 						   if(Input.GetKeyDown(KeyCode.M))
 							   functionButtonHandler.OnCreateModuleButtonClick();
 						   else if(Input.GetKeyDown(KeyCode.N)) {
-//							   functionButtonHandler.OnAddButtonClick();
 							   Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
 							   DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize);
 						   } else if(Input.GetKeyDown(KeyCode.Backspace))
@@ -134,7 +134,12 @@ public class KeyboardEventManager : MonoBehaviour {
 						   else if(Input.GetKeyDown(KeyCode.Y)) HistoryManager.Do();
 					   }
 
-					   if(isControlDown && Input.GetKeyDown(KeyCode.S)) ModuleUtil.ExportModules(GlobalData.CurrentFilePath, true);
+					   if(isControlDown && Input.GetKeyDown(KeyCode.S)) {
+						   if(string.IsNullOrWhiteSpace(GlobalData.CurrentFilePath))
+							   functionButtonHandler.OnExportButtonClick();
+						   else
+							   ModuleUtil.ExportModules(GlobalData.CurrentFilePath, true);
+					   }
 
 					   if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.D)) {
 						   Debugger.ShowDebugging = ! Debugger.ShowDebugging;

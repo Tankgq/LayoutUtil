@@ -56,7 +56,10 @@ public class ContainerManager : MonoBehaviour {
 				}
 			}
 
-			if(GlobalData.CurrentSelectDisplayObjectDic.Count < 1) return;
+			if(GlobalData.CurrentSelectDisplayObjectDic.Count < 1) {
+				selectedDisplayObjectText.text = "null";
+				return;
+			}
 			StringBuilder sb = new StringBuilder();
 			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 				sb.Append($"{pair.Value.name}, ");

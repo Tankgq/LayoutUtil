@@ -186,14 +186,19 @@ public static class DisplayObjectUtil {
 
 		HistoryManager.Do(BehaviorFactory.GetRemoveSelectedDisplayObjectBehavior(GlobalData.CurrentModule));
 	}
-
-	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<int> elementIdxList) {
+	
+	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
-		if(elementIdxList == null || elementIdxList.Count == 0) return;
+		if(elementNames == null || elementNames.Count == 0) return;
 		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
+											   .Where(idx => idx != -1)
+											   .ToList();
+		if(elementIdxList.Count == 0) return;
 		List<Element> elements = GlobalData.ModuleDic[moduleName];
-		int length = elementIdxList.Count;
-		for(int idx = 0; idx < length; ++ idx) {
+		int count = elementIdxList.Count;
+		elementIdxList.Sort();
+		for(int idx = 0; idx < count; ++ idx) {
 			int elementIdx = elementIdxList[idx];
 			Transform tmp = displayObjects[elementIdx];
 			displayObjects[elementIdx] = displayObjects[elementIdx - 1];
@@ -206,14 +211,19 @@ public static class DisplayObjectUtil {
 		}
 		MessageBroker.SendUpdateHierarchy();
 	}
-
-	public static void MoveDisplayObjectsDownBehavior(string moduleName, List<int> elementIdxList) {
+	
+	public static void MoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
-		if(elementIdxList == null || elementIdxList.Count == 0) return;
+		if(elementNames == null || elementNames.Count == 0) return;
 		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
+											   .Where(idx => idx != -1)
+											   .ToList();
+		if(elementIdxList.Count == 0) return;
 		List<Element> elements = GlobalData.ModuleDic[moduleName];
-		int length = elementIdxList.Count;
-		for(int idx = length - 1; idx >= 0; -- idx) {
+		int count = elementIdxList.Count;
+		elementIdxList.Sort((lhs, rhs) => lhs < rhs ? 1 : (lhs == rhs ? 0 : -1));
+		for(int idx = 0; idx < count; ++ idx) {
 			int elementIdx = elementIdxList[idx];
 			Transform tmp = displayObjects[elementIdx];
 			displayObjects[elementIdx] = displayObjects[elementIdx + 1];
@@ -226,7 +236,7 @@ public static class DisplayObjectUtil {
 		}
 		MessageBroker.SendUpdateHierarchy();
 	}
-
+	
 	public static Rectangle GetMinRectangleContainsDisplayObjects(IReadOnlyList<Element> displayObjects) {
 		if(displayObjects == null || displayObjects.Count == 0) return null;
 		Rectangle rect = new Rectangle();

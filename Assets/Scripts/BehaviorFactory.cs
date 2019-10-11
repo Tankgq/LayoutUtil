@@ -171,33 +171,41 @@ public static class BehaviorFactory {
 	public static Behavior GetMoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
 		if(elementNames == null || elementNames.Count == 0) return null;
-		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
-		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
-											   .Where(idx => idx != -1)
-											   .ToList();
-		if(elementIdxList.Count == 0) return null;
-		elementIdxList.Sort();
-		if(elementIdxList[0] == 0) return null;
-		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementIdxList),
-							isReUndo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementIdxList),
+		string firstElementName = GlobalData.CurrentDisplayObjects[0].name;
+		int idx = elementNames.FindIndex(firstElementName.Equals);
+		if(idx != -1) return null;
+		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementNames),
+							isReUndo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementNames),
 							Behavior.BehaviorType.MoveSelectDisplayObjectsUp);
 	}
-
+	
 	public static Behavior GetMoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
 		if(elementNames == null || elementNames.Count == 0) return null;
-		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
-		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
-											   .Where(idx => idx != -1)
-											   .ToList();
-		int count = elementIdxList.Count;
-		if(count == 0) return null;
-		elementIdxList.Sort();
-		if(elementIdxList[count - 1] == displayObjects.Count - 1) return null;
-		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementIdxList),
-							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementIdxList),
-							Behavior.BehaviorType.MoveSelectDisplayObjectsDown);
+		string lastElementName = GlobalData.CurrentDisplayObjects[GlobalData.CurrentDisplayObjects.Count - 1].name;
+		int idx = elementNames.FindIndex(lastElementName.Equals);
+		if(idx != -1) return null;
+		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementNames),
+							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementNames),
+							Behavior.BehaviorType.MoveSelectDisplayObjectsUp);
 	}
+	
+//	public static Behavior GetMoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
+//		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
+//		if(elementNames == null || elementNames.Count == 0) return null;
+//		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+//		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
+//											   .Where(idx => idx != -1)
+//											   .ToList();
+//		int count = elementIdxList.Count;
+//		if(count == 0) return null;
+//		elementIdxList.Sort();
+//		if(elementIdxList[count - 1] == displayObjects.Count - 1) return null;
+//		List<int> undoElementIdxList = elementIdxList.Select(idx => idx + 1).ToList();
+//		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementIdxList),
+//							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, undoElementIdxList),
+//							Behavior.BehaviorType.MoveSelectDisplayObjectsDown);
+//	}
 
 	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
 		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
