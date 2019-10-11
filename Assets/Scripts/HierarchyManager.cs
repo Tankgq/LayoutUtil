@@ -28,10 +28,8 @@ public class HierarchyManager : MonoBehaviour {
 				MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
 		updateSelectDisplayObjectSubject.SampleFrame(1)
 										.Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> upButtonDownSubject = MessageBroker.GetSubject(MessageBroker.Code.UpButtonDown);
-		upButtonDownSubject.Sample(TimeSpan.FromMilliseconds(100)).Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> downButtonDownSubject = MessageBroker.GetSubject(MessageBroker.Code.DownButtonDown);
-		downButtonDownSubject.Sample(TimeSpan.FromMilliseconds(100)).Subscribe(_ => RefreshDisplayObjectItem());
+		Subject<object[]> updateHierarchySubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateHierarchy);
+		updateHierarchySubject.Sample(TimeSpan.FromMilliseconds(100)).Subscribe(_ => RefreshDisplayObjectItem());
 
 		searchInputField.OnValueChangedAsObservable()
 						.Where(txt => ! txt.Equals(_searchText))

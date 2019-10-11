@@ -187,45 +187,44 @@ public static class DisplayObjectUtil {
 		HistoryManager.Do(BehaviorFactory.GetRemoveSelectedDisplayObjectBehavior(GlobalData.CurrentModule));
 	}
 
-	public static void MoveCurrentSelectDisplayObjectUp() {
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-		string displayObjectName = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-		int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
-		if(idx <= 0 || idx >= GlobalData.CurrentDisplayObjects.Count) return;
-		Transform tmp = GlobalData.CurrentDisplayObjects[idx];
-		GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx - 1];
-		GlobalData.CurrentDisplayObjects[idx - 1] = tmp;
-		int siblingIndex = tmp.GetSiblingIndex();
-		tmp.SetSiblingIndex(siblingIndex - 1);
-		List<Element> displayObjectDataList = GlobalData.ModuleDic[GlobalData.CurrentModule];
-		Element tmp2 = displayObjectDataList[idx];
-		displayObjectDataList[idx] = displayObjectDataList[idx - 1];
-		displayObjectDataList[idx - 1] = tmp2;
-	}
-
-	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
+	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<int> elementIdxList) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
-		if(elementNames == null || elementNames.Count == 0) return;
-		List<int> elementIdxList = elementNames.Select(elementName => GlobalData.CurrentDisplayObjects.FindIndex(elementName.Equals)).ToList();
-		elementNames.Sort();
-		elementIdxList.ForEach(idx => Debug.Log(idx));
+		if(elementIdxList == null || elementIdxList.Count == 0) return;
+		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<Element> elements = GlobalData.ModuleDic[moduleName];
+		int length = elementIdxList.Count;
+		for(int idx = 0; idx < length; ++ idx) {
+			int elementIdx = elementIdxList[idx];
+			Transform tmp = displayObjects[elementIdx];
+			displayObjects[elementIdx] = displayObjects[elementIdx - 1];
+			displayObjects[elementIdx - 1] = tmp;
+			Element tmpElement = elements[elementIdx];
+			elements[elementIdx] = elements[elementIdx - 1];
+			elements[elementIdx - 1] = tmpElement;
+			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
+			tmp.SetSiblingIndex(siblingIndex - 1);
+		}
+		MessageBroker.SendUpdateHierarchy();
 	}
 
-	public static void MoveCurrentSelectDisplayObjectDown() {
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count != 1) return;
-		string displayObjectKey = GlobalData.CurrentSelectDisplayObjectDic.First().Key;
-		string displayObjectName = Utils.GetDisplayObjectName(displayObjectKey);
-		int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObjectName));
-		if(idx < 0 || idx >= GlobalData.CurrentDisplayObjects.Count - 1) return;
-		Transform tmp = GlobalData.CurrentDisplayObjects[idx];
-		GlobalData.CurrentDisplayObjects[idx] = GlobalData.CurrentDisplayObjects[idx + 1];
-		GlobalData.CurrentDisplayObjects[idx + 1] = tmp;
-		int siblingIndex = tmp.GetSiblingIndex();
-		tmp.SetSiblingIndex(siblingIndex + 1);
-		List<Element> displayObjectDataList = GlobalData.ModuleDic[GlobalData.CurrentModule];
-		Element tmp2 = displayObjectDataList[idx];
-		displayObjectDataList[idx] = displayObjectDataList[idx + 1];
-		displayObjectDataList[idx + 1] = tmp2;
+	public static void MoveDisplayObjectsDownBehavior(string moduleName, List<int> elementIdxList) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		if(elementIdxList == null || elementIdxList.Count == 0) return;
+		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<Element> elements = GlobalData.ModuleDic[moduleName];
+		int length = elementIdxList.Count;
+		for(int idx = length - 1; idx >= 0; -- idx) {
+			int elementIdx = elementIdxList[idx];
+			Transform tmp = displayObjects[elementIdx];
+			displayObjects[elementIdx] = displayObjects[elementIdx + 1];
+			displayObjects[elementIdx + 1] = tmp;
+			Element tmpElement = elements[elementIdx];
+			elements[elementIdx] = elements[elementIdx + 1];
+			elements[elementIdx + 1] = tmpElement;
+			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
+			tmp.SetSiblingIndex(siblingIndex + 1);
+		}
+		MessageBroker.SendUpdateHierarchy();
 	}
 
 	public static Rectangle GetMinRectangleContainsDisplayObjects(IReadOnlyList<Element> displayObjects) {

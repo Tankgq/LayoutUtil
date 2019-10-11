@@ -41,16 +41,14 @@ public static class HistoryManager {
 		while(true) {
 			if(_currentIndex >= _currentCount) return;
 			Behavior behavior = Behaviors[_currentIndex];
-			if(behavior == null
-			|| behavior.Type == Behavior.BehaviorType.Null) {
+			if(behavior == null || behavior.Type == Behavior.BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}
 
 			Debug.Log($"[INFO] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior.Type}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
-			if(GlobalData.ModifyDic.ContainsKey(key)
-			&& GlobalData.ModifyDic[key]) {
+			if(GlobalData.ModifyDic.ContainsKey(key) && GlobalData.ModifyDic[key]) {
 				Debug.Log($"[WARN] [HistoryManager] Do() - key: {key}, behavior.Type: {behavior.Type}");
 			}
 

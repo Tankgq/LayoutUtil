@@ -9,8 +9,7 @@ public static class MessageBroker {
 		UpdateInspectorInfo,
 		UpdateTitle,
 		UpdateModuleTxtWidth,
-		UpButtonDown,
-		DownButtonDown
+		UpdateHierarchy
 	}
 
 	private static readonly Dictionary<Code, Subject<object[]>> SubjectDic = new Dictionary<Code, Subject<object[]>>();
@@ -61,12 +60,8 @@ public static class MessageBroker {
 		Send(Code.UpdateModuleTxtWidth);
 	}
 
-	public static void SendUpButtonDown() {
-		Send(Code.UpButtonDown);
-	}
-
-	public static void SendDownButtonDown() {
-		Send(Code.DownButtonDown);
+	public static void SendUpdateHierarchy() {
+		Send(Code.UpdateHierarchy);
 	}
 
 	public static void DisposeSubject(Code code) {

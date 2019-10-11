@@ -119,19 +119,19 @@ public class ContainerManager : MonoBehaviour {
 
 	public static void UpdateCurrentDisplayObjectData() {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		List<Element> displayObjectDataList = GlobalData.ModuleDic[GlobalData.CurrentModule];
+		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		int count = GlobalData.CurrentDisplayObjects.Count;
 		for(int idx = 0; idx < count; ++ idx) {
 			Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
-			Element displayObjectData = displayObjectDataList[idx];
-			displayObjectData.Name = displayObject.name;
+			Element element = elements[idx];
+			element.Name = displayObject.name;
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			Vector2 pos = rt.anchoredPosition;
 			Vector2 size = rt.sizeDelta;
-			displayObjectData.X = Element.ConvertX(pos.x);
-			displayObjectData.Y = Element.ConvertY(pos.y);
-			displayObjectData.Width = size.x;
-			displayObjectData.Height = size.y;
+			element.X = Element.ConvertX(pos.x);
+			element.Y = Element.ConvertY(pos.y);
+			element.Width = size.x;
+			element.Height = size.y;
 		}
 	}
 }

@@ -58,14 +58,11 @@ public static class BehaviorFactory {
 		string previousModuleName = GlobalData.CurrentModule;
 		return new Behavior(isRedo => GlobalData.CurrentModule = moduleName,
 							isReUndo => GlobalData.CurrentModule = previousModuleName,
-							Behavior.BehaviorType.OpenModule, combineWithNextBehavior);
+							Behavior.BehaviorType.OpenModule,
+							combineWithNextBehavior);
 	}
 
-	public static Behavior GetAddDisplayObjectBehavior(string  moduleName,
-													   string  elementName,
-													   string  imageUrl,
-													   Vector2 pos,
-													   Vector2 size) {
+	public static Behavior GetAddDisplayObjectBehavior(string  moduleName, string  elementName, string  imageUrl, Vector2 pos, Vector2 size) {
 		Element element = new Element {
 			Name = elementName,
 			X = Element.ConvertX(pos.x),
@@ -74,13 +71,8 @@ public static class BehaviorFactory {
 			Height = size.y,
 			Visible = true
 		};
-		return new Behavior(isRedo =>
-									DisplayObjectUtil.AddDisplayObjectBehavior(moduleName,
-																			   element,
-																			   imageUrl),
-							isReUndo =>
-									DisplayObjectUtil.RemoveDisplayObjectBehavior(moduleName,
-																				  element.Name),
+		return new Behavior(isRedo => DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl),
+							isReUndo => DisplayObjectUtil.RemoveDisplayObjectBehavior(moduleName, element.Name),
 							Behavior.BehaviorType.AddDisplayObject);
 	}
 
@@ -88,12 +80,8 @@ public static class BehaviorFactory {
 															   string elementName,
 															   string imageUrl,
 															   bool   isModify = true) {
-		return new Behavior(isReDo =>
-									DisplayObjectUtil.LoadImageBehavior(moduleName,
-																		elementName,
-																		imageUrl),
-							isReUndo =>
-									DisplayObjectUtil.RemoveImageBehavior(moduleName, elementName),
+		return new Behavior(isReDo => DisplayObjectUtil.LoadImageBehavior(moduleName, elementName, imageUrl),
+							isReUndo => DisplayObjectUtil.RemoveImageBehavior(moduleName, elementName),
 							Behavior.BehaviorType.LoadImageToDisplayObject,
 							isModify);
 	}
@@ -122,7 +110,8 @@ public static class BehaviorFactory {
 	public static Behavior GetUpdateSelectDisplayObjectBehavior(string moduleName, List<string> addElements = null, List<string> removeElements = null) {
 		return new Behavior(isReDo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, addElements, removeElements),
 							isReUndo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, removeElements, addElements),
-							Behavior.BehaviorType.UpdateSelectedDisplayObjectDic, false);
+							Behavior.BehaviorType.UpdateSelectedDisplayObjectDic,
+							false);
 	}
 
 	public static Behavior GetUpdateDisplayObjectsPosBehavior(string moduleName, IReadOnlyList<string> elementNames, Vector2 originPos, Vector2 targetPos) {
@@ -178,7 +167,38 @@ public static class BehaviorFactory {
 							isReUndo => GlobalData.HierarchyManager.MoveModuleUpBehavior(moduleName),
 							Behavior.BehaviorType.MoveModuleDown);
 	}
-	
+
+	public static Behavior GetMoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
+		if(elementNames == null || elementNames.Count == 0) return null;
+		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
+											   .Where(idx => idx != -1)
+											   .ToList();
+		if(elementIdxList.Count == 0) return null;
+		elementIdxList.Sort();
+		if(elementIdxList[0] == 0) return null;
+		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementIdxList),
+							isReUndo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementIdxList),
+							Behavior.BehaviorType.MoveSelectDisplayObjectsUp);
+	}
+
+	public static Behavior GetMoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
+		if(elementNames == null || elementNames.Count == 0) return null;
+		List<Transform> displayObjects = GlobalData.CurrentDisplayObjects;
+		List<int> elementIdxList = elementNames.Select(elementName => displayObjects.FindIndex(element => elementName.Equals(element.name)))
+											   .Where(idx => idx != -1)
+											   .ToList();
+		int count = elementIdxList.Count;
+		if(count == 0) return null;
+		elementIdxList.Sort();
+		if(elementIdxList[count - 1] == displayObjects.Count - 1) return null;
+		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementIdxList),
+							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementIdxList),
+							Behavior.BehaviorType.MoveSelectDisplayObjectsDown);
+	}
+
 	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
 		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
 							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),

@@ -144,9 +144,6 @@ public class KeyboardEventManager : MonoBehaviour {
 					   if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.F)) Screen.fullScreen = ! Screen.fullScreen;
 
 					   if(Input.GetKeyDown(KeyCode.Q)) Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + containerRect.anchoredPosition}");
-					   if(Input.GetKeyDown(KeyCode.T))
-						   DisplayObjectUtil.MoveDisplayObjectsUpBehavior(GlobalData.CurrentModule,
-																		  GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList());
 				   });
 	}
 }

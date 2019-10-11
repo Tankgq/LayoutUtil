@@ -1,4 +1,5 @@
-﻿using UniRx;
+﻿using System.Linq;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,20 +19,20 @@ public class FunctionButtonHandler : MonoBehaviour {
 
 	public void OnUpButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-			DisplayObjectUtil.MoveCurrentSelectDisplayObjectUp();
+			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsUpBehavior(GlobalData.CurrentModule,
+																			  GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList()));
 		} else {
 			HistoryManager.Do(BehaviorFactory.GetMoveModuleUpBehavior(GlobalData.CurrentModule));
 		}
-//		MessageBroker.SendUpButtonDown();
 	}
 
 	public void OnDownButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-			DisplayObjectUtil.MoveCurrentSelectDisplayObjectDown();
+			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsDownBehavior(GlobalData.CurrentModule,
+																				GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList()));
 		} else {
 			HistoryManager.Do(BehaviorFactory.GetMoveModuleDownBehavior(GlobalData.CurrentModule));
 		}
-//		MessageBroker.SendDownButtonDown();
 	}
 
 	public void OnCopyButtonClick() {
