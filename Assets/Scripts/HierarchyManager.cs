@@ -25,10 +25,10 @@ public class HierarchyManager : MonoBehaviour {
 				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 		Subject<object[]> updateSelectDisplayObjectSubject =
-				MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+				MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
 		updateSelectDisplayObjectSubject.SampleFrame(1)
 										.Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> updateHierarchySubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateHierarchy);
+		Subject<object[]> updateHierarchySubject = MessageBroker.GetSubject(MessageCode.UpdateHierarchy);
 		updateHierarchySubject.Sample(TimeSpan.FromMilliseconds(100)).Subscribe(_ => RefreshDisplayObjectItem());
 
 		searchInputField.OnValueChangedAsObservable()
@@ -236,10 +236,10 @@ public class HierarchyManager : MonoBehaviour {
 	}
 
 	private static void StartObserveSwapImage() {
-		if(MessageBroker.HasSubject(MessageBroker.Code.UpdateSwapImage)) return;
-		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSwapImage);
+		if(MessageBroker.HasSubject(MessageCode.UpdateSwapImage)) return;
+		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageCode.UpdateSwapImage);
 		imageChangeSubject.Subscribe(param => {
-			if(param == null || param.Length != 4) return;
+			if(param == null || param.Length != 3) return;
 			string currentModule = param[0] as string;
 			if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
 			string elementName = param[1] as string;

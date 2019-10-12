@@ -72,14 +72,15 @@ public class GlobalData : MonoBehaviour {
 	public const int QuickTipMaxCount = 9;
 	public const float QuickTipDuration = 2.0f;
 
-	public static Dictionary<string, bool> ModifyDic = new Dictionary<string, bool>();
+	public static readonly Dictionary<string, bool> ModifyDic = new Dictionary<string, bool>();
 
 	public static int ModifyCount {
 		get { return ModifyDic.Count(pair => pair.Value); }
 		set {
 			if(value != 0) return;
-			foreach(var pair in ModifyDic) {
-				ModifyDic[pair.Key] = false;
+			List<string> modifyKeys = ModifyDic.Select(pair => pair.Key).ToList();
+			foreach(string modifyKey in modifyKeys) {
+				ModifyDic[modifyKey] = false;
 			}
 		}
 	}

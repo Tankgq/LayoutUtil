@@ -61,6 +61,7 @@ public class FunctionButtonHandler : MonoBehaviour {
 							 + "<color=yellow>09.</color> Ctrl + Z 和 Ctrl + Y 可以撤销或者重做\n"
 							 + "<color=yellow>10.</color> 按搜索栏的 G 或者 L 可以切换全局搜索或者局部搜索\n"
 							 + "<color=yellow>11.</color> 点击 displayObject 名称左边的眼睛可以显示或隐藏对象",
+							   KeyCode.Return,
 							   800,
 							   330);
 	}

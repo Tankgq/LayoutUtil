@@ -41,7 +41,7 @@ public static class HistoryManager {
 		while(true) {
 			if(_currentIndex >= _currentCount) return;
 			Behavior behavior = Behaviors[_currentIndex];
-			if(behavior == null || behavior.Type == Behavior.BehaviorType.Null) {
+			if(behavior == null || behavior.Type == BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}
@@ -67,7 +67,7 @@ public static class HistoryManager {
 			if(_currentIndex < 1) return;
 			Behavior behavior = Behaviors[_currentIndex - 1];
 			if(behavior == null
-			|| behavior.Type == Behavior.BehaviorType.Null) {
+			|| behavior.Type == BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Undo() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}

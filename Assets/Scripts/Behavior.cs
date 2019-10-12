@@ -1,31 +1,32 @@
 using System;
 using UnityEngine;
 
+public enum BehaviorType {
+	Null,
+	CreateModule,
+	RemoveModule,
+	RemoveAllModule,
+	ImportModules,
+	OpenModule,
+	AddDisplayObject,
+	LoadImageToDisplayObject,
+	RemoveSelectedDisplayObject,
+	UpdateSelectedDisplayObjectDic,
+	UpdateDisplayObjectsPos,
+	UpdateSwapImage,
+	ChangeName,
+	ChangeX,
+	ChangeY,
+	ChangeWidth,
+	ChangeHeight,
+	MoveModuleUp,
+	MoveModuleDown,
+	MoveSelectDisplayObjectsUp,
+	MoveSelectDisplayObjectsDown,
+	CopyDisplayObjects
+}
+
 public class Behavior {
-	public enum BehaviorType {
-		Null,
-		CreateModule,
-		RemoveModule,
-		RemoveAllModule,
-		ImportModules,
-		OpenModule,
-		AddDisplayObject,
-		LoadImageToDisplayObject,
-		RemoveSelectedDisplayObject,
-		UpdateSelectedDisplayObjectDic,
-		UpdateDisplayObjectsPos,
-		UpdateSwapImage,
-		ChangeName,
-		ChangeX,
-		ChangeY,
-		ChangeWidth,
-		ChangeHeight,
-		MoveModuleUp,
-		MoveModuleDown,
-		MoveSelectDisplayObjectsUp,
-		MoveSelectDisplayObjectsDown,
-		CopyDisplayObjects
-	}
 	
 	// 参数为 isRedo
 	public readonly Action<bool> Do;

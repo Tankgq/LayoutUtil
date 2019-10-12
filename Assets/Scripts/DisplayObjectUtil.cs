@@ -122,11 +122,11 @@ public static class DisplayObjectUtil {
 	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
 			if(GlobalData.ModuleDic.Count == 0) {
-				DialogManager.ShowInfo("请先创建一个 module", 320);
+				DialogManager.ShowInfo("请先创建一个 module", KeyCode.Return, 320);
 				return null;
 			}
 
-			DialogManager.ShowInfo("请先打开一个 module", 320);
+			DialogManager.ShowInfo("请先打开一个 module", KeyCode.Return, 320);
 			return null;
 		}
 
@@ -276,17 +276,16 @@ public static class DisplayObjectUtil {
 		for(int idx = 0; idx < count; ++ idx) {
 			Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
 			if(displayObject == null) continue;
-			if(GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) {
-				Element element = GlobalData.GetElement(displayObject.name);
-				GlobalData.CurrentCopyDisplayObjects.Add(new Element {
-					Name = element.Name,
-					X = element.X,
-					Y = element.Y,
-					Width = element.Width,
-					Height = element.Height,
-					Visible = true
-				});
-			}
+			if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) continue;
+			Element element = GlobalData.GetElement(displayObject.name);
+			GlobalData.CurrentCopyDisplayObjects.Add(new Element {
+				Name = element.Name,
+				X = element.X,
+				Y = element.Y,
+				Width = element.Width,
+				Height = element.Height,
+				Visible = true
+			});
 		}
 	}
 
@@ -466,6 +465,6 @@ public static class DisplayObjectUtil {
 		AddDisplayObjectsBehavior(moduleName, elements);
 		List<string> removeElements = null;
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, elementNames, removeElements));
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(moduleName, elementNames, removeElements));
 	}
 }

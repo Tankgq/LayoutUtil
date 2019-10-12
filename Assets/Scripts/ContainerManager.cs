@@ -28,7 +28,7 @@ public class ContainerManager : MonoBehaviour {
 					   scaleSlider.value = 10f;
 					   GetComponent<RectTransform>().localPosition = Vector2.zero;
 				   });
-		Subject<object[]> updateModuleTxtWidthSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateModuleTxtWidth);
+		Subject<object[]> updateModuleTxtWidthSubject = MessageBroker.GetSubject(MessageCode.UpdateModuleTxtWidth);
 		updateModuleTxtWidthSubject.SampleFrame(1)
 								   .DelayFrame(1)
 								   .Subscribe(_ => {
@@ -37,7 +37,7 @@ public class ContainerManager : MonoBehaviour {
 										rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30,
 																		   rt2.anchoredPosition.y);
 									});
-		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
 		updateSelectDisplayObjectSubject.Subscribe(objects => {
 			if(objects.Length == 0) return;
 			if(objects.Length > 1 && objects[1] is List<string>) {
@@ -74,7 +74,7 @@ public class ContainerManager : MonoBehaviour {
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentFilePath)
 				  .SampleFrame(1)
 				  .Subscribe(_ => MessageBroker.SendUpdateTitle());
-		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateTitle);
+		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageCode.UpdateTitle);
 		updateTitleSubject.SampleFrame(1)
 						  .Subscribe(_ => {
 							   string title = GlobalData.ProductName;

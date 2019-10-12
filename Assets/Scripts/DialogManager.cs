@@ -2,92 +2,100 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DialogManager : MonoBehaviour
-{
-	public const int InfoType = 0;
-	public const int WarnType = 1;
-	public const int ErrorType = 2;
-	public const int QuestionType = 3;
-	public const int GetValue = 4;
+public enum DialogType {
+	Info,
+	Warn,
+	Error,
+	Question,
+	GetValue
+}
 
-	public Sprite InfoIcon;
-	public Sprite WarnIcon;
-	public Sprite ErrorIcon;
-	public Sprite QuestionIcon;
+public class DialogManager : MonoBehaviour {
+	public Sprite infoIcon;
+	public Sprite warnIcon;
+	public Sprite errorIcon;
+	public Sprite questionIcon;
 
-	public Image DialogTypeIcon;
-	public Text DialogMessage;
-	public GameObject MessageScrollView;
-	public Text ValueInfo;
-	public InputField ValueInputFiled;
-	private UnityAction<string> OnGetValue;
+	public Image dialogTypeIcon;
+	public Text dialogMessage;
+	public GameObject messageScrollView;
+	public Text valueInfo;
+	public InputField valueInputFiled;
+	private UnityAction<string> _onGetValue;
 
-	public Button LeftButton;
-	public Button RightButton;
+	public Button leftButton;
+	public Button rightButton;
+
+	private KeyCode _leftKeyCode = KeyCode.None;
+	private KeyCode _rightKeyCode = KeyCode.None;
 
 	private static readonly List<Transform> DialogPool = new List<Transform>();
 
-	private static Transform GetDialog()
-	{
+	private static Transform GetDialog() {
 		int count = DialogPool.Count;
-		if (count == 0) return Instantiate(GlobalData.DialogPrefab.transform, GlobalData.RootCanvas.transform);
+		if(count == 0) return Instantiate(GlobalData.DialogPrefab.transform, GlobalData.RootCanvas.transform);
 		Transform result = DialogPool[count - 1];
 		DialogPool.RemoveAt(count - 1);
 		result.gameObject.SetActive(true);
 		return result;
 	}
 
-	public static void RecycleDialog(Transform dialog)
-	{
-		if (!dialog) return;
+	private static void RecycleDialog(Transform dialog) {
+		if(! dialog) return;
 		dialog.gameObject.SetActive(false);
-		dialog.GetComponent<DialogManager>().OnGetValue = null;
+		DialogManager dialogManager = dialog.GetComponent<DialogManager>();
+		dialogManager._onGetValue = null;
+		dialogManager._leftKeyCode = KeyCode.None;
+		dialogManager._rightKeyCode = KeyCode.None;
 		DialogPool.Add(dialog);
 	}
 
-	public void CloseDialog()
-	{
+	public void CloseDialog() {
 		RecycleDialog(transform);
 	}
 
-	public static DialogManager ShowDialog()
-	{
+	private void Update() {
+		if(! Input.anyKey) return;
+		if(_leftKeyCode != KeyCode.None && Input.GetKeyDown(_leftKeyCode)) leftButton.onClick.Invoke();
+		if(_rightKeyCode != KeyCode.None && Input.GetKeyDown(_rightKeyCode)) rightButton.onClick.Invoke(); 
+	}
+
+	private static DialogManager ShowDialog() {
 		Transform dialog = GetDialog();
+		EventSystem.current.SetSelectedGameObject(dialog.gameObject);
 		return dialog.GetComponent<DialogManager>();
 	}
 
-	public static DialogManager ShowInfo(string message, int dialogWidth = 0, int dialogHeight = 0)
-	{
+	public static DialogManager ShowInfo(string message, KeyCode rightKeyCode = KeyCode.Return, int dialogWidth = 0, int dialogHeight = 0) {
 		DialogManager dialogManager = ShowDialog();
 		dialogManager.SetSize(dialogWidth, dialogHeight);
 		dialogManager.SetDialogType();
 		dialogManager.SetDialogMessage(message);
 		dialogManager.SetLeftButtonState(false);
-		dialogManager.SetRightButtonState(true, "确定");
+		dialogManager.SetRightButtonState(true, "确定", null, rightKeyCode);
 		return dialogManager;
 	}
 
-	public static DialogManager ShowWarn(string message, int dialogWidth = 0, int dialogHeight = 0)
-	{
+	public static DialogManager ShowWarn(string message, KeyCode rightKeyCode = KeyCode.Return, int dialogWidth = 0, int dialogHeight = 0) {
 		DialogManager dialogManager = ShowDialog();
 		dialogManager.SetSize(dialogWidth, dialogHeight);
-		dialogManager.SetDialogType(WarnType);
+		dialogManager.SetDialogType(DialogType.Warn);
 		dialogManager.SetDialogMessage(message);
 		dialogManager.SetLeftButtonState(false);
-		dialogManager.SetRightButtonState(true, "确定");
+		dialogManager.SetRightButtonState(true, "确定", null, rightKeyCode);
 		return dialogManager;
 	}
 
-	public static DialogManager ShowError(string message, int dialogWidth = 700, int dialogHeight = 400)
-	{
+	public static DialogManager ShowError(string message, KeyCode rightKeyCode = KeyCode.Return, int dialogWidth = 700, int dialogHeight = 400) {
 		DialogManager dialogManager = ShowDialog();
 		dialogManager.SetSize(dialogWidth, dialogHeight);
-		dialogManager.SetDialogType(ErrorType);
+		dialogManager.SetDialogType(DialogType.Error);
 		dialogManager.SetDialogMessage(message);
 		dialogManager.SetLeftButtonState(false);
-		dialogManager.SetRightButtonState(true, "确定");
+		dialogManager.SetRightButtonState(true, "确定", null, rightKeyCode);
 		return dialogManager;
 	}
 
@@ -96,15 +104,16 @@ public class DialogManager : MonoBehaviour
 											 UnityAction onRightButtonClick,
 											 string      leftButtonTxt  = "确定",
 											 string      rightButtonTxt = "取消",
+											 KeyCode     leftKeyCode    = KeyCode.Return,
+											 KeyCode     rightKeyCode   = KeyCode.Escape,
 											 int         dialogWidth    = 0,
-											 int         dialogHeight   = 0)
-	{
+											 int         dialogHeight   = 0) {
 		DialogManager dialogManager = ShowDialog();
 		dialogManager.SetSize(dialogWidth, dialogHeight);
-		dialogManager.SetDialogType(QuestionType);
+		dialogManager.SetDialogType(DialogType.Question);
 		dialogManager.SetDialogMessage(message);
-		dialogManager.SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick);
-		dialogManager.SetRightButtonState(true, rightButtonTxt, onRightButtonClick);
+		dialogManager.SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick, leftKeyCode);
+		dialogManager.SetRightButtonState(true, rightButtonTxt, onRightButtonClick, rightKeyCode);
 		return dialogManager;
 	}
 
@@ -115,101 +124,97 @@ public class DialogManager : MonoBehaviour
 											 UnityAction         onRightButtonClick = null,
 											 string              leftButtonTxt      = "确定",
 											 string              rightButtonTxt     = "取消",
+											 KeyCode             leftKeyCode        = KeyCode.Return,
+											 KeyCode             rightKeyCode       = KeyCode.Escape,
 											 int                 dialogWidth        = 360,
-											 int                 dialogHeight       = 0)
-	{
+											 int                 dialogHeight       = 0) {
 		DialogManager dialogManager = ShowDialog();
 		dialogManager.SetSize(dialogWidth, dialogHeight);
-		dialogManager.SetDialogType(GetValue);
-		dialogManager.OnGetValue = onGetValue;
+		dialogManager.SetDialogType(DialogType.GetValue);
+		dialogManager._onGetValue = onGetValue;
 		dialogManager.SetValueInfoText(valueInfo);
 		dialogManager.SetValuePlaceholder(placeholderText);
-		dialogManager.SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick);
-		dialogManager.SetRightButtonState(true, rightButtonTxt, onRightButtonClick);
+		dialogManager.SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick, leftKeyCode);
+		dialogManager.SetRightButtonState(true, rightButtonTxt, onRightButtonClick, rightKeyCode);
 		return dialogManager;
 	}
 
-	public void SetSize(int dialogWidth, int dialogHeight)
-	{
+	public void SetSize(int dialogWidth, int dialogHeight) {
 		dialogWidth = Math.Max(dialogWidth, 280);
 		dialogHeight = Math.Max(dialogHeight, 160);
 		transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(dialogWidth, dialogHeight);
 	}
 
-	public void SetDialogType(int dialogType = InfoType)
-	{
+	private void SetDialogType(DialogType dialogDialogType = DialogType.Info) {
 		Sprite sprite = null;
-		int mainType = 0;
-		switch (dialogType)
-		{
-			case InfoType:
-				sprite = InfoIcon;
+		int mainType;
+		switch(dialogDialogType) {
+			case DialogType.Info:
+				sprite = infoIcon;
 				mainType = 1;
 				break;
-			case WarnType:
-				sprite = WarnIcon;
+			case DialogType.Warn:
+				sprite = warnIcon;
 				mainType = 1;
 				break;
-			case ErrorType:
-				sprite = ErrorIcon;
+			case DialogType.Error:
+				sprite = errorIcon;
 				mainType = 1;
 				break;
-			case QuestionType:
-				sprite = QuestionIcon;
+			case DialogType.Question:
+				sprite = questionIcon;
 				mainType = 1;
 				break;
-			case GetValue:
+			case DialogType.GetValue:
 				mainType = 2;
 				break;
+			default:
+				return;
 		}
-		if (mainType == 0) return;
-		DialogTypeIcon.gameObject.SetActive(mainType == 1);
-		MessageScrollView.SetActive(mainType == 1);
-		ValueInfo.gameObject.SetActive(mainType == 2);
-		ValueInputFiled.gameObject.SetActive(mainType == 2);
-		if (mainType == 1) DialogTypeIcon.sprite = sprite;
+
+		dialogTypeIcon.gameObject.SetActive(mainType == 1);
+		messageScrollView.SetActive(mainType == 1);
+		valueInfo.gameObject.SetActive(mainType == 2);
+		valueInputFiled.gameObject.SetActive(mainType == 2);
+		if(mainType == 1) dialogTypeIcon.sprite = sprite;
 	}
 
-	public void SetDialogMessage(string txt)
-	{
-		if (string.IsNullOrEmpty(txt)) return;
-		DialogMessage.text = txt;
+	public void SetDialogMessage(string txt) {
+		if(string.IsNullOrEmpty(txt)) return;
+		dialogMessage.text = txt;
 	}
 
-	public void SetLeftButtonState(bool bShow, string txt = "Yes", UnityAction onLeftButtonClick = null)
-	{
-		LeftButton.gameObject.SetActive(bShow);
-		LeftButton.GetComponentInChildren<Text>().text = txt;
-		LeftButton.onClick.RemoveAllListeners();
-		if (onLeftButtonClick != null) LeftButton.onClick.AddListener(onLeftButtonClick);
-		if (OnGetValue != null) LeftButton.onClick.AddListener(() => OnGetValue(ValueInputFiled.text));
-		LeftButton.onClick.AddListener(CloseDialog);
+	public void SetLeftButtonState(bool bShow, string txt = "Yes", UnityAction onLeftButtonClick = null, KeyCode leftKeyCode = KeyCode.None) {
+		leftButton.gameObject.SetActive(bShow);
+		leftButton.GetComponentInChildren<Text>().text = txt;
+		leftButton.onClick.RemoveAllListeners();
+		if(onLeftButtonClick != null) leftButton.onClick.AddListener(onLeftButtonClick);
+		if(_onGetValue != null) leftButton.onClick.AddListener(() => _onGetValue(valueInputFiled.text));
+		leftButton.onClick.AddListener(CloseDialog);
+		_leftKeyCode = leftKeyCode;
 	}
 
-	public void SetRightButtonState(bool bShow, string txt = "Yes", UnityAction onRightButtonClick = null)
-	{
-		RightButton.gameObject.SetActive(bShow);
-		RightButton.GetComponentInChildren<Text>().text = txt;
-		RightButton.onClick.RemoveAllListeners();
-		if (onRightButtonClick != null) RightButton.onClick.AddListener(onRightButtonClick);
-		RightButton.onClick.AddListener(CloseDialog);
+	public void SetRightButtonState(bool bShow, string txt = "Yes", UnityAction onRightButtonClick = null, KeyCode rightKeyCode = KeyCode.None) {
+		rightButton.gameObject.SetActive(bShow);
+		rightButton.GetComponentInChildren<Text>().text = txt;
+		rightButton.onClick.RemoveAllListeners();
+		if(onRightButtonClick != null) rightButton.onClick.AddListener(onRightButtonClick);
+		rightButton.onClick.AddListener(CloseDialog);
+		_rightKeyCode = rightKeyCode;
 	}
 
-	public void SetMessageFontSize(int fontSize)
-	{
+	public void SetMessageFontSize(int fontSize) {
 		GetComponent<Text>().fontSize = fontSize;
 	}
 
-	public void SetValueInfoText(string txt)
-	{
-		if (string.IsNullOrEmpty(txt)) return;
-		ValueInfo.text = txt;
+	public void SetValueInfoText(string txt) {
+		if(string.IsNullOrEmpty(txt)) return;
+		valueInfo.text = txt;
 	}
 
-	public void SetValuePlaceholder(string txt)
-	{
-		if (string.IsNullOrEmpty(txt)) return;
-		ValueInputFiled.placeholder.GetComponent<Text>().text = txt;
-		ValueInputFiled.text = string.Empty;
+	public void SetValuePlaceholder(string txt) {
+		if(string.IsNullOrEmpty(txt)) return;
+		valueInputFiled.placeholder.GetComponent<Text>().text = txt;
+		valueInputFiled.text = string.Empty;
 	}
 }

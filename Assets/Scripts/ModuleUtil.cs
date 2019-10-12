@@ -38,14 +38,17 @@ public static class ModuleUtil {
 								   "module",
 								   txt => {
 									   if(string.IsNullOrWhiteSpace(txt)) {
-										   DialogManager.ShowError("请输入正确的 module", 0, 0);
+										   QuickTipManager.ShowQuickTip("请输入正确的 module");
+										   // DialogManager.ShowError("请输入正确的 module", KeyCode.Return, 0, 0);
 										   return;
 									   }
 
 									   if(GlobalData.ModuleDic.ContainsKey(txt)) {
-										   DialogManager.ShowError("module 已存在", 0, 0);
-										   return;
+										   QuickTipManager.ShowQuickTip("module 已存在");
+										   // DialogManager.ShowError("module 已存在", KeyCode.Return, 0, 0);
+										   return;l
 									   }
+
 									   HistoryManager.Do(BehaviorFactory.GetCreateModuleBehavior(txt));
 								   });
 	}
@@ -116,6 +119,7 @@ public static class ModuleUtil {
 				module.Width = rect.Width;
 				module.Height = rect.Height;
 			}
+
 			modules.Add(module);
 		}
 
@@ -151,6 +155,8 @@ public static class ModuleUtil {
 								   null,
 								   "确定",
 								   "取消",
+								   KeyCode.Return,
+								   KeyCode.Escape,
 								   0,
 								   165);
 	}

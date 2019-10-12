@@ -127,13 +127,13 @@ public class InspectorManager : MonoBehaviour {
 					   else if((isShiftDown && go == xInputField.gameObject) || (! isShiftDown && go == heightInputField.gameObject))
 						   EventSystem.current.SetSelectedGameObject(nameInputField.gameObject);
 				   });
-		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageBroker.Code.UpdateSelectDisplayObjectDic);
+		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
 		updateDisplayObjectSubject.SampleFrame(1)
 								  .Subscribe(_ => {
 									   UpdateState(GlobalData.CurrentSelectDisplayObjectDic.Count != 1 ? null : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
 								   });
 		Subject<object[]> updateDisplayObjectPosSubject =
-				MessageBroker.GetSubject(MessageBroker.Code.UpdateInspectorInfo);
+				MessageBroker.GetSubject(MessageCode.UpdateInspectorInfo);
 		updateDisplayObjectPosSubject.SampleFrame(1)
 									 .Subscribe(_ => UpdateState(_displayObject));
 	}
