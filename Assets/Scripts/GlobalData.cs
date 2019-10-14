@@ -87,6 +87,8 @@ public class GlobalData : MonoBehaviour {
 
 	public static Shader DefaultShader;
 
+	public static Camera MainCamera;
+
 	public static GameObject DisplayObjectItemPrefab;
 	public static GameObject DisplayObjectPrefab;
 	public static GameObject ModuleItemPrefab;
@@ -109,6 +111,7 @@ public class GlobalData : MonoBehaviour {
 	private void Awake() {
 		Application.targetFrameRate = TargetFrameRate;
 		DefaultShader = Shader.Find("UI/Default");
+		MainCamera = Camera.main;
 		DisplayObjectItemPrefab = Resources.Load<GameObject>("Prefabs/DisplayObjectItem");
 		DisplayObjectPrefab = Resources.Load<GameObject>("Prefabs/DisplayObject");
 		ModuleItemPrefab = Resources.Load<GameObject>("Prefabs/ModuleItem");

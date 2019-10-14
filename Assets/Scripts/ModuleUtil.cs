@@ -46,7 +46,7 @@ public static class ModuleUtil {
 									   if(GlobalData.ModuleDic.ContainsKey(txt)) {
 										   QuickTipManager.ShowQuickTip("module 已存在");
 										   // DialogManager.ShowError("module 已存在", KeyCode.Return, 0, 0);
-										   return;l
+										   return;
 									   }
 
 									   HistoryManager.Do(BehaviorFactory.GetCreateModuleBehavior(txt));

@@ -53,12 +53,13 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 				removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 				GlobalData.CurrentSelectDisplayObjectDic.Clear();
 			}
+
 			foreach(Transform displayObject in copies) {
 				GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
 			}
 
-			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements));
-			HistoryManager.JustAdd(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements));
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements, true));
+			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements, true), true);
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
 			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -103,8 +104,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	public void OnEndDrag(PointerEventData eventData) {
 		if(transform.name.Equals(_copying)) _copying = null;
-		if(_alignInfo == null
-		|| KeyboardEventManager.GetControl()) {
+		if(_alignInfo == null || KeyboardEventManager.GetControl()) {
 			_horizontalAlignLine.SetActive(false);
 			_verticalAlignLine.SetActive(false);
 			return;
@@ -112,16 +112,14 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 		Vector2 pos = selfRect.anchoredPosition;
 		Vector2 size = selfRect.sizeDelta;
-		if(_verticalAlignLine.activeSelf
-		&& _alignInfo.VerticalAlignLine != null) {
+		if(_verticalAlignLine.activeSelf && _alignInfo.VerticalAlignLine != null) {
 			pos.x = _alignInfo.VerticalAlignLine.Left;
 			if(_alignInfo.VerticalAlignType == AlignInfo.ALIGN_RIGHT) pos.x -= size.x;
 			pos.x = Element.InvConvertX(pos.x);
 			_verticalAlignLine.SetActive(false);
 		}
 
-		if(_horizontalAlignLine.activeSelf
-		&& _alignInfo.HorizontalAlignLine != null) {
+		if(_horizontalAlignLine.activeSelf && _alignInfo.HorizontalAlignLine != null) {
 			pos.y = _alignInfo.HorizontalAlignLine.Top;
 			if(_alignInfo.HorizontalAlignType == AlignInfo.ALIGN_BOTTOM) pos.y -= size.y;
 			pos.y = Element.InvConvertY(pos.y);
@@ -147,7 +145,8 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			if(! KeyboardEventManager.GetShift()) {
 				if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 			}
-			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{self.name}, removeElements));
+
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string> {self.name}, removeElements));
 		}
 
 		Vector2 mousePos = eventData.position;

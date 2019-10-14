@@ -62,7 +62,7 @@ public static class BehaviorFactory {
 							combineWithNextBehavior);
 	}
 
-	public static Behavior GetAddDisplayObjectBehavior(string  moduleName, string  elementName, string  imageUrl, Vector2 pos, Vector2 size) {
+	public static Behavior GetAddDisplayObjectBehavior(string moduleName, string elementName, string imageUrl, Vector2 pos, Vector2 size) {
 		Element element = new Element {
 			Name = elementName,
 			X = Element.ConvertX(pos.x),
@@ -107,11 +107,15 @@ public static class BehaviorFactory {
 							BehaviorType.RemoveSelectedDisplayObject);
 	}
 
-	public static Behavior GetUpdateSelectDisplayObjectBehavior(string moduleName, List<string> addElements = null, List<string> removeElements = null) {
+	public static Behavior GetUpdateSelectDisplayObjectBehavior(string       moduleName,
+																List<string> addElements             = null,
+																List<string> removeElements          = null,
+																bool         combineWithNextBehavior = false) {
 		return new Behavior(isReDo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, addElements, removeElements),
 							isReUndo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, removeElements, addElements),
 							BehaviorType.UpdateSelectedDisplayObjectDic,
-							false);
+							false,
+							combineWithNextBehavior);
 	}
 
 	public static Behavior GetUpdateDisplayObjectsPosBehavior(string moduleName, IReadOnlyList<string> elementNames, Vector2 originPos, Vector2 targetPos) {
@@ -178,7 +182,7 @@ public static class BehaviorFactory {
 							isReUndo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementNames),
 							BehaviorType.MoveSelectDisplayObjectsUp);
 	}
-	
+
 	public static Behavior GetMoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return null;
 		if(elementNames == null || elementNames.Count == 0) return null;
@@ -189,10 +193,12 @@ public static class BehaviorFactory {
 							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementNames),
 							BehaviorType.MoveSelectDisplayObjectsUp);
 	}
-	
-	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
+
+	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames, bool combineWithNextBehavior = false) {
 		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
 							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
-							BehaviorType.CopyDisplayObjects);
+							BehaviorType.CopyDisplayObjects,
+							true,
+							combineWithNextBehavior);
 	}
 }

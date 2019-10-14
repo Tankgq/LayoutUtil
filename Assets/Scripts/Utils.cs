@@ -78,24 +78,24 @@ public static class Utils {
 
 	public static bool IsFocusOnInputText() {
 		GameObject focusGameObject = EventSystem.current.currentSelectedGameObject;
-		return focusGameObject && focusGameObject.GetComponent<InputField>() != null;
+		return focusGameObject && focusGameObject.GetComponent<InputField>();
 	}
 
 	public static Vector2 GetAnchoredPositionInCanvas(Transform element) {
 		System.Diagnostics.Debug.Assert(Camera.main != null, "Camera.main != null");
 		Vector2 pos = Camera.main.WorldToScreenPoint(element.position);
 		RectTransform crt = GlobalData.RootCanvas.transform.GetComponent<RectTransform>();
-		pos.x = pos.x - crt.rect.width * crt.pivot.x;
-		pos.y = pos.y - crt.rect.height * crt.pivot.y;
+		pos.x -= crt.rect.width * crt.pivot.x;
+		pos.y -= crt.rect.height * crt.pivot.y;
 		return pos;
 	}
 
 	public static bool IsPointOverGameObject(GameObject go) {
-		return go && RectTransformUtility.RectangleContainsScreenPoint(go.GetComponent<RectTransform>(), Input.mousePosition, Camera.main);
+		return go && RectTransformUtility.RectangleContainsScreenPoint(go.GetComponent<RectTransform>(), Input.mousePosition, GlobalData.MainCamera);
 	}
 
 	public static bool IsPointOverTransform(Transform transform) {
-		return transform && RectTransformUtility.RectangleContainsScreenPoint(transform.GetComponent<RectTransform>(), Input.mousePosition, Camera.main);
+		return transform && RectTransformUtility.RectangleContainsScreenPoint(transform.GetComponent<RectTransform>(), Input.mousePosition, GlobalData.MainCamera);
 	}
 
 	/**

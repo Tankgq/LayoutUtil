@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public static class HistoryManager {
 	private static readonly List<Behavior> Behaviors = new List<Behavior>();
 	private static int _currentIndex;
 	private static int _currentCount;
 
-	public static void Do(Behavior behavior) {
+	public static void Do(Behavior behavior, bool justAdd = false) {
 		if(behavior == null) return;
 		Add(behavior);
-		Do();
+		Do(justAdd);
 	}
 
 	private static void Add(Behavior behavior) {
@@ -23,21 +24,7 @@ public static class HistoryManager {
 		Behaviors[_currentIndex] = behavior;
 	}
 
-	public static void JustAdd(Behavior behavior) {
-		if(behavior == null) return;
-		if(Behaviors.Count == _currentIndex) {
-			Behaviors.Add(behavior);
-			++ _currentIndex;
-			++ _currentCount;
-			return;
-		}
-
-		Behaviors[_currentIndex] = behavior;
-		++ _currentIndex;
-		_currentCount = _currentIndex;
-	}
-
-	public static void Do() {
+	public static void Do(bool justAdd = false) {
 		while(true) {
 			if(_currentIndex >= _currentCount) return;
 			Behavior behavior = Behaviors[_currentIndex];
@@ -54,7 +41,7 @@ public static class HistoryManager {
 
 			GlobalData.ModifyDic[key] = behavior.IsModify;
 			if(behavior.IsModify) MessageBroker.SendUpdateTitle();
-			behavior.Do(behavior.DoCount > 0);
+			if(! justAdd) behavior.Do(behavior.DoCount > 0);
 			++ behavior.DoCount;
 			++ _currentIndex;
 			if(behavior.IsCombineWithNextBehavior) continue;
@@ -66,8 +53,7 @@ public static class HistoryManager {
 		while(true) {
 			if(_currentIndex < 1) return;
 			Behavior behavior = Behaviors[_currentIndex - 1];
-			if(behavior == null
-			|| behavior.Type == BehaviorType.Null) {
+			if(behavior == null || behavior.Type == BehaviorType.Null) {
 				Debug.Log($"[WARN] [HistoryManager] Undo() - behavior: {behavior}, behavior.Type: {behavior?.Type}");
 				break;
 			}
