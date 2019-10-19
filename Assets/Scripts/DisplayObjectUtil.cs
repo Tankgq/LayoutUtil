@@ -119,7 +119,25 @@ public static class DisplayObjectUtil {
 		image.color = Color.clear;
 	}
 
-	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string elementName = null) {
+	public static string GetImageUrl(string moduleName, string elementName) {
+		string imageUrl;
+		string key = $"{moduleName}_{elementName}";
+		GlobalData.DisplayObjectPathDic.TryGetValue(key, out imageUrl);
+		return imageUrl;
+	}
+
+	public static string GetCanUseElementName(string sourceElementName = null, string imageUrl = null) {
+		++ GlobalData.UniqueId;
+		string elementName = string.IsNullOrWhiteSpace(sourceElementName)
+								? string.IsNullOrWhiteSpace(imageUrl) ? GlobalData.DefaultName + GlobalData.UniqueId : Utils.GetFileNameInPath(imageUrl)
+								: sourceElementName;
+		if(! GlobalData.CurrentDisplayObjectDic.ContainsKey(elementName)) return elementName;
+		++ GlobalData.UniqueId;
+		elementName += GlobalData.UniqueId;
+		return elementName;
+	}
+
+	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string sourceElementName = null) {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
 			if(GlobalData.ModuleDic.Count == 0) {
 				DialogManager.ShowInfo("请先创建一个 module", KeyCode.Return, 320);
@@ -166,11 +184,8 @@ public static class DisplayObjectUtil {
 			return displayObject;
 		}
 
-		elementName = string.IsNullOrWhiteSpace(elementName)
-							  ? string.IsNullOrEmpty(imageUrl) ? GlobalData.DefaultName + ++ GlobalData.UniqueId : Utils.GetFileNameInPath(imageUrl)
-							  : elementName;
+		string elementName = GetCanUseElementName(sourceElementName, imageUrl);
 		pos = Element.ConvertTo(pos);
-		if(GlobalData.CurrentDisplayObjectDic.ContainsKey(elementName)) elementName += ++ GlobalData.UniqueId;
 
 		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
@@ -186,7 +201,7 @@ public static class DisplayObjectUtil {
 
 		HistoryManager.Do(BehaviorFactory.GetRemoveSelectedDisplayObjectBehavior(GlobalData.CurrentModule));
 	}
-	
+
 	public static void MoveDisplayObjectsUpBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
@@ -209,9 +224,10 @@ public static class DisplayObjectUtil {
 			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
 			tmp.SetSiblingIndex(siblingIndex - 1);
 		}
+
 		MessageBroker.SendUpdateHierarchy();
 	}
-	
+
 	public static void MoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(elementNames == null || elementNames.Count == 0) return;
@@ -234,9 +250,10 @@ public static class DisplayObjectUtil {
 			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
 			tmp.SetSiblingIndex(siblingIndex + 1);
 		}
+
 		MessageBroker.SendUpdateHierarchy();
 	}
-	
+
 	public static Rectangle GetMinRectangleContainsDisplayObjects(IReadOnlyList<Element> displayObjects) {
 		if(displayObjects == null || displayObjects.Count == 0) return null;
 		Rectangle rect = new Rectangle();
@@ -289,13 +306,13 @@ public static class DisplayObjectUtil {
 		}
 	}
 
-	public static Vector2 GetCopyDisplayObjectsLeftTop(List<Element> displayObjects) {
-		if(displayObjects.Count == 0) return Vector2.zero;
-		Vector2 result = new Vector2(displayObjects[0].Left, displayObjects[0].Top);
-		int count = displayObjects.Count;
+	public static Vector2 GetCopyDisplayObjectsLeftTop(List<Element> elements) {
+		if(elements.Count == 0) return Vector2.zero;
+		Vector2 result = new Vector2(elements[0].Left, elements[0].Top);
+		int count = elements.Count;
 		for(int idx = 1; idx < count; ++ idx) {
-			result.x = Math.Min(result.x, displayObjects[idx].X);
-			result.y = Math.Min(result.y, displayObjects[idx].Y);
+			result.x = Math.Min(result.x, elements[idx].X);
+			result.y = Math.Min(result.y, elements[idx].Y);
 		}
 
 		return result;

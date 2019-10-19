@@ -1,5 +1,4 @@
 ﻿using System;
-using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,7 +37,11 @@ public class KeyboardEventManager : MonoBehaviour {
 	private Vector3 _containerOffset = Vector3.zero;
 
 	private void Update() {
-		if(! Input.anyKeyDown) return;
+		if(Input.anyKeyDown) UpdateShortcut();
+		UpdateContainer();
+	}
+
+	private void UpdateShortcut() {
 		bool isFocusOnInputText = Utils.IsFocusOnInputText();
 		bool isControlDown = GetControl();
 		bool isShiftDown = GetShift();
@@ -90,14 +93,11 @@ public class KeyboardEventManager : MonoBehaviour {
 
 		if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.D)) {
 			Debugger.ShowDebugging = ! Debugger.ShowDebugging;
-			Debug.Log($"Debugger.ShowDebugging: {Debugger.ShowDebugging}");
 		}
 
 		if(isControlDown && isShiftDown && isAltDown && Input.GetKeyDown(KeyCode.F)) Screen.fullScreen = ! Screen.fullScreen;
 
-		if(Input.GetKeyDown(KeyCode.Q)) Debug.Log($"pos: {Utils.GetAnchoredPositionInContainer(Input.mousePosition) + containerRect.anchoredPosition}");
-
-		UpdateContainer();
+		if(Input.GetKeyDown(KeyCode.Q)) Debug.Log($"pos: {Utils.GetRealPosition(Input.mousePosition)}");
 	}
 
 	private void UpdateContainer() {
@@ -112,6 +112,7 @@ public class KeyboardEventManager : MonoBehaviour {
 			Debug.Log($"prev: {prevPos}, curr: {currPos}, offset: {offset}, scale: {localScale.x}");
 			containerRect.anchoredPosition += offset * localScale.x;
 		}
+
 		if(isControlDown || Input.GetMouseButton(0)) {
 			containerScrollRect.horizontal = false;
 			containerScrollRect.vertical = false;
@@ -130,7 +131,7 @@ public class KeyboardEventManager : MonoBehaviour {
 			containerScrollRect.scrollSensitivity = Math.Abs(containerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
 		}
 
-		if(isControlDown) return;
+		if(isControlDown || ! Input.anyKey) return;
 		Vector2 delta = Vector2.zero;
 		if(Input.GetKey(KeyCode.UpArrow)) {
 			delta += Vector2.up * containerKeyMoveSensitivity;

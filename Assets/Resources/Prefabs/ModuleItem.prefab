@@ -426,5 +426,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b4ddc4f2a21e624db0ebfe3e6386149, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HoverImage: {fileID: 114311211009810930}
-  OriginColor: {r: 0.16078432, g: 0.16078432, b: 0.16078432, a: 1}
+  hoverImage: {fileID: 114311211009810930}
+  originColor: {r: 0.16078432, g: 0.16078432, b: 0.16078432, a: 1}

@@ -4,8 +4,9 @@ using UnityEngine;
 
 public static class BehaviorFactory {
 	public static Behavior GetCreateModuleBehavior(string moduleName) {
+		string currentModule = GlobalData.CurrentModule;
 		return new Behavior(isReDo => ModuleUtil.CreateModuleBehavior(moduleName),
-							isReUndo => ModuleUtil.RemoveModuleBehavior(moduleName),
+							isReUndo => ModuleUtil.RemoveModuleBehavior(moduleName, currentModule),
 							BehaviorType.CreateModule);
 	}
 

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public static class HistoryManager {
 	private static readonly List<Behavior> Behaviors = new List<Behavior>();
@@ -41,8 +40,8 @@ public static class HistoryManager {
 
 			GlobalData.ModifyDic[key] = behavior.IsModify;
 			if(behavior.IsModify) MessageBroker.SendUpdateTitle();
-			if(! justAdd) behavior.Do(behavior.DoCount > 0);
-			++ behavior.DoCount;
+			if(! justAdd) behavior.Do(behavior.IsDone);
+			behavior.IsDone = true;
 			++ _currentIndex;
 			if(behavior.IsCombineWithNextBehavior) continue;
 			break;
@@ -65,10 +64,10 @@ public static class HistoryManager {
 				return;
 			}
 
-			behavior.Undo(behavior.UndoCount > 0);
+			behavior.Undo(behavior.IsUndone);
 			if(GlobalData.ModifyDic[key]) MessageBroker.SendUpdateTitle();
 			GlobalData.ModifyDic[key] = false;
-			++ behavior.UndoCount;
+			behavior.IsUndone = true;
 			-- _currentIndex;
 			if(_currentIndex < 1) return;
 			behavior = Behaviors[_currentIndex - 1];

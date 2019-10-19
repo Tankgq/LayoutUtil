@@ -30,17 +30,17 @@ public class Behavior {
 	
 	// 参数为 isRedo
 	public readonly Action<bool> Do;
-	public int DoCount;
+	public bool IsDone;
 
 	// 参数为 isReUndo
 	public readonly Action<bool> Undo;
-	public int UndoCount;
+	public bool IsUndone;
 
 	// 是否要和下一个 behavior 合并
 	public readonly bool IsCombineWithNextBehavior;
 
 	public readonly int CreateFrameCount;
-	public BehaviorType Type;
+	public readonly BehaviorType Type;
 
 	// 当前的行为是否会修改数据
 	public readonly bool IsModify;
@@ -48,7 +48,7 @@ public class Behavior {
 	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, BehaviorType type, bool isModify = true, bool combineWithNextBehavior = false) {
 		Do = doBehavior;
 		Undo = undoBehavior;
-		DoCount = UndoCount = 0;
+		IsDone = IsUndone = false;
 		Type = type;
 		IsModify = isModify;
 		IsCombineWithNextBehavior = combineWithNextBehavior;

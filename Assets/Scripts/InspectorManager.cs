@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using UniRx;
@@ -32,6 +31,7 @@ public class InspectorManager : MonoBehaviour {
 							   nameInputField.text = originName;
 							   return;
 						   }
+
 						   HistoryManager.Do(BehaviorFactory.GetChangeNameBehavior(GlobalData.CurrentModule, originName, newName));
 					   });
 		xInputField.ObserveEveryValueChanged(element => element.isFocused)
@@ -46,6 +46,7 @@ public class InspectorManager : MonoBehaviour {
 							HistoryManager.Do(BehaviorFactory.GetChangeXBehavior(GlobalData.CurrentModule, new List<string> {element.Name}, element.X, x));
 							return;
 						}
+
 						if(Utils.IsEqual(x, 0.0f) || length < 2) return;
 						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 						HistoryManager.Do(BehaviorFactory.GetChangeXBehavior(GlobalData.CurrentModule, elementNames, -x, x, true));
@@ -64,6 +65,7 @@ public class InspectorManager : MonoBehaviour {
 							HistoryManager.Do(BehaviorFactory.GetChangeYBehavior(GlobalData.CurrentModule, new List<string> {element.Name}, element.Y, y));
 							return;
 						}
+
 						if(Utils.IsEqual(y, 0.0f) || length < 2) return;
 						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 						HistoryManager.Do(BehaviorFactory.GetChangeYBehavior(GlobalData.CurrentModule, elementNames, -y, y, true));
@@ -85,6 +87,7 @@ public class InspectorManager : MonoBehaviour {
 																						 width));
 								return;
 							}
+
 							if(Utils.IsEqual(width, 0.0f) || length < 2) return;
 							List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 							HistoryManager.Do(BehaviorFactory.GetChangeWidthBehavior(GlobalData.CurrentModule, elementNames, -width, width, true));
@@ -100,11 +103,12 @@ public class InspectorManager : MonoBehaviour {
 								 Element element = GlobalData.GetElement(_displayObject.name);
 								 if(element == null || Utils.IsEqual(element.Height, height)) return;
 								 HistoryManager.Do(BehaviorFactory.GetChangeHeightBehavior(GlobalData.CurrentModule,
-																						  new List<string> {element.Name},
-																						  element.Height,
-																						  height));
+																						   new List<string> {element.Name},
+																						   element.Height,
+																						   height));
 								 return;
 							 }
+
 							 if(Utils.IsEqual(height, 0.0f) || length < 2) return;
 							 List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 							 HistoryManager.Do(BehaviorFactory.GetChangeHeightBehavior(GlobalData.CurrentModule, elementNames, -height, height, true));
@@ -130,10 +134,12 @@ public class InspectorManager : MonoBehaviour {
 		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
 		updateDisplayObjectSubject.SampleFrame(1)
 								  .Subscribe(_ => {
-									   UpdateState(GlobalData.CurrentSelectDisplayObjectDic.Count != 1 ? null : GlobalData.CurrentSelectDisplayObjectDic.First().Value);
+									   Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.Count == 1
+																		 ? GlobalData.CurrentSelectDisplayObjectDic.First().Value
+																		 : null;
+									   UpdateState(displayObject);
 								   });
-		Subject<object[]> updateDisplayObjectPosSubject =
-				MessageBroker.GetSubject(MessageCode.UpdateInspectorInfo);
+		Subject<object[]> updateDisplayObjectPosSubject = MessageBroker.GetSubject(MessageCode.UpdateInspectorInfo);
 		updateDisplayObjectPosSubject.SampleFrame(1)
 									 .Subscribe(_ => UpdateState(_displayObject));
 	}
@@ -154,6 +160,7 @@ public class InspectorManager : MonoBehaviour {
 			heightInputField.text = "0";
 			return;
 		}
+
 		Element element = Element.ConvertTo(_displayObject);
 		nameInputField.text = element.Name;
 		xInputField.text = $"{element.X:F1}";

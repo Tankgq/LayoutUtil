@@ -3,7 +3,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler {
+public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler {
+	private bool _isDrag;
 	private Vector2 _offset;
 	private AlignInfo _alignInfo;
 	private static GameObject _horizontalAlignLine;
@@ -22,11 +23,9 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	private Vector2 _startPos = Vector2.zero;
 
 	void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
-		if(KeyboardEventManager.GetAlt()
-		&& _copying == null) {
-			string imageUrl = null;
-			string key = $"{GlobalData.CurrentModule}_{transform.name}";
-			GlobalData.DisplayObjectPathDic.TryGetValue(key, out imageUrl);
+		_isDrag = true;
+		if(KeyboardEventManager.GetAlt() && _copying == null) {
+			string imageUrl = DisplayObjectUtil.GetImageUrl(GlobalData.CurrentModule, transform.name);
 			Vector2 pos = Element.InvConvertTo(selfRect.anchoredPosition);
 			Transform copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl, pos, selfRect.sizeDelta, transform.name + "_copy");
 			if(copyDisplayObject == null) return;
@@ -38,7 +37,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 				if(pair.Value == transform) continue;
 				Element element = GlobalData.GetElement(pair.Key);
 				if(element == null) continue;
-				key = $"{GlobalData.CurrentModule}_{pair.Key}";
+				string key = $"{GlobalData.CurrentModule}_{pair.Key}";
 				if(GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key)) imageUrl = GlobalData.DisplayObjectPathDic[key];
 				copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl,
 																	   new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint),
@@ -103,6 +102,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	}
 
 	public void OnEndDrag(PointerEventData eventData) {
+		_isDrag = false;
 		if(transform.name.Equals(_copying)) _copying = null;
 		if(_alignInfo == null || KeyboardEventManager.GetControl()) {
 			_horizontalAlignLine.SetActive(false);
@@ -114,14 +114,14 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		Vector2 size = selfRect.sizeDelta;
 		if(_verticalAlignLine.activeSelf && _alignInfo.VerticalAlignLine != null) {
 			pos.x = _alignInfo.VerticalAlignLine.Left;
-			if(_alignInfo.VerticalAlignType == AlignInfo.ALIGN_RIGHT) pos.x -= size.x;
+			if(_alignInfo.VerticalAlignType == AlignType.Right) pos.x -= size.x;
 			pos.x = Element.InvConvertX(pos.x);
 			_verticalAlignLine.SetActive(false);
 		}
 
 		if(_horizontalAlignLine.activeSelf && _alignInfo.HorizontalAlignLine != null) {
 			pos.y = _alignInfo.HorizontalAlignLine.Top;
-			if(_alignInfo.HorizontalAlignType == AlignInfo.ALIGN_BOTTOM) pos.y -= size.y;
+			if(_alignInfo.HorizontalAlignType == AlignType.Bottom) pos.y -= size.y;
 			pos.y = Element.InvConvertY(pos.y);
 			_horizontalAlignLine.SetActive(false);
 		}
@@ -155,10 +155,18 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(isRect) _offset = offset;
 	}
 
-	public static bool DeSelectDisplayObject(Transform displayObject) {
-		if(! displayObject) return false;
-		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) return false;
+	public static void DeSelectDisplayObject(Transform displayObject) {
+		if(! displayObject) return;
+		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) return;
 		GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObject.name);
-		return true;
+	}
+
+	public void OnPointerUp(PointerEventData eventData) {
+		if(_isDrag || KeyboardEventManager.GetShift() || KeyboardEventManager.GetControl() || GlobalData.CurrentSelectDisplayObjectDic.Count <= 1) return;
+		List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic
+												.Where(pair => ! pair.Key.Equals(transform.name))
+												.Select(pair => pair.Key)
+												.ToList();
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, null, removeElements));
 	}
 }

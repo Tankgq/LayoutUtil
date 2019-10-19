@@ -64,6 +64,6 @@ public class Element : Rectangle {
 	}
 
 	public override string ToString() {
-		return $"name: {base.ToString()}";
+		return $"name: {Name}, visible: {Visible}, rect: {base.ToString()}";
 	}
 }

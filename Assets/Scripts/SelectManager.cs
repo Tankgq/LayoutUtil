@@ -3,90 +3,78 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
-public class SelectManager : MonoBehaviour
-{
-	private Rectangle _selectRect = new Rectangle();
-	private GameObject _selectGameObject = null;
+public class SelectManager : MonoBehaviour {
+	private readonly Rectangle _selectRect = new Rectangle();
+	private GameObject _selectGameObject;
 	private Vector3 _startPos = Vector3.zero;
-	private RectTransform _selectRt = null;
+	private RectTransform _selectRt;
 
-	public GameObject ContainerScrollView = null;
-	public ContainerManager ContainerManager = null;
+	public GameObject containerScrollView;
 
-	private void OnBeginDrag()
-	{
-		if (!_selectGameObject)
-		{
+	private void OnBeginDrag() {
+		if(! _selectGameObject) {
 			_selectGameObject = Instantiate(GlobalData.SelectPrefab, GlobalData.DisplayObjectContainer.transform);
 		}
+
 		_selectGameObject.SetActive(true);
 		_selectGameObject.transform.SetAsLastSibling();
-		if (!_selectRt) _selectRt = _selectGameObject.GetComponent<RectTransform>();
+		if(! _selectRt) _selectRt = _selectGameObject.GetComponent<RectTransform>();
 		_startPos = Input.mousePosition;
 		_selectRt.anchoredPosition = Utils.GetAnchoredPositionInContainer(_startPos);
 		_selectRt.sizeDelta = Vector2.zero;
 		_selectRt.localScale = Vector2.one;
 	}
 
-	private void OnDrag()
-	{
-		if (!_selectGameObject.activeSelf) return;
+	private void OnDrag() {
+		if(! _selectGameObject.activeSelf) return;
 		Vector2 size = Input.mousePosition - _startPos;
 		Vector3 scale = Vector3.one;
-		if (size.x < 0.0)
-		{
+		if(size.x < 0.0) {
 			size.x = -size.x;
 			scale.x = -1;
 		}
-		if (size.y > 0.0) scale.y = -1;
-		else size.y = -size.y;
-		RectTransform rt = GlobalData.DisplayObjectContainer.GetComponent<RectTransform>();
+
+		if(size.y > 0.0)
+			scale.y = -1;
+		else
+			size.y = -size.y;
+		RectTransform rt = GlobalData.ContainerRect;
 		size /= rt.localScale.x;
 		_selectRt.sizeDelta = size;
 		_selectRt.localScale = scale;
 	}
 
-	private void OnEndDrag()
-	{
-		if (!string.IsNullOrEmpty(GlobalData.CurrentModule) && _selectGameObject && _selectGameObject.activeSelf)
-		{
+	private void OnEndDrag() {
+		if(! string.IsNullOrWhiteSpace(GlobalData.CurrentModule) && _selectGameObject && _selectGameObject.activeSelf) {
 			Vector2 leftTopPos = Element.ConvertTo(_selectRt.anchoredPosition);
 			Vector2 scale = _selectRt.localScale;
 			Vector2 size = _selectRt.sizeDelta;
-			if (scale.x < 0) leftTopPos.x -= size.x;
-			if (scale.y < 0) leftTopPos.y -= size.y;
+			if(scale.x < 0) leftTopPos.x -= size.x;
+			if(scale.y < 0) leftTopPos.y -= size.y;
 			_selectRect.Set(leftTopPos.x, leftTopPos.y, size.x, size.y);
 			ContainerManager.SelectDisplayObjectsInDisplayObject(_selectRect);
 		}
-		if (_selectGameObject)
-			_selectGameObject.SetActive(false);
+
+		if(_selectGameObject) _selectGameObject.SetActive(false);
 	}
 
-	void Start()
-	{
-		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
-				  .Select(_ => Input.mousePosition)
-				  .Merge(GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => Input.mousePosition))
-				  .Subscribe(HandleDragEvent);
-	}
-
-	private void HandleDragEvent(Vector3 mousePosition)
-	{
-		if (!Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
-		{
+	private void Update() {
+		if(! Input.GetMouseButton(0) || Input.GetMouseButtonUp(0)) {
 			OnEndDrag();
 			return;
 		}
-		if (Input.GetMouseButtonDown(0) && Utils.IsPointOverGameObject(ContainerScrollView))
-		{
-			if (ContainerManager.CheckPointOnAnyDisplayObject())
-				return;
+
+		if(Input.GetMouseButtonDown(0) && Utils.IsPointOverGameObject(containerScrollView)) {
+			if(ContainerManager.CheckPointOnAnyDisplayObject()) return;
 			OnBeginDrag();
 			return;
 		}
-		if (Input.GetMouseButton(0) && _selectGameObject && _selectGameObject.activeSelf)
+
+		if(_selectGameObject && _selectGameObject.activeSelf)
 			OnDrag();
-		else OnEndDrag();
+		else
+			OnEndDrag();
 	}
 }

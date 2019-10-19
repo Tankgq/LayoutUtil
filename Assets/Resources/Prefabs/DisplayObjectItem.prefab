@@ -185,8 +185,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b4ddc4f2a21e624db0ebfe3e6386149, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HoverImage: {fileID: 2237446256436155880}
-  OriginColor: {r: 0.16078432, g: 0.16078432, b: 0.16078432, a: 1}
+  hoverImage: {fileID: 2237446256436155880}
+  originColor: {r: 0.16078432, g: 0.16078432, b: 0.16078432, a: 1}
 --- !u!1 &2237446257094615346
 GameObject:
   m_ObjectHideFlags: 0

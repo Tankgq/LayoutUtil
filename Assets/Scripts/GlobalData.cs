@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.UI;
 
 public class GlobalData : MonoBehaviour {
@@ -37,27 +35,9 @@ public class GlobalData : MonoBehaviour {
 					   : ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
 	}
 
-	public static string PreviousModule;
-	private static string _currentModule;
+	public static string CurrentModule;
 
-	public static string CurrentModule {
-		get { return _currentModule; }
-		set {
-			PreviousModule = _currentModule;
-			_currentModule = value;
-		}
-	}
-
-	public static string PreviousFilePath = null;
-	private static string _currentFilePath = null;
-
-	public static string CurrentFilePath {
-		get { return _currentFilePath; }
-		set {
-			PreviousFilePath = _currentFilePath;
-			_currentFilePath = value;
-		}
-	}
+	public static string CurrentFilePath = null;
 
 	public static readonly Vector2 OriginPoint = new Vector2(32, -32);
 	public static readonly Vector2 DefaultSize = new Vector2(64, 64);
@@ -65,12 +45,12 @@ public class GlobalData : MonoBehaviour {
 	public const float MinFloat = -100000000;
 	public const float MaxFloat = 100000000;
 
-	public const int TargetFrameRate = 60;
+	private const int TargetFrameRate = 60;
 
 	public static bool IsDragGui = false;
 
 	public const int QuickTipMaxCount = 9;
-	public const float QuickTipDuration = 2.0f;
+	public const float QuickTipDuration = 3.0f;
 
 	public static readonly Dictionary<string, bool> ModifyDic = new Dictionary<string, bool>();
 
@@ -106,6 +86,7 @@ public class GlobalData : MonoBehaviour {
 //	public static ContainerManager ContainerManager;
 	public static HierarchyManager HierarchyManager;
 	public static RectTransform ContainerRect;
+	public static RectTransform RootCanvasRect;
 	public static Slider ScaleSlider;
 
 	private void Awake() {
@@ -127,6 +108,7 @@ public class GlobalData : MonoBehaviour {
 //		ContainerManager = DisplayObjectContainer.GetComponent<ContainerManager>();
 		HierarchyManager = HierarchyContainer.GetComponent<HierarchyManager>();
 		ContainerRect = DisplayObjectContainer.GetComponent<RectTransform>();
+		RootCanvasRect = RootCanvas.GetComponent<RectTransform>();
 		ScaleSlider = GameObject.FindGameObjectWithTag("ScaleSlider").GetComponent<Slider>();
 	}
 }

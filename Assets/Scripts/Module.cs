@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public class Module
-{
+public class Module {
 	[JsonProperty(PropertyName = "name")]
 	public string Name;
 

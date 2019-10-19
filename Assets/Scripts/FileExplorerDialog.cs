@@ -2,8 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-public class FileExplorerDialog
-{
+public class FileExplorerDialog {
 	public int structSize = 0;
 	public IntPtr dlgOwner = IntPtr.Zero;
 	public IntPtr instance = IntPtr.Zero;

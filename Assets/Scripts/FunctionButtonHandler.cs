@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class FunctionButtonHandler : MonoBehaviour {
 	public void OnCreateModuleButtonClick() {
-		Debug.Log("OnCreateModuleButtonClick");
 		ModuleUtil.CreateModule();
 	}
 
@@ -66,14 +65,12 @@ public class FunctionButtonHandler : MonoBehaviour {
 							   330);
 	}
 
-	private void OnScaleSliderValueChanged(float value) {
-		value /= 10;
-		GlobalData.ContainerRect.localScale = new Vector3(value, value, value);
-		GlobalData.ScaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";
-	}
-
 	private void Start() {
 		GlobalData.ScaleSlider.OnValueChangedAsObservable()
-				  .Subscribe(OnScaleSliderValueChanged);
+				  .Subscribe(value => {
+					   value /= 10;
+					   GlobalData.ContainerRect.localScale = new Vector3(value, value, value);
+					   GlobalData.ScaleSlider.GetComponentInChildren<Text>().text = $"x{value:0.0}";
+				   });
 	}
 }

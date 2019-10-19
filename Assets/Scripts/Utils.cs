@@ -32,7 +32,7 @@ public static class Utils {
 		try {
 			using(FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write)) {
 				fs.Seek(0, SeekOrigin.Begin);
-				fs.Write(content, 0, (int)content.Length);
+				fs.Write(content, 0, content.Length);
 				fs.Flush();
 				fs.Close();
 			}
@@ -40,6 +40,7 @@ public static class Utils {
 			DialogManager.ShowError($"{e}");
 			return false;
 		}
+
 		return true;
 	}
 
@@ -82,9 +83,8 @@ public static class Utils {
 	}
 
 	public static Vector2 GetAnchoredPositionInCanvas(Transform element) {
-		System.Diagnostics.Debug.Assert(Camera.main != null, "Camera.main != null");
-		Vector2 pos = Camera.main.WorldToScreenPoint(element.position);
-		RectTransform crt = GlobalData.RootCanvas.transform.GetComponent<RectTransform>();
+		Vector2 pos = GlobalData.MainCamera.WorldToScreenPoint(element.position);
+		RectTransform crt = GlobalData.RootCanvasRect;
 		pos.x -= crt.rect.width * crt.pivot.x;
 		pos.y -= crt.rect.height * crt.pivot.y;
 		return pos;
@@ -103,7 +103,7 @@ public static class Utils {
      * type 为 0 的时候表示传的是 Input.mousePosition, 需要将 y 值换算一下
      */
 	public static Vector2 GetRealPositionInContainer(Vector2 position, int type = 0) {
-		RectTransform rt = GlobalData.DisplayObjectContainer.GetComponent<RectTransform>();
+		RectTransform rt = GlobalData.ContainerRect;
 		Vector2 pos = rt.anchoredPosition;
 		if(type == 0) position.y = Screen.height - position.y;
 		pos.x = position.x - pos.x;
@@ -115,6 +115,13 @@ public static class Utils {
 
 	public static Vector2 GetAnchoredPositionInContainer(Vector2 position, int type = 0) {
 		return Element.ConvertTo(GetRealPositionInContainer(position, type));
+	}
+	
+	/**
+	 * 获取实际位置, 对应的是存储的位置, 比如十字原点对应的是 (0, 0)
+	 */
+	public static Vector2 GetRealPosition(Vector2 position, int type = 0) {
+		return Element.ConvertTo(GetAnchoredPositionInContainer(position, type));
 	}
 
 	private const float Eps = 0.000001f;

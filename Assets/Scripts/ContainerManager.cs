@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UniRx;
@@ -60,6 +61,7 @@ public class ContainerManager : MonoBehaviour {
 				selectedDisplayObjectText.text = "null";
 				return;
 			}
+
 			StringBuilder sb = new StringBuilder();
 			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 				sb.Append($"{pair.Value.name}, ");
@@ -91,27 +93,50 @@ public class ContainerManager : MonoBehaviour {
 	}
 
 	public static void SelectDisplayObjectsInDisplayObject(Rectangle selectRect) {
-		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) return;
-		foreach(Element displayObject in GlobalData.ModuleDic[GlobalData.CurrentModule].Where(displayObject => displayObject.IsCrossing(selectRect)))
-			if(KeyboardEventManager.GetControl())
-				GlobalData.CurrentSelectDisplayObjectDic.Remove(displayObject.Name);
+		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule)) return;
+		bool isControlDown = KeyboardEventManager.GetControl();
+		List<string> addElements = null, removeElements = null;
+		if(isControlDown)
+			removeElements = new List<string>();
+		else
+			addElements = new List<string>();
+		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
+		foreach(Element element in elements.Where(rect => rect.IsCrossing(selectRect)))
+			if(isControlDown)
+				removeElements.Add(element.Name);
 			else
-				GlobalData.CurrentSelectDisplayObjectDic[displayObject.Name] = GlobalData.CurrentDisplayObjectDic[displayObject.Name];
+				addElements.Add(element.Name);
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements));
 	}
 
 	public void PasteDisplayObjects() {
 		if(GlobalData.CurrentCopyDisplayObjects.Count == 0) return;
-		List<Element> copyList = GlobalData.CurrentCopyDisplayObjects;
-		Vector2 leftTop = DisplayObjectUtil.GetCopyDisplayObjectsLeftTop(copyList);
-		Vector2 mousePos = Element.InvConvertTo(GlobalData.OriginPoint);
-		if(Utils.IsPointOverGameObject(containerScrollView)) mousePos = Utils.GetRealPositionInContainer(Input.mousePosition);
-		int count = copyList.Count;
+		List<Element> sourceList = GlobalData.CurrentCopyDisplayObjects;
+		Vector2 leftTop = DisplayObjectUtil.GetCopyDisplayObjectsLeftTop(sourceList);
+		Vector2 mousePos = Vector2.zero;
+		if(Utils.IsPointOverGameObject(containerScrollView)) mousePos = Utils.GetRealPosition(Input.mousePosition);
+		Vector2 delta = mousePos - leftTop;
+		int count = sourceList.Count;
+		string moduleName = GlobalData.CurrentModule;
+		List<string> copyNames = new List<string>();
 		for(int idx = 0; idx < count; ++ idx) {
-			Vector2 pos = mousePos - leftTop;
-			pos.x += copyList[idx].X;
-			pos.y += copyList[idx].Y;
-			DisplayObjectUtil.AddDisplayObject(null, pos, new Vector2(copyList[idx].Width, copyList[idx].Height), copyList[idx].Name);
+			Element sourceElement = sourceList[idx];
+			string imageUrl = DisplayObjectUtil.GetImageUrl(moduleName, sourceElement.Name);
+			string elementName = DisplayObjectUtil.GetCanUseElementName(sourceElement.Name, imageUrl);
+			Vector2 pos = new Vector2(sourceElement.X + delta.x, sourceElement.Y + delta.y);
+			Vector2 size = new Vector2(sourceElement.Width, sourceElement.Height);
+			Element element = new Element {
+				Name = elementName,
+				X = pos.x,
+				Y = pos.y,
+				Width = size.x,
+				Height = size.y,
+				Visible = true
+			};
+			DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl);
+			copyNames.Add(elementName);
 		}
+		HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(moduleName, copyNames), true);
 	}
 
 	public static bool CheckPointOnAnyDisplayObject() {

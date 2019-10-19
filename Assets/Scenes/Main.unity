@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1168,11 +1168,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5C06\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 module \u4E0A\u79FB\u4E00\u5C42
+  tipInfo: "\u5C06\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 module \u4E0A\u79FB\u4E00\u5C42
     (Ctrl + UpArrow)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &307334784
 GameObject:
   m_ObjectHideFlags: 0
@@ -1591,10 +1591,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5F53\u524D\u9009\u62E9\u7684\u6240\u6709 displayObject"
-  OffsetX: 8
-  OffsetY: 16
-  IsOnLeft: 1
+  tipInfo: "\u5F53\u524D\u9009\u62E9\u7684\u6240\u6709 displayObject"
+  offsetX: 8
+  offsetY: 16
+  isOnLeft: 1
 --- !u!1 &442218428
 GameObject:
   m_ObjectHideFlags: 0
@@ -1847,10 +1847,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u6DFB\u52A0 DisplayObject (Ctrl + N)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  tipInfo: "\u6DFB\u52A0 DisplayObject (Ctrl + N)"
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &469903177
 GameObject:
   m_ObjectHideFlags: 0
@@ -2117,8 +2117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac09f189f405d46809821356bf0027a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContainerScrollView: {fileID: 1166037060}
-  ContainerManager: {fileID: 505979763}
+  containerScrollView: {fileID: 1166037060}
 --- !u!1 &520296968
 GameObject:
   m_ObjectHideFlags: 0
@@ -2998,11 +2997,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u79FB\u9664\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 modules
+  tipInfo: "\u79FB\u9664\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 modules
     (Delete / Ctrl + Bakespace)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &806111367
 GameObject:
   m_ObjectHideFlags: 0
@@ -3622,10 +3621,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u65B0\u5EFA module (Ctrl + M)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  tipInfo: "\u65B0\u5EFA module (Ctrl + M)"
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &1066593601
 GameObject:
   m_ObjectHideFlags: 0
@@ -3803,10 +3802,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5BFC\u5165 (Ctrl + I)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  tipInfo: "\u5BFC\u5165 (Ctrl + I)"
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &1098282059
 GameObject:
   m_ObjectHideFlags: 0
@@ -4592,11 +4591,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5C06\u5F53\u524D\u6253\u5F00\u7684 module \u5BFC\u51FA\u5230\u526A\u5207\u677F
+  tipInfo: "\u5C06\u5F53\u524D\u6253\u5F00\u7684 module \u5BFC\u51FA\u5230\u526A\u5207\u677F
     (Ctrl + P)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!114 &1201610151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4920,10 +4919,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5F53\u524D\u6253\u5F00\u7684 module"
-  OffsetX: 8
-  OffsetY: 16
-  IsOnLeft: 1
+  tipInfo: "\u5F53\u524D\u6253\u5F00\u7684 module"
+  offsetX: 8
+  offsetY: 16
+  isOnLeft: 1
 --- !u!1 &1352568508
 GameObject:
   m_ObjectHideFlags: 0
@@ -5911,10 +5910,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5E2E\u52A9 (Ctrl + H)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  tipInfo: "\u5E2E\u52A9 (Ctrl + H)"
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!114 &1652118265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6867,10 +6866,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5BFC\u51FA (Ctrl + E)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  tipInfo: "\u5BFC\u51FA (Ctrl + E)"
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &1948714075
 GameObject:
   m_ObjectHideFlags: 0
@@ -7693,11 +7692,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bc2fee3f56ce64aace9dfa02f9938d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TipInfo: "\u5C06\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 module \u4E0B\u79FB\u4E00\u5C42
+  tipInfo: "\u5C06\u5F53\u524D\u9009\u62E9\u7684 displayObject \u6216 module \u4E0B\u79FB\u4E00\u5C42
     (Ctrl + DownArrow)"
-  OffsetX: 0
-  OffsetY: 0
-  IsOnLeft: 0
+  offsetX: 0
+  offsetY: 0
+  isOnLeft: 0
 --- !u!1 &2099811526
 GameObject:
   m_ObjectHideFlags: 0

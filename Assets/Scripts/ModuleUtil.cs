@@ -18,14 +18,14 @@ public static class ModuleUtil {
 		return true;
 	}
 
-	public static bool RemoveModuleBehavior(string moduleName) {
+	public static bool RemoveModuleBehavior(string moduleName, string targetModule = null) {
 		if(string.IsNullOrWhiteSpace(moduleName)) return false;
 		if(! GlobalData.ModuleDic.ContainsKey(moduleName)) return false;
 		// 删除时将数据保存起来, 避免还原时没有数据
 		GlobalData.CacheModuleDic[moduleName] = GlobalData.ModuleDic[moduleName];
 		GlobalData.Modules.Remove(moduleName);
 		GlobalData.ModuleDic.Remove(moduleName);
-		if(moduleName.Equals(GlobalData.CurrentModule)) GlobalData.CurrentModule = null;
+		if(moduleName.Equals(GlobalData.CurrentModule)) GlobalData.CurrentModule = targetModule;
 		return true;
 	}
 
@@ -39,13 +39,11 @@ public static class ModuleUtil {
 								   txt => {
 									   if(string.IsNullOrWhiteSpace(txt)) {
 										   QuickTipManager.ShowQuickTip("请输入正确的 module");
-										   // DialogManager.ShowError("请输入正确的 module", KeyCode.Return, 0, 0);
 										   return;
 									   }
 
 									   if(GlobalData.ModuleDic.ContainsKey(txt)) {
 										   QuickTipManager.ShowQuickTip("module 已存在");
-										   // DialogManager.ShowError("module 已存在", KeyCode.Return, 0, 0);
 										   return;
 									   }
 

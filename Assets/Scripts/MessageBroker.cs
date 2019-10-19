@@ -12,7 +12,6 @@ public enum MessageCode {
 }
 
 public static class MessageBroker {
-
 	private static readonly Dictionary<MessageCode, Subject<object[]>> SubjectDic = new Dictionary<MessageCode, Subject<object[]>>();
 
 	public static bool HasSubject(MessageCode messageCode) {
