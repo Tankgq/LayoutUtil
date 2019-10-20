@@ -15,18 +15,20 @@ public class Element : Rectangle {
 		if(! displayObject) return null;
 
 		RectTransform rect = displayObject.GetComponent<RectTransform>();
+		Element element = new Element();
+		element.Update(displayObject.name, rect);
+		element.Visible = true;
+		return element;
+	}
+
+	public void Update(string name, RectTransform rect) {
+		Name = name;
 		Vector2 pos = rect.anchoredPosition;
 		Vector2 size = rect.sizeDelta;
-
-		Element result = new Element {
-			Name = displayObject.name,
-			X = ConvertX(pos.x),
-			Y = ConvertY(pos.y),
-			Width = size.x,
-			Height = size.y,
-			Visible = true
-		};
-		return result;
+		X = ConvertX(pos.x);
+		Y = ConvertY(pos.y);
+		Width = size.x;
+		Height = size.y;
 	}
 
 	public bool InvConvertTo(Transform displayObject) {

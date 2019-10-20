@@ -268,17 +268,19 @@ public static class DisplayObjectUtil {
 		return rect;
 	}
 
-	public static AlignInfo GetAlignLine(Transform displayObject) {
-		Element displayObjectData = GlobalData.GetElement(displayObject.name);
-		if(displayObjectData == null) return null;
-		RectTransform rt = GlobalData.DisplayObjectContainer.GetComponent<RectTransform>();
+	public static AlignInfo GetAlignLine(Element element, AlignInfo alignInfo) {
+		if(GlobalData.CurrentDisplayObjects.Count == GlobalData.CurrentSelectDisplayObjectDic.Count) return null;
+		if(element == null) return null;
+		RectTransform rt = GlobalData.ContainerRect;
 		float closeValue = GlobalData.CloseValue / rt.localScale.x;
 		const float lineThickness = GlobalData.AlignLineThickness; // * rt.localScale.x;
-		AlignInfo alignInfo = new AlignInfo(displayObjectData, closeValue, lineThickness);
+		if(alignInfo != null) alignInfo.UpdateInfo(element, closeValue, lineThickness);
+		else alignInfo = new AlignInfo(element, closeValue, lineThickness);
 		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
 		int count = elements.Count;
-		for(int idx = 0; idx < count; ++ idx) {
-			if(displayObjectData.Name.Equals(elements[idx].Name)) continue;
+		// 优先考虑最上层的 displayObject
+		for(int idx = count - 1; idx >= 0; -- idx) {
+			if(element.Name.Equals(elements[idx].Name)) continue;
 			if(GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(elements[idx].Name)) continue;
 			alignInfo.Merge(elements[idx]);
 		}
@@ -326,22 +328,26 @@ public static class DisplayObjectUtil {
 		RectTransform baseRect = baseDisplayObject.GetComponent<RectTransform>();
 		if(baseRect == null) return;
 		Vector2 offset = targetPos - baseRect.anchoredPosition;
-		UpdateDisplayObjectPosition(baseRect, elementNames[0], targetPos);
+		UpdateElementPosition(baseRect, elementNames[0], targetPos);
 		int count = elementNames.Count;
 		for(int idx = 1; idx < count; ++ idx) {
 			Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementNames[idx]];
 			if(displayObject == null) continue;
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
-			UpdateDisplayObjectPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
+			UpdateElementPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
 		}
 
 		MessageBroker.SendUpdateInspectorInfo();
 	}
 
-	public static void UpdateDisplayObjectPosition(RectTransform rt, string elementName, Vector3 pos) {
-		rt.anchoredPosition = pos;
+	public static void UpdateElementPosition(RectTransform rt, string elementName, Vector3 pos) {
 		Element element = GlobalData.GetElement(elementName);
-		if(element == null) return;
+		UpdateElementPosition(rt, element, pos);
+	}
+
+	public static void UpdateElementPosition(RectTransform rect, Element element, Vector3 pos) {
+		if(rect == null || element == null) return;
+		rect.anchoredPosition = pos;
 		element.X = Element.ConvertX(pos.x);
 		element.Y = Element.ConvertY(pos.y);
 	}

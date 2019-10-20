@@ -52,13 +52,13 @@ public class Rectangle {
 	}
 
 	public float HorizontalCenter {
-		get { return X + Width * 0.5f; }
-		set { Width = (value - X) * 2; }
+		get { return Y + Height * 0.5f; }
+		set { Height = (value - Y) * 2; }
 	}
 
 	public float VerticalCenter {
-		get { return Y + Height * 0.5f; }
-		set { Height = (value - Y) * 2; }
+		get { return X + Width * 0.5f; }
+		set { Width = (value - X) * 2; }
 	}
 
 	public void Set(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f) {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public enum AlignType {
+	Null,
 	Left,
 	VerticalCenter,
 	Right,
@@ -20,10 +22,10 @@ public class AlignInfo {
 	private static readonly GetAction GetHorizontalCenter = rect => rect.HorizontalCenter;
 	private static readonly GetAction GetVerticalCenter = rect => rect.VerticalCenter;
 
-	private static readonly List<AlignType> HorizontalAxis = new List<AlignType> {AlignType.Top, AlignType.HorizontalCenter, AlignType.Bottom};
-	private static readonly List<AlignType> VerticalAxis = new List<AlignType> {AlignType.Left, AlignType.VerticalCenter, AlignType.Right};
-	
-	private static readonly Dictionary<AlignType, GetAction> GetActionDic = new Dictionary<AlignType, GetAction> {
+	private static readonly List<AlignType> HorizontalAxis = new List<AlignType> {AlignType.Top, AlignType.Bottom, AlignType.HorizontalCenter};
+	private static readonly List<AlignType> VerticalAxis = new List<AlignType> {AlignType.Left, AlignType.Right, AlignType.VerticalCenter};
+
+	private static readonly Dictionary<AlignType, GetAction> ActionDic = new Dictionary<AlignType, GetAction> {
 		{AlignType.Left, GetLeft},
 		{AlignType.VerticalCenter, GetVerticalCenter},
 		{AlignType.Right, GetRight},
@@ -32,15 +34,17 @@ public class AlignInfo {
 		{AlignType.Bottom, GetBottom}
 	};
 
-	private readonly float _closeValue;
-	private readonly float _lineThickness;
-	private readonly Rectangle _targetRect;
+	private float _closeValue;
+	private float _lineThickness;
+	private Rectangle _targetRect;
 	private float _curHorizontalCloseValue;
 	private float _curVerticalCloseValue;
 	private readonly Rectangle _horizontalAlignLine;
 	private readonly Rectangle _verticalAlignLine;
 	public AlignType HorizontalAlignType;
 	public AlignType VerticalAlignType;
+	public AlignType OtherHorizontalAlignType;
+	public AlignType OtherVerticalAlignType;
 
 	public AlignInfo(Rectangle targetRect, float closeValue, float lineThickness) {
 		_targetRect = targetRect;
@@ -48,10 +52,27 @@ public class AlignInfo {
 		_lineThickness = lineThickness;
 		_curHorizontalCloseValue = _closeValue + 1;
 		_curVerticalCloseValue = _closeValue + 1;
-		HorizontalAlignType = 0;
-		VerticalAlignType = 0;
+		HorizontalAlignType = AlignType.Null;
+		VerticalAlignType = AlignType.Null;
 		_horizontalAlignLine = new Rectangle();
 		_verticalAlignLine = new Rectangle();
+	}
+
+	public void UpdateInfo(Rectangle targetRect, float closeValue, float lineThickness) {
+		UpdateTargetRect(targetRect);
+		_closeValue = closeValue;
+		_lineThickness = lineThickness;
+		_curHorizontalCloseValue = _closeValue + 1;
+		_curVerticalCloseValue = _closeValue + 1;
+		HorizontalAlignType = AlignType.Null;
+		VerticalAlignType = AlignType.Null;
+		_horizontalAlignLine.Set();
+		_verticalAlignLine.Set();
+	}
+
+	public void UpdateTargetRect(Rectangle targetRect) {
+		if(_targetRect == null) _targetRect = new Rectangle();
+		_targetRect.Set(targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height);
 	}
 
 	public Rectangle HorizontalAlignLine => _curHorizontalCloseValue > _closeValue ? null : _horizontalAlignLine;
@@ -59,120 +80,48 @@ public class AlignInfo {
 	public Rectangle VerticalAlignLine => _curVerticalCloseValue > _closeValue ? null : _verticalAlignLine;
 
 	public void Merge(Rectangle rect) {
-		MergeHorizontal(rect);
-		MergeVertical(rect);
+		Merge(rect, HorizontalAxis, MergeHorizontal);
+		Merge(rect, VerticalAxis, MergeVertical);
 	}
 
-	public void Merge(Rectangle rect, List<AlignType> axis) {
+	private void Merge(Rectangle rect, IReadOnlyCollection<AlignType> axis, Action<Rectangle, AlignType, AlignType, float> merge) {
 		float minDistance = GlobalData.MaxFloat;
-		AlignType selfType, otherType;
+		AlignType selfType = AlignType.Null, otherType = AlignType.Null;
 		foreach(AlignType self in axis) {
 			foreach(AlignType other in axis) {
-				float distance = Math.Abs(GetActionDic[self](_targetRect) - GetActionDic[other](rect));
-				if(! (distance < minDistance)) continue;
+				float distance = Math.Abs(ActionDic[self](_targetRect) - ActionDic[other](rect));
+				// 优先考虑上下左右
+				if(Utils.IsEqual(distance, minDistance) || distance > minDistance) continue;
+				// 优先考虑中间
+				// if(distance > minDistance) continue;
 				selfType = self;
 				otherType = other;
 				minDistance = distance;
 			}
 		}
-		float closeValue = Math.Min(_curHorizontalCloseValue, _closeValue);
-		if(minValue > closeValue) return;
-		if(minValue < closeValue) {
-			HorizontalAlignType = horizontalAlignType;
-			_curHorizontalCloseValue = minValue;
-			_horizontalAlignAction = selfAction;
-			_horizontalAlignLine.Set(_targetRect.Left, selfAction(_targetRect), _targetRect.Width, _lineThickness);
-		}
-
-		if(_horizontalAlignAction != selfAction) return;
-		_horizontalAlignLine.Y = action(rect);
-		_horizontalAlignLine.Left = Math.Min(_horizontalAlignLine.Left, rect.Left);
-		_horizontalAlignLine.Right = Math.Max(_horizontalAlignLine.Right, rect.Right);
+		if(selfType == AlignType.Null) return;
+		merge?.Invoke(rect, selfType, otherType, minDistance);
 	}
 
-	public void MergeHorizontal(Rectangle rect) {
-		GetAction selfAction = GetTop, action = GetTop;
-		AlignType horizontalAlignType = AlignType.Top;
-		float minValue = Math.Abs(_targetRect.Top - rect.Top);
-		float value = Math.Abs(_targetRect.Top - rect.Bottom);
-		if(minValue > value) {
-			horizontalAlignType = AlignType.Top;
-			selfAction = GetTop;
-			action = GetBottom;
-			minValue = value;
-		}
-
-		value = Math.Abs(_targetRect.Bottom - rect.Top);
-		if(minValue > value) {
-			horizontalAlignType = AlignType.Bottom;
-			selfAction = GetBottom;
-			action = GetTop;
-			minValue = value;
-		}
-
-		value = Math.Abs(_targetRect.Bottom - rect.Bottom);
-		if(minValue > value) {
-			horizontalAlignType = AlignType.Bottom;
-			selfAction = GetBottom;
-			action = GetBottom;
-			minValue = value;
-		}
-
+	private void MergeHorizontal(Rectangle rect, AlignType selfType, AlignType otherType, float minDistance) {
 		float closeValue = Math.Min(_curHorizontalCloseValue, _closeValue);
-		if(minValue > closeValue) return;
-		if(minValue < closeValue) {
-			HorizontalAlignType = horizontalAlignType;
-			_curHorizontalCloseValue = minValue;
-			_horizontalAlignAction = selfAction;
-			_horizontalAlignLine.Set(_targetRect.Left, selfAction(_targetRect), _targetRect.Width, _lineThickness);
-		}
-
-		if(_horizontalAlignAction != selfAction) return;
-		_horizontalAlignLine.Y = action(rect);
-		_horizontalAlignLine.Left = Math.Min(_horizontalAlignLine.Left, rect.Left);
+		if(minDistance > closeValue) return;
+		HorizontalAlignType = selfType;
+		if(OtherHorizontalAlignType != AlignType.HorizontalCenter) OtherHorizontalAlignType = otherType;
+		_curHorizontalCloseValue = minDistance;
+		_horizontalAlignLine.Set(_targetRect.Left, ActionDic[otherType](rect), _targetRect.Width, _lineThickness);
 		_horizontalAlignLine.Right = Math.Max(_horizontalAlignLine.Right, rect.Right);
+		_horizontalAlignLine.Left = Math.Min(_horizontalAlignLine.Left, rect.Left);
 	}
 
-	public void MergeVertical(Rectangle rect) {
-		GetAction selfAction = GetLeft, action = GetLeft;
-		AlignType verticalAlignType = AlignType.Left;
-		float minValue = Math.Abs(_targetRect.Left - rect.Left);
-		float value = Math.Abs(_targetRect.Left - rect.Right);
-		if(minValue > value) {
-			verticalAlignType = AlignType.Left;
-			selfAction = GetLeft;
-			action = GetRight;
-			minValue = value;
-		}
-
-		value = Math.Abs(_targetRect.Right - rect.Left);
-		if(minValue > value) {
-			verticalAlignType = AlignType.Right;
-			selfAction = GetRight;
-			action = GetLeft;
-			minValue = value;
-		}
-
-		value = Math.Abs(_targetRect.Right - rect.Right);
-		if(minValue > value) {
-			verticalAlignType = AlignType.Right;
-			selfAction = GetRight;
-			action = GetRight;
-			minValue = value;
-		}
-
+	private void MergeVertical(Rectangle rect, AlignType selfType, AlignType otherType, float minDistance) {
 		float closeValue = Math.Min(_curVerticalCloseValue, _closeValue);
-		if(minValue > closeValue) return;
-		if(minValue < closeValue) {
-			VerticalAlignType = verticalAlignType;
-			_curVerticalCloseValue = minValue;
-			_verticalAlignAction = selfAction;
-			_verticalAlignLine.Set(selfAction(_targetRect), _targetRect.Top, _lineThickness, _targetRect.Height);
-		}
-
-		if(_verticalAlignAction != selfAction) return;
-		_verticalAlignLine.X = action(rect);
-		_verticalAlignLine.Top = Math.Min(_verticalAlignLine.Top, rect.Top);
+		if(minDistance > closeValue) return;
+		VerticalAlignType = selfType;
+		if(OtherVerticalAlignType != AlignType.VerticalCenter) OtherVerticalAlignType = otherType;
+		_curVerticalCloseValue = minDistance;
+		_verticalAlignLine.Set(ActionDic[otherType](rect), _targetRect.Top, _lineThickness, _targetRect.Height);
 		_verticalAlignLine.Bottom = Math.Max(_verticalAlignLine.Bottom, rect.Bottom);
+		_verticalAlignLine.Top = Math.Min(_verticalAlignLine.Top, rect.Top);
 	}
 }

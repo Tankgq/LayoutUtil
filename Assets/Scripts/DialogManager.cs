@@ -136,6 +136,7 @@ public class DialogManager : MonoBehaviour {
 					 .SetValuePlaceholder(placeholderText)
 					 .SetLeftButtonState(true, leftButtonTxt, onLeftButtonClick, leftKeyCode)
 					 .SetRightButtonState(true, rightButtonTxt, onRightButtonClick, rightKeyCode);
+		EventSystem.current.SetSelectedGameObject(dialogManager.valueInputFiled.gameObject);
 		return dialogManager;
 	}
 

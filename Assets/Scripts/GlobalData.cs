@@ -29,10 +29,8 @@ public class GlobalData : MonoBehaviour {
 	public static readonly Dictionary<string, List<Element>> CacheModuleDic = new Dictionary<string, List<Element>>();
 
 	public static Element GetElement(string name) {
-		if(string.IsNullOrEmpty(name)) return null;
-		return string.IsNullOrWhiteSpace(CurrentModule)
-					   ? null
-					   : ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
+		if(string.IsNullOrWhiteSpace(name)) return null;
+		return string.IsNullOrWhiteSpace(CurrentModule) ? null : ModuleDic[CurrentModule].Find(element => element.Name.Equals(name));
 	}
 
 	public static string CurrentModule;
@@ -82,7 +80,7 @@ public class GlobalData : MonoBehaviour {
 	public static GameObject DisplayObjectContainer;
 	public static GameObject HierarchyContainer;
 	public static GameObject QuickTipContainer;
-	
+
 //	public static ContainerManager ContainerManager;
 	public static HierarchyManager HierarchyManager;
 	public static RectTransform ContainerRect;
