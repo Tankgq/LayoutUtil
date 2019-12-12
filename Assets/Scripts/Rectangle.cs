@@ -51,11 +51,13 @@ public class Rectangle {
 		set { Height = value - Y; }
 	}
 
+	[JsonIgnore]
 	public float HorizontalCenter {
 		get { return Y + Height * 0.5f; }
 		set { Height = (value - Y) * 2; }
 	}
 
+	[JsonIgnore]
 	public float VerticalCenter {
 		get { return X + Width * 0.5f; }
 		set { Width = (value - X) * 2; }

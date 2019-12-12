@@ -9,7 +9,7 @@ public class FunctionButtonHandler : MonoBehaviour {
 	}
 
 	public void OnAddButtonClick() {
-		DisplayObjectUtil.AddDisplayObject(null, Element.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize);
+		DisplayObjectUtil.AddDisplayObject(null, Element.InvConvertTo(GlobalData.OriginPoint), GlobalData.DefaultSize, null, true);
 	}
 
 	public void OnRemoveButtonClick() {

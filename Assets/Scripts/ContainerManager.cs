@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UniRx;
@@ -43,7 +42,11 @@ public class ContainerManager : MonoBehaviour {
 			if(objects.Length == 0) return;
 			if(objects.Length > 1 && objects[1] is List<string>) {
 				List<string> removeElements = (List<string>)objects[1];
-				foreach(Transform displayObject in removeElements.Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
+				foreach(Transform displayObject in removeElements.Select(elementName => {
+																	  Transform displayObject;
+																	  GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
+																	  return displayObject;
+																  })
 																 .Where(displayObject => displayObject)) {
 					displayObject.GetComponent<Toggle>().isOn = false;
 				}
@@ -136,6 +139,7 @@ public class ContainerManager : MonoBehaviour {
 			DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl);
 			copyNames.Add(elementName);
 		}
+
 		HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(moduleName, copyNames), true);
 	}
 

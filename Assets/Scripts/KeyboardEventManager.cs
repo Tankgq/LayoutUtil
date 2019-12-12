@@ -51,7 +51,7 @@ public class KeyboardEventManager : MonoBehaviour {
 				functionButtonHandler.OnCreateModuleButtonClick();
 			else if(Input.GetKeyDown(KeyCode.N)) {
 				Vector2 pos = Utils.GetRealPositionInContainer(Input.mousePosition);
-				DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize);
+				DisplayObjectUtil.AddDisplayObject(null, pos, GlobalData.DefaultSize, null, true);
 			} else if(Input.GetKeyDown(KeyCode.Backspace))
 				functionButtonHandler.OnRemoveButtonClick();
 			else if(Input.GetKeyDown(KeyCode.UpArrow))

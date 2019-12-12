@@ -71,6 +71,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	public void OnDrag(PointerEventData eventData) {
 		if(Input.GetMouseButton(2)) return;
+		if(_selfElement == null) _selfElement = GlobalData.GetElement(transform.name);
 		Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) - _offset;
 		Vector2 offset = pos - selfRect.anchoredPosition;
 		DisplayObjectUtil.UpdateElementPosition(selfRect, _selfElement, pos);

@@ -52,7 +52,8 @@ public static class BehaviorFactory {
 
 								GlobalData.CurrentFilePath = previousFilePath;
 							},
-							BehaviorType.ImportModules);
+							BehaviorType.ImportModules,
+							false);
 	}
 
 	public static Behavior GetOpenModuleBehavior(string moduleName, bool combineWithNextBehavior = false) {
@@ -63,7 +64,12 @@ public static class BehaviorFactory {
 							combineWithNextBehavior);
 	}
 
-	public static Behavior GetAddDisplayObjectBehavior(string moduleName, string elementName, string imageUrl, Vector2 pos, Vector2 size) {
+	public static Behavior GetAddDisplayObjectBehavior(string  moduleName,
+													   string  elementName,
+													   string  imageUrl,
+													   Vector2 pos,
+													   Vector2 size,
+													   bool    combineWithNextBehavior = false) {
 		Element element = new Element {
 			Name = elementName,
 			X = Element.ConvertX(pos.x),
@@ -74,7 +80,7 @@ public static class BehaviorFactory {
 		};
 		return new Behavior(isRedo => DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl),
 							isReUndo => DisplayObjectUtil.RemoveDisplayObjectBehavior(moduleName, element.Name),
-							BehaviorType.AddDisplayObject);
+							BehaviorType.AddDisplayObject, combineWithNextBehavior);
 	}
 
 	public static Behavior GetLoadImageToDisplayObjectBehavior(string moduleName,

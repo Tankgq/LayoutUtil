@@ -137,7 +137,7 @@ public static class DisplayObjectUtil {
 		return elementName;
 	}
 
-	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string sourceElementName = null) {
+	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string sourceElementName = null, bool needSelect = false) {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
 			if(GlobalData.ModuleDic.Count == 0) {
 				DialogManager.ShowInfo("请先创建一个 module", KeyCode.Return, 320);
@@ -187,7 +187,11 @@ public static class DisplayObjectUtil {
 		string elementName = GetCanUseElementName(sourceElementName, imageUrl);
 		pos = Element.ConvertTo(pos);
 
-		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
+		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size, needSelect));
+		if(needSelect) {
+			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{elementName}, removeElements));
+		}
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
 		return displayObject;
 	}

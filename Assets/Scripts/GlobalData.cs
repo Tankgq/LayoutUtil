@@ -60,6 +60,7 @@ public class GlobalData : MonoBehaviour {
 			foreach(string modifyKey in modifyKeys) {
 				ModifyDic[modifyKey] = false;
 			}
+			MessageBroker.SendUpdateTitle();
 		}
 	}
 
