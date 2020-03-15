@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using UniRx;
@@ -36,7 +37,7 @@ public class InspectorManager : MonoBehaviour {
 					   });
 		xInputField.ObserveEveryValueChanged(element => element.isFocused)
 				   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(xInputField.text))
-				   .Select(_ => ParseFloat(xInputField.text))
+				   .Select(_ => CalculateSimpleExpression(xInputField.text))
 				   .Where(x => x > GlobalData.MinFloat)
 				   .Subscribe(x => {
 						int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
@@ -55,7 +56,7 @@ public class InspectorManager : MonoBehaviour {
 
 		yInputField.ObserveEveryValueChanged(element => element.isFocused)
 				   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(yInputField.text))
-				   .Select(_ => ParseFloat(yInputField.text))
+				   .Select(_ => CalculateSimpleExpression(yInputField.text))
 				   .Where(y => y > GlobalData.MinFloat)
 				   .Subscribe(y => {
 						int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
@@ -74,7 +75,7 @@ public class InspectorManager : MonoBehaviour {
 
 		widthInputField.ObserveEveryValueChanged(element => element.isFocused)
 					   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(widthInputField.text))
-					   .Select(_ => ParseFloat(widthInputField.text))
+					   .Select(_ => CalculateSimpleExpression(widthInputField.text))
 					   .Where(width => width > GlobalData.MinFloat)
 					   .Subscribe(width => {
 							int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
@@ -95,7 +96,7 @@ public class InspectorManager : MonoBehaviour {
 						});
 		heightInputField.ObserveEveryValueChanged(element => element.isFocused)
 						.Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(heightInputField.text))
-						.Select(_ => ParseFloat(heightInputField.text))
+						.Select(_ => CalculateSimpleExpression(heightInputField.text))
 						.Where(height => height > GlobalData.MinFloat)
 						.Subscribe(height => {
 							 int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
@@ -146,7 +147,7 @@ public class InspectorManager : MonoBehaviour {
 
 	private static float ParseFloat(string txt) {
 		float result;
-		var bSucceed = float.TryParse(txt, NumberStyles.Float, NumberFormatInfo.CurrentInfo, out result);
+		bool bSucceed = float.TryParse(txt, NumberStyles.Float, NumberFormatInfo.CurrentInfo, out result);
 		return bSucceed ? result : GlobalData.MinFloat;
 	}
 
@@ -167,5 +168,52 @@ public class InspectorManager : MonoBehaviour {
 		yInputField.text = $"{element.Y:F1}";
 		widthInputField.text = $"{element.Width:F1}";
 		heightInputField.text = $"{element.Height:F1}";
+	}
+
+	/**
+	 * 简单计算一个只有加减法的表达式, 不考虑括号
+	 */
+	private float CalculateSimpleExpression(string expression) {
+		expression = expression.Trim();
+		if(expression.Length == 0) return GlobalData.MinFloat;
+		Queue<char> operatorCharQueue = new Queue<char>();
+		Queue<float> numberQueue = new Queue<float>();
+		if(expression[0] == '+' || expression[0] == '-') numberQueue.Enqueue(0.0f);
+		int length = expression.Length;
+		int start = -1, dotCount = 0;
+		for(int idx = 0; idx < length; ++ idx) {
+			if(expression[idx] == '+' || expression[idx] == '-') {
+				operatorCharQueue.Enqueue(expression[idx]);
+				if(start != -1) {
+					numberQueue.Enqueue(ParseFloat(expression.Substring(start, idx - start)));
+					dotCount = 0;
+					start = -1;
+				}
+				continue;
+			}
+			if(! char.IsDigit(expression[idx]) && expression[idx] != '.') return GlobalData.MinFloat;
+			if(expression[idx] == '.') {
+				++ dotCount;
+				if(dotCount > 1) return GlobalData.MinFloat;
+			}
+			if(start == -1)
+				start = idx;
+		}
+		if(start != -1) numberQueue.Enqueue(ParseFloat(expression.Substring(start, length - start)));
+		if(numberQueue.Count == 0) return GlobalData.MinFloat;
+		float result = numberQueue.Dequeue();
+		while(numberQueue.Count > 0) {
+			if(result < GlobalData.MinFloat) result = numberQueue.Dequeue();
+			if(operatorCharQueue.Count == 0) return GlobalData.MinFloat;
+			if(numberQueue.Count == 0) return result;
+			float number = numberQueue.Dequeue();
+			char operatorChar = operatorCharQueue.Dequeue();
+			if(operatorChar == '+') result += number;
+			else if(operatorChar == '-')
+				result -= number;
+			else
+				return GlobalData.MinFloat;
+		}
+		return operatorCharQueue.Count != 0 ? GlobalData.MinFloat : result;
 	}
 }
