@@ -32,10 +32,10 @@ public static class HistoryManager {
 				break;
 			}
 
-			Debug.Log($"[INFO] [HistoryManager] Do() - behavior: {behavior}, behavior.Type: {behavior.Type}");
+			Debug.Log($"[INFO] [HistoryManager] {(behavior.IsDone ? "ReDo" : "Do")}() - behavior: {behavior}, behavior.Type: {behavior.Type}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
 			if(GlobalData.ModifyDic.ContainsKey(key) && GlobalData.ModifyDic[key]) {
-				Debug.Log($"[WARN] [HistoryManager] Do() - key: {key}, behavior.Type: {behavior.Type}");
+				Debug.Log($"[WARN] [HistoryManager] {(behavior.IsDone ? "ReDo" : "Do")}() - key: {key}, behavior.Type: {behavior.Type}");
 			}
 
 			GlobalData.ModifyDic[key] = behavior.IsModify;
@@ -57,10 +57,10 @@ public static class HistoryManager {
 				break;
 			}
 
-			Debug.Log($"[INFO] [HistoryManager] Undo() - behavior: {behavior}, behavior.Type: {behavior.Type}");
+			Debug.Log($"[INFO] [HistoryManager] {(behavior.IsUndone ? "ReUndo" : "Undo")}() - behavior: {behavior}, behavior.Type: {behavior.Type}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
 			if(! GlobalData.ModifyDic.ContainsKey(key)) {
-				Debug.Log($"[ERROR] [HistoryManager] Undo() - key: {key}, behavior.Type: {behavior.Type}");
+				Debug.Log($"[ERROR] [HistoryManager] {(behavior.IsUndone ? "ReUndo" : "Undo")}() - key: {key}, behavior.Type: {behavior.Type}");
 				return;
 			}
 

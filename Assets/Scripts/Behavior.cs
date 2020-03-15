@@ -23,7 +23,8 @@ public enum BehaviorType {
 	MoveModuleDown,
 	MoveSelectDisplayObjectsUp,
 	MoveSelectDisplayObjectsDown,
-	CopyDisplayObjects
+	CopyDisplayObjects,
+	UpdateFrameVisible,
 }
 
 public class Behavior {

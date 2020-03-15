@@ -198,7 +198,7 @@ public static class BehaviorFactory {
 		if(idx != -1) return null;
 		return new Behavior(isReDo => DisplayObjectUtil.MoveDisplayObjectsDownBehavior(moduleName, elementNames),
 							isReUndo => DisplayObjectUtil.MoveDisplayObjectsUpBehavior(moduleName, elementNames),
-							BehaviorType.MoveSelectDisplayObjectsUp);
+							BehaviorType.MoveSelectDisplayObjectsDown);
 	}
 
 	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames, bool combineWithNextBehavior = false) {
@@ -207,5 +207,11 @@ public static class BehaviorFactory {
 							BehaviorType.CopyDisplayObjects,
 							true,
 							combineWithNextBehavior);
+	}
+
+	public static Behavior UpdateFrameVisible(bool isShow) {
+		return new Behavior(isReDo => DisplayObjectUtil.UpdateFrameVisible(isShow),
+							isReUndo => DisplayObjectUtil.UpdateFrameVisible(! isShow),
+							BehaviorType.UpdateFrameVisible);
 	}
 }

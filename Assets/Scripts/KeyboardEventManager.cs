@@ -64,7 +64,10 @@ public class KeyboardEventManager : MonoBehaviour {
 				functionButtonHandler.OnImportButtonClick();
 			else if(Input.GetKeyDown(KeyCode.E))
 				functionButtonHandler.OnExportButtonClick();
-			else if(Input.GetKeyDown(KeyCode.H)) functionButtonHandler.OnHelpButtonClick();
+			else if(Input.GetKeyDown(KeyCode.H))
+				functionButtonHandler.OnHelpButtonClick();
+			else if(Input.GetKeyDown(KeyCode.T) && GlobalData.FrameToggle)
+				functionButtonHandler.OnToggleTrigger(! GlobalData.FrameToggle.isOn);
 		}
 
 		if(Input.GetKeyDown(KeyCode.Delete) && ! isFocusOnInputText) functionButtonHandler.OnRemoveButtonClick();

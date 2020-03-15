@@ -56,6 +56,7 @@ public static class DisplayObjectUtil {
 		GlobalData.CurrentDisplayObjectDic[element.Name] = displayObject;
 		LoadImageBehavior(GlobalData.CurrentModule, element.Name, imageUrl);
 		displayObject.GetComponent<RectTransform>().localScale = Vector3.one;
+		UpdateDisplayObjectFrameVisible(displayObject);
 	}
 
 	public static void RemoveDisplayObjectBehavior(string moduleName, string elementName) {
@@ -493,5 +494,42 @@ public static class DisplayObjectUtil {
 		List<string> removeElements = null;
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
 		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(moduleName, elementNames, removeElements));
+	}
+
+	public static void UpdateFrameVisible(bool isShow) {
+		if(GlobalData.FrameToggle && GlobalData.FrameToggle.isOn != isShow) {
+			GlobalData.FrameToggleModifyByUndo = true;
+			GlobalData.FrameToggle.isOn = isShow;
+		}
+		GameObject[] frames = GameObject.FindGameObjectsWithTag("Frame");
+		int count = frames.Length;
+		for(int idx = 0; idx < count; ++ idx) {
+			RectTransform rt = frames[idx].GetComponent<RectTransform>();
+			Vector2 pos = rt.anchoredPosition;
+			if(isShow)
+				pos.x -= 1000000;
+			else
+				pos.x += 1000000;
+			rt.anchoredPosition = pos;
+		}
+	}
+
+	public static void UpdateDisplayObjectFrameVisible(Transform displayObject) {
+		if(! displayObject) return;
+		int count = displayObject.childCount;
+		bool needShow = GlobalData.FrameToggle.isOn;
+		for(int idx = 0; idx < count; ++ idx) {
+			Transform child = displayObject.GetChild(idx);
+			if(! child || ! child.CompareTag("Frame")) continue;
+			RectTransform rt = child.GetComponent<RectTransform>();
+			Vector2 pos = rt.anchoredPosition;
+			bool isShow = pos.x < 99999;
+			if(needShow == isShow) continue;
+			if(isShow)
+				pos.x += 1000000;
+			else
+				pos.x -= 1000000;
+			rt.anchoredPosition = pos;
+		}
 	}
 }

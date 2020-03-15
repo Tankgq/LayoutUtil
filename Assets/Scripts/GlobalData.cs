@@ -87,6 +87,8 @@ public class GlobalData : MonoBehaviour {
 	public static RectTransform ContainerRect;
 	public static RectTransform RootCanvasRect;
 	public static Slider ScaleSlider;
+	public static Toggle FrameToggle;
+	public static bool FrameToggleModifyByUndo = false;
 
 	private void Awake() {
 		Application.targetFrameRate = TargetFrameRate;
@@ -109,5 +111,6 @@ public class GlobalData : MonoBehaviour {
 		ContainerRect = DisplayObjectContainer.GetComponent<RectTransform>();
 		RootCanvasRect = RootCanvas.GetComponent<RectTransform>();
 		ScaleSlider = GameObject.FindGameObjectWithTag("ScaleSlider").GetComponent<Slider>();
+		FrameToggle = GameObject.FindGameObjectWithTag("FrameToggle").GetComponent<Toggle>();
 	}
 }

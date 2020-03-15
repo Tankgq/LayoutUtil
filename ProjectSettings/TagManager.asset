@@ -9,6 +9,8 @@ TagManager:
   - HierarchyContainer
   - QuickTipContainer
   - ScaleSlider
+  - Frame
+  - FrameToggle
   layers:
   - Default
   - TransparentFX

@@ -66,6 +66,8 @@ public class AlignInfo {
 		_curVerticalCloseValue = _closeValue + 1;
 		HorizontalAlignType = AlignType.Null;
 		VerticalAlignType = AlignType.Null;
+		OtherHorizontalAlignType = AlignType.Null;
+		OtherVerticalAlignType = AlignType.Null;
 		_horizontalAlignLine.Set();
 		_verticalAlignLine.Set();
 	}

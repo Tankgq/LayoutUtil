@@ -46,6 +46,14 @@ public class FunctionButtonHandler : MonoBehaviour {
 		ModuleUtil.CheckExportModules();
 	}
 
+	public void OnToggleTrigger(bool isOn) {
+		if(GlobalData.FrameToggleModifyByUndo) {
+			GlobalData.FrameToggleModifyByUndo = false;
+			return;
+		}
+		HistoryManager.Do(BehaviorFactory.UpdateFrameVisible(isOn));
+	}
+
 	public void OnHelpButtonClick() {
 		DialogManager.ShowInfo("<color=yellow>00.</color> 项目地址: https://github.com/Tankgq/LayoutUtil\n"
 							 + "<color=yellow>01.</color> module 没有顺序的区别, displayObject 的顺序决定了相应的位置, 最下面的 displayObject 在最上层\n"
@@ -58,8 +66,9 @@ public class FunctionButtonHandler : MonoBehaviour {
 							 + "<color=yellow>07.</color> Shift + Alt + D 可显示调试窗口\n"
 							 + "<color=yellow>08.</color> Ctrl + C 和 Ctrl + V 可复制和黏贴多个 displayObject\n"
 							 + "<color=yellow>09.</color> Ctrl + Z 和 Ctrl + Y 可以撤销或者重做\n"
-							 + "<color=yellow>10.</color> 按搜索栏的 G 或者 L 可以切换全局搜索或者局部搜索\n"
-							 + "<color=yellow>11.</color> 点击 displayObject 名称左边的眼睛可以显示或隐藏对象",
+							 + "<color=yellow>10.</color> Ctrl + T 可以显示或隐藏线框\n"
+							 + "<color=yellow>11.</color> 按搜索栏的 G 或者 L 可以切换全局搜索或者局部搜索\n"
+							 + "<color=yellow>12.</color> 点击 displayObject 名称左边的眼睛可以显示或隐藏对象",
 							   KeyCode.Return,
 							   800,
 							   330);
