@@ -2,13 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef976ba7-5b43-41da-8786-9a69196cfb2e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Behavior.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Behavior.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/riderModule.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LayoutUtil/riderModule.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj.DotSettings" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor/JetBrains.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/Packages-Update.log" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,160 +18,86 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Behavior.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="26" column="27" lean-forward="true" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
-              <folding>
-                <marker date="1569586318939" expanded="true" signature="6:32" ph="..." />
-                <marker date="1569586318939" expanded="true" signature="56:808" ph="{...}" />
-                <marker date="1569586318939" expanded="true" signature="84:213" ph="{...}" />
-                <marker date="1569586318939" expanded="true" signature="612:806" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="548">
-              <caret line="54" selection-start-line="54" selection-end-line="54" />
-              <folding>
-                <marker date="1569586643610" expanded="true" signature="6:52" ph="..." />
-                <marker date="1569586643610" expanded="true" signature="89:1915" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="243:303" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="349:574" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="467:532" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="601:1206" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="617:1203" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="787:900" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="1235:1913" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="1251:1910" ph="{...}" />
-                <marker date="1569586643610" expanded="true" signature="1410:1523" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="570">
-              <caret line="124" column="42" selection-start-line="124" selection-start-column="34" selection-end-line="124" selection-end-column="42" />
-              <folding>
-                <marker date="1569584954711" expanded="false" signature="6:117" ph="..." />
-                <marker date="1569584954711" expanded="true" signature="240:9012" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="451:809" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="952:2941" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="1010:2885" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="1737:2351" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="2498:2589" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="2991:4759" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="3388:3827" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="3969:4394" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="4570:4756" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="4812:6390" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="4931:5029" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="5186:5394" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="5475:5689" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="5830:5917" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="6021:6319" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="6507:7469" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="7122:7406" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="7564:7761" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="7818:8615" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="7961:8148" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="8004:8144" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="8684:8905" ph="{...}" />
-                <marker date="1569584954711" expanded="true" signature="8954:9010" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="4" column="5" lean-forward="true" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
-              <folding>
-                <marker date="1569586815131" expanded="true" signature="33:112" ph="{...}" />
-                <marker date="1569586815131" expanded="true" signature="103:110" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ObservableLongHoverTrigger.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/DialogManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Operators/FromCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Tasks/UniTaskObservableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/InspectorDisplayDrawer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Operators/SampleFrame.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/WinTitleUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Observable.Unity.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/UnityUIComponentExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Notifiers/MessageBroker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/UnityEqualityComparer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Data/SwapImageEventData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Resources/Image/bubble-right.png.meta" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/EnumerableAsyncExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/DiagnosticsExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Operators/Repeat.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/AlignInfo.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3F37B2CA-7BC0-4094-93C9-29A81891A481/a6/91c31f21/Object.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/SelectManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Element.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/MessageBroker.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/QuickTipManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Module.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ModuleUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Operators/FromEvent.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/DragFileUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Behavior.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/LocalDialog.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/OpenFileUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Triggers/ObservablePointerExitTrigger.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utils.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/SaveFileUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/FileExplorerDialog.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/InspectorManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/WorkSpaceManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/DisplayObjectUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Type/DataEventType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Type/UIEventType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/EventManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/IEventData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///Applications/Unity/2019.3.8f1/Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file:///Applications/Unity/2019.3.8f1/Unity.app/Contents/Resources/PackageManager/BuiltInPackages/com.unity.ugui/Runtime/EventSystem/ExecuteEvents.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Resources/Prefabs/DisplayObjectItem.prefab" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HierarchyItemManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Debugger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/InternalUtil/MicroCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/UlEventSystem.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/PlayerLoopHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Element.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/SwapImageManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/GlobalData.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/DiagnosticsExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/BehaviorFactory.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/DisplayObjectUtil.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HierarchyManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Triggers/ObservablePointerExitTrigger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/WorkSpaceManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/FileExplorerDialog.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/TipManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/InternalUtil/MicroCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/B83.Win32.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/KeyboardEventManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ImageHoverManager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/MessageBoxUtil.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Scripts/FunctionButtonHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/TriggerEventData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Data/SelectedChangeEventData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Tasks/UniTaskObservableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/LocalDialog.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Example/Example.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Observer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HierarchyItemManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/Editor/UniTaskTrackerTreeView.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Example/KeyDownEventType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Extensions/CompositeDisposableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Extensions/DictionaryDisposableExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Observable.Creation.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/InspectorDisplayDrawer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/SaveFileUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/MessageBoxUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/UnityUIComponentExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ModuleUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Operators/FromCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/Internal/TaskTracker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Module.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Operators/SampleFrame.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ObservableLongHoverTrigger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/InspectorManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/QuickTipManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/AlignInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Operators/FromEvent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/OpenFileUtil.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utils.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/Observable.Unity.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/FunctionButtonHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Operators/Where.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/B83.Win32.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Notifiers/MessageBroker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Debugger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/HierarchyManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/DialogManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Rectangle.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/ImageHoverManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/KeyboardEventManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/SelectManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Behavior.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/WinTitleUtil.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Assets/Scripts/ExportDisplayObject.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ExportModule.cs" />
-        <option value="$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Tasks/UniTaskObservableExtensions.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/WinTitleUtil.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/AlignInfo.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ImageHoverManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/MessageBoxUtil.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/FileExplorerDialog.cs" />
@@ -180,27 +108,47 @@
         <option value="$PROJECT_DIR$/Assets/Scripts/DragFileHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/SwapImageManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/QuickTipManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/HierarchyManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ModuleManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/HierarchyItemHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/ObservableLongHoverTrigger.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/InspectorManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/HierarchyItemManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/MessageBroker.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ModuleUtil.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/KeyboardEventManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/DragFileUtil.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/FunctionButtonHandler.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Utils.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Element.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectUtil.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/GlobalData.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Behavior.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/HierarchyItemManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Behavior.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/MessageBroker.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/WinTitleUtil.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ModuleUtil.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Element.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/DialogManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Rectangle.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/AlignInfo.cs" />
+        <option value="$PROJECT_DIR$/Assets/Plugins/UniRx/Scripts/Async/PlayerLoopHelper.cs" />
+        <option value="$APPLICATION_CONFIG_DIR$/rider.vmoptions" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Extensions/CompositeDisposableExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/EventManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Example/Example.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Data/SelectedChangeEventData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/EventSystem.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Data/SwapImageEventData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/EmptyEventData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Type/DataEventType.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/Type/UIEventType.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/BehaviorFactory.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/ContainerManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/GlobalData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/DictionaryExtensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Extensions.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/DisplayObjectUtil.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/FunctionButtonHandler.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/InspectorManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/HierarchyManager.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/TriggerEventData.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem/UlEventSystem.cs" />
       </list>
     </option>
   </component>
@@ -209,43 +157,7 @@
       <facet id="riderModule/invalid/Default Android Facet" />
     </ignored-facets>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
-  </component>
   <component name="ProjectId" id="1Qk1dmhpmpJqSFYlBnrKaI1fD02" />
-  <component name="ProjectView">
-    <navigator currentView="UnityExplorer" proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="AssemblyExplorer" />
-      <pane id="SolutionExplorer">
-        <option name="show-all-files" value="false" />
-      </pane>
-      <pane id="UnityExplorer">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Project" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
-            </path>
-            <path>
-              <item name="Project" type="e068e287:UnityExplorerRootNode" />
-              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
-              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-        <option name="show-hidden-items" value="false" />
-        <option name="show-project-names" value="true" />
-      </pane>
-      <pane id="FileSystemExplorer" />
-    </panes>
-  </component>
   <component name="PropertiesComponent">
     <property name="Discover.Launch.Via.Unity" value="true" />
     <property name="Rider.DefaultBreakpoints.AreToggled" value="true" />
@@ -278,17 +190,19 @@
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
+      <option name="userSelectedPid" value="false" />
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" pid="12828">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" pid="5098">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="12828" />
+      <option name="pid" value="5098" />
+      <option name="userSelectedPid" value="false" />
       <method v="2" />
     </configuration>
   </component>
   <component name="SvnConfiguration">
-    <configuration />
+    <configuration>$USER_HOME$/.subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -311,56 +225,19 @@
       <workItem from="1569140129437" duration="14237000" />
       <workItem from="1569337740542" duration="2351000" />
       <workItem from="1569585072334" duration="3555000" />
+      <workItem from="1569909577170" duration="1231000" />
+      <workItem from="1569944885904" duration="463000" />
+      <workItem from="1569945417024" duration="690000" />
+      <workItem from="1569950829413" duration="64000" />
+      <workItem from="1569951321598" duration="17381000" />
+      <workItem from="1570338885918" duration="1953000" />
+      <workItem from="1571476489671" duration="14399000" />
+      <workItem from="1588323591141" duration="860000" />
+      <workItem from="1588325946077" duration="162000" />
+      <workItem from="1588407597548" duration="18506000" />
+      <workItem from="1588669024771" duration="234000" />
     </task>
     <servers />
-  </component>
-  <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3555000" />
-  </component>
-  <component name="TodoView">
-    <todo-panel id="selected-file">
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-    <todo-panel id="all">
-      <are-packages-shown value="true" />
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-  </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1080" extended-state="7" />
-    <layout>
-      <window_info id="Image Layers" />
-      <window_info id="Favorites" side_tool="true" />
-      <window_info id="Captures" weight="0.32995737" />
-      <window_info id="Capture Tool" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1881663" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="NuGet" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Android Profiler" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Performance Profiler" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" />
-      <window_info anchor="bottom" id="Logcat" />
-      <window_info anchor="bottom" id="Unit Tests" />
-      <window_info anchor="bottom" id="Database Changes" />
-      <window_info anchor="bottom" id="Version Control" />
-      <window_info anchor="bottom" id="Terminal" />
-      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="right" id="Capture Analysis" />
-      <window_info anchor="right" id="Device File Explorer" side_tool="true" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="Unit Tests Coverage" />
-      <window_info anchor="right" id="Errors In Solution" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-    </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -373,12 +250,6 @@
         <entry key="MAIN">
           <value>
             <State>
-              <option name="RECENTLY_FILTERED_USER_GROUPS">
-                <collection />
-              </option>
-              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-                <collection />
-              </option>
               <option name="COLUMN_ORDER" />
             </State>
           </value>
@@ -410,87 +281,33 @@
           <properties exception="System.Threading.ThreadAbortException" displayValue="System.Threading.ThreadAbortException" />
           <option name="timeStamp" value="1" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/EventSystem/EventManager.cs</url>
+          <line>110</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Scripts/EventSystem/EventManager.cs" initialLine="110">
+            <startOffsets>
+              <option value="3974" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3975" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/EventSystem/Extensions/CompositeDisposableExtensions.cs</url>
+          <line>58</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Scripts/EventSystem/Extensions/CompositeDisposableExtensions.cs" initialLine="58">
+            <startOffsets>
+              <option value="2098" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2147" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Behavior.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="26" column="27" lean-forward="true" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
-          <folding>
-            <marker date="1569586318939" expanded="true" signature="6:32" ph="..." />
-            <marker date="1569586318939" expanded="true" signature="56:808" ph="{...}" />
-            <marker date="1569586318939" expanded="true" signature="84:213" ph="{...}" />
-            <marker date="1569586318939" expanded="true" signature="612:806" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/HistoryManager.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="548">
-          <caret line="54" selection-start-line="54" selection-end-line="54" />
-          <folding>
-            <marker date="1569586643610" expanded="true" signature="6:52" ph="..." />
-            <marker date="1569586643610" expanded="true" signature="89:1915" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="243:303" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="349:574" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="467:532" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="601:1206" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="617:1203" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="787:900" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="1235:1913" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="1251:1910" ph="{...}" />
-            <marker date="1569586643610" expanded="true" signature="1410:1523" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/DisplayObjectManager.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="124" column="42" selection-start-line="124" selection-start-column="34" selection-end-line="124" selection-end-column="42" />
-          <folding>
-            <marker date="1569584954711" expanded="false" signature="6:117" ph="..." />
-            <marker date="1569584954711" expanded="true" signature="240:9012" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="451:809" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="952:2941" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="1010:2885" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="1737:2351" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="2498:2589" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="2991:4759" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="3388:3827" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="3969:4394" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="4570:4756" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="4812:6390" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="4931:5029" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="5186:5394" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="5475:5689" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="5830:5917" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="6021:6319" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="6507:7469" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="7122:7406" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="7564:7761" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="7818:8615" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="7961:8148" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="8004:8144" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="8684:8905" ph="{...}" />
-            <marker date="1569584954711" expanded="true" signature="8954:9010" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Assets/Scripts/BehaviorUtil.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" column="5" lean-forward="true" selection-start-line="4" selection-start-column="5" selection-end-line="4" selection-end-column="5" />
-          <folding>
-            <marker date="1569586815131" expanded="true" signature="33:112" ph="{...}" />
-            <marker date="1569586815131" expanded="true" signature="103:110" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
   </component>
 </project>
