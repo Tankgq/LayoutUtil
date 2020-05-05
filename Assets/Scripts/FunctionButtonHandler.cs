@@ -17,18 +17,14 @@ public class FunctionButtonHandler : MonoBehaviour {
 	}
 
 	public void OnUpButtonClick() {
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsUpBehavior(GlobalData.CurrentModule,
-																			  GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList()));
-		} else {
-			HistoryManager.Do(BehaviorFactory.GetMoveModuleUpBehavior(GlobalData.CurrentModule));
-		}
+		HistoryManager.Do(GlobalData.CurrentSelectDisplayObjectDic.Count > 0
+								  ? BehaviorFactory.GetMoveDisplayObjectsUpBehavior(GlobalData.CurrentModule, GlobalData.CurrentSelectDisplayObjectDic.KeyList())
+								  : BehaviorFactory.GetMoveModuleUpBehavior(GlobalData.CurrentModule));
 	}
 
 	public void OnDownButtonClick() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsDownBehavior(GlobalData.CurrentModule,
-																				GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList()));
+			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsDownBehavior(GlobalData.CurrentModule, GlobalData.CurrentSelectDisplayObjectDic.KeyList()));
 		} else {
 			HistoryManager.Do(BehaviorFactory.GetMoveModuleDownBehavior(GlobalData.CurrentModule));
 		}

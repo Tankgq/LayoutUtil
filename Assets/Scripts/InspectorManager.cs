@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using FarPlane;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -69,7 +69,7 @@ public class InspectorManager : MonoBehaviour {
 
 						if(Utils.IsEqual(y, 0.0f) || length < 2) return;
 						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-						HistoryManager.Do(BehaviorFactory.GetChangeYBehavior(GlobalData.CurrentModule, elementNames, -y, y, true));
+						HistoryManager.Do(BehaviorFactory.GetChangeYBehavior(GlobalData.CurrentModule, elementNames, y, -y, true));
 						yInputField.text = "0";
 					});
 
@@ -132,17 +132,15 @@ public class InspectorManager : MonoBehaviour {
 					   else if((isShiftDown && go == xInputField.gameObject) || (! isShiftDown && go == heightInputField.gameObject))
 						   EventSystem.current.SetSelectedGameObject(nameInputField.gameObject);
 				   });
-		Subject<object[]> updateDisplayObjectSubject = MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
-		updateDisplayObjectSubject.SampleFrame(1)
-								  .Subscribe(_ => {
-									   Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.Count == 1
-																		 ? GlobalData.CurrentSelectDisplayObjectDic.First().Value
-																		 : null;
-									   UpdateState(displayObject);
-								   });
-		Subject<object[]> updateDisplayObjectPosSubject = MessageBroker.GetSubject(MessageCode.UpdateInspectorInfo);
-		updateDisplayObjectPosSubject.SampleFrame(1)
-									 .Subscribe(_ => UpdateState(_displayObject));
+		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
+					 .SampleFrame(1)
+					 .Subscribe(_ => {
+						  Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.OnlyValue();
+						  UpdateState(displayObject);
+					  });
+		UlEventSystem.GetTriggerSubject<UIEventType>(UIEventType.UpdateInspectorInfo)
+					 .SampleFrame(1)
+					 .Subscribe(_ => UpdateState(_displayObject));
 	}
 
 	private static float ParseFloat(string txt) {

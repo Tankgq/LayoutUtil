@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FarPlane;
 using UnityEngine;
 
 public static class HistoryManager {
@@ -39,7 +40,7 @@ public static class HistoryManager {
 			}
 
 			GlobalData.ModifyDic[key] = behavior.IsModify;
-			if(behavior.IsModify) MessageBroker.SendUpdateTitle();
+			if(behavior.IsModify) UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle);
 			if(! justAdd) behavior.Do(behavior.IsDone);
 			behavior.IsDone = true;
 			++ _currentIndex;
@@ -65,7 +66,7 @@ public static class HistoryManager {
 			}
 
 			behavior.Undo(behavior.IsUndone);
-			if(GlobalData.ModifyDic[key]) MessageBroker.SendUpdateTitle();
+			if(GlobalData.ModifyDic[key]) UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle);
 			GlobalData.ModifyDic[key] = false;
 			behavior.IsUndone = true;
 			-- _currentIndex;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FarPlane;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,12 +25,12 @@ public class HierarchyManager : MonoBehaviour {
 		GlobalData.CurrentDisplayObjects
 				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> updateSelectDisplayObjectSubject =
-				MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
-		updateSelectDisplayObjectSubject.SampleFrame(1)
-										.Subscribe(_ => RefreshDisplayObjectItem());
-		Subject<object[]> updateHierarchySubject = MessageBroker.GetSubject(MessageCode.UpdateHierarchy);
-		updateHierarchySubject.Sample(TimeSpan.FromMilliseconds(100)).Subscribe(_ => RefreshDisplayObjectItem());
+		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
+				   .SampleFrame(1)
+				   .Subscribe(_ => RefreshModuleItem());
+		UlEventSystem.GetTriggerSubject<UIEventType>(UIEventType.UpdateHierarchy)
+					 .Sample(TimeSpan.FromMilliseconds(100))
+					 .Subscribe(_ => RefreshDisplayObjectItem());
 
 		searchInputField.OnValueChangedAsObservable()
 						.Where(txt => ! txt.Equals(_searchText))
@@ -236,24 +237,22 @@ public class HierarchyManager : MonoBehaviour {
 	}
 
 	private static void StartObserveSwapImage() {
-		if(MessageBroker.HasSubject(MessageCode.UpdateSwapImage)) return;
-		Subject<object[]> imageChangeSubject = MessageBroker.GetSubject(MessageCode.UpdateSwapImage);
-		imageChangeSubject.Subscribe(param => {
-			if(param == null || param.Length != 3) return;
-			string currentModule = param[0] as string;
-			if(string.IsNullOrWhiteSpace(currentModule) || ! GlobalData.CurrentModule.Equals(currentModule)) return;
-			string elementName = param[1] as string;
-			if(string.IsNullOrWhiteSpace(elementName)) return;
-			bool swapped = (bool)param[2];
-			Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
-			if(displayObject) displayObject.gameObject.SetActive(! swapped);
-			Transform item = GetDisplayObjectItem(currentModule, elementName);
-			if(item) {
-				SwapImageManager sim = item.GetComponentInChildren<SwapImageManager>();
-				if(sim) sim.UpdateSwapImage(swapped);
-			}
-			Element element = GlobalData.GetElement(elementName);
-			if(element != null) element.Visible = ! swapped;
-		});
+		Subject<SwapImageEventData> subject = UlEventSystem.TryToGetSubject<UIEventType, SwapImageEventData>(UIEventType.SwapImage);
+		if(subject != null) return;
+		UlEventSystem.GetSubject<UIEventType, SwapImageEventData>(UIEventType.SwapImage)
+					 .Subscribe(eventData => {
+						  if(eventData == null) return;
+						  if(string.IsNullOrWhiteSpace(eventData.ModuleName) || ! eventData.ModuleName.Equals(GlobalData.CurrentModule)) return;
+						  if(string.IsNullOrWhiteSpace(eventData.ElementName)) return;
+						  Transform displayObject = GlobalData.CurrentDisplayObjectDic[eventData.ElementName];
+						  if(displayObject) displayObject.gameObject.SetActive(! eventData.IsSwap);
+						  Transform item = GetDisplayObjectItem(eventData.ModuleName, eventData.ElementName);
+						  if(item) {
+							  SwapImageManager sim = item.GetComponentInChildren<SwapImageManager>();
+							  if(sim) sim.UpdateSwapImage(eventData.IsSwap);
+						  }
+						  Element element = GlobalData.GetElement(eventData.ElementName);
+						  if(element != null) element.Visible = ! eventData.IsSwap;
+						});
 	}
 }

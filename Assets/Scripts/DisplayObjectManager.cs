@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FarPlane;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -75,10 +76,10 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		Vector2 pos = Utils.GetAnchoredPositionInContainer(Input.mousePosition) - _offset;
 		Vector2 offset = pos - selfRect.anchoredPosition;
 		DisplayObjectUtil.UpdateElementPosition(selfRect, _selfElement, pos);
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 		_alignInfo = DisplayObjectUtil.GetAlignLine(_selfElement, _alignInfo);
-		Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
-		if(horizontalAlignRect != null) {
+		if(_alignInfo != null && _alignInfo.HorizontalAlignLine != null) {
+			Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
 			print($"_alignInfo.HorizontalAlignType: {_alignInfo.HorizontalAlignType}, isCenter: {_alignInfo.HorizontalAlignType == AlignType.HorizontalCenter}");
 			_horizontalAlignLine.SetActive(true);
 			_horizontalAlignLine.transform.SetAsLastSibling();
@@ -90,8 +91,8 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		} else
 			_horizontalAlignLine.SetActive(false);
 
-		Rectangle verticalAlignRect = _alignInfo.VerticalAlignLine;
-		if(verticalAlignRect != null) {
+		if(_alignInfo != null && _alignInfo.VerticalAlignLine != null) {
+			Rectangle verticalAlignRect = _alignInfo.VerticalAlignLine;
 			print($"_alignInfo.VerticalAlignType: {_alignInfo.VerticalAlignType}, isCenter: {_alignInfo.VerticalAlignType == AlignType.VerticalCenter}");
 			_verticalAlignLine.SetActive(true);
 			_verticalAlignLine.transform.SetAsLastSibling();

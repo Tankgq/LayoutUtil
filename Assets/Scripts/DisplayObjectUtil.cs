@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FarPlane;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -230,7 +231,7 @@ public static class DisplayObjectUtil {
 			tmp.SetSiblingIndex(siblingIndex - 1);
 		}
 
-		MessageBroker.SendUpdateHierarchy();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateHierarchy);
 	}
 
 	public static void MoveDisplayObjectsDownBehavior(string moduleName, List<string> elementNames) {
@@ -255,8 +256,7 @@ public static class DisplayObjectUtil {
 			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
 			tmp.SetSiblingIndex(siblingIndex + 1);
 		}
-
-		MessageBroker.SendUpdateHierarchy();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateHierarchy);
 	}
 
 	public static Rectangle GetMinRectangleContainsDisplayObjects(IReadOnlyList<Element> displayObjects) {
@@ -341,8 +341,7 @@ public static class DisplayObjectUtil {
 			RectTransform rt = displayObject.GetComponent<RectTransform>();
 			UpdateElementPosition(rt, elementNames[idx], rt.anchoredPosition + offset);
 		}
-
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 	}
 
 	public static void UpdateElementPosition(RectTransform rt, string elementName, Vector3 pos) {
@@ -376,7 +375,7 @@ public static class DisplayObjectUtil {
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeXBehavior(elementNames[idx], x, isAdd);
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 	}
 
 	private static void ChangeXBehavior(string elementName, float x, bool isAdd = false) {
@@ -402,7 +401,7 @@ public static class DisplayObjectUtil {
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeYBehavior(elementNames[idx], y, isAdd);
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 	}
 
 	private static void ChangeYBehavior(string elementName, float y, bool isAdd = false) {
@@ -428,7 +427,7 @@ public static class DisplayObjectUtil {
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeWidthBehavior(elementNames[idx], width, isAdd);
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 	}
 
 	private static void ChangeWidthBehavior(string elementName, float width, bool isAdd = false) {
@@ -451,7 +450,7 @@ public static class DisplayObjectUtil {
 		if(elementNames == null || elementNames.Count == 0) return;
 		int length = elementNames.Count;
 		for(int idx = 0; idx < length; ++ idx) ChangeHeightBehavior(elementNames[idx], height, isAdd);
-		MessageBroker.SendUpdateInspectorInfo();
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 	}
 
 	private static void ChangeHeightBehavior(string elementName, float height, bool isAdd = false) {
@@ -483,7 +482,9 @@ public static class DisplayObjectUtil {
 			}
 		}
 
-		MessageBroker.SendUpdateSelectDisplayObjectDic(addElements, removeElements);
+		UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange,
+																new SelectedChangeData(moduleName, addElements, removeElements));
+//		MessageBroker.SendUpdateSelectDisplayObjectDic(addElements, removeElements);
 	}
 
 	public static void CopySelectDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
@@ -491,8 +492,7 @@ public static class DisplayObjectUtil {
 		if(elementNames == null || elementNames.Count == 0) return;
 		List<Element> elements = elementNames.Select(GlobalData.GetElement).ToList();
 		AddDisplayObjectsBehavior(moduleName, elements);
-		List<string> removeElements = null;
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+		List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(moduleName, elementNames, removeElements));
 	}
 

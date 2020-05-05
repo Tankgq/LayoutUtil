@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using FarPlane;
 using UnityEngine;
 
 public static class BehaviorFactory {
@@ -108,8 +109,8 @@ public static class BehaviorFactory {
 									Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
 									GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 								}
-
-								MessageBroker.SendUpdateSelectDisplayObjectDic(elementNames);
+								UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange, new SelectedChangeData(moduleName, elementNames));
+//								MessageBroker.SendUpdateSelectDisplayObjectDic(elementNames);
 							},
 							BehaviorType.RemoveSelectedDisplayObject);
 	}
@@ -132,8 +133,8 @@ public static class BehaviorFactory {
 	}
 
 	public static Behavior GetUpdateSwapImageBehavior(string moduleName, string elementName, bool isSwap) {
-		return new Behavior(isReDo => MessageBroker.SendUpdateSwapImage(moduleName, elementName, isSwap),
-							isReUndo => MessageBroker.SendUpdateSwapImage(moduleName, elementName, ! isSwap),
+		return new Behavior(isReDo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage, new SwapImageEventData(moduleName, elementName, isSwap)),
+							isReUndo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage, new SwapImageEventData(moduleName, elementName, ! isSwap)),
 							BehaviorType.UpdateSwapImage);
 	}
 

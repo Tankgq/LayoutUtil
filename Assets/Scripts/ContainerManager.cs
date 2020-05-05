@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FarPlane;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,7 +18,7 @@ public class ContainerManager : MonoBehaviour {
 				  .Subscribe(module => {
 					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
 					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
-					   MessageBroker.SendUpdateModuleTxtWidth();
+					   UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateModuleTxtWidth);
 					   if(string.IsNullOrEmpty(module)) {
 						   moduleNameText.text = "null";
 						   return;
@@ -28,64 +29,64 @@ public class ContainerManager : MonoBehaviour {
 					   scaleSlider.value = 10f;
 					   GetComponent<RectTransform>().localPosition = Vector2.zero;
 				   });
-		Subject<object[]> updateModuleTxtWidthSubject = MessageBroker.GetSubject(MessageCode.UpdateModuleTxtWidth);
-		updateModuleTxtWidthSubject.SampleFrame(1)
-								   .DelayFrame(1)
-								   .Subscribe(_ => {
-										RectTransform rt = moduleNameText.GetComponent<RectTransform>();
-										RectTransform rt2 = selectedDisplayObjectText.GetComponent<RectTransform>();
-										rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30,
-																		   rt2.anchoredPosition.y);
-									});
-		Subject<object[]> updateSelectDisplayObjectSubject = MessageBroker.GetSubject(MessageCode.UpdateSelectDisplayObjectDic);
-		updateSelectDisplayObjectSubject.Subscribe(objects => {
-			if(objects.Length == 0) return;
-			if(objects.Length > 1 && objects[1] is List<string>) {
-				List<string> removeElements = (List<string>)objects[1];
-				foreach(Transform displayObject in removeElements.Select(elementName => {
-																	  Transform displayObject;
-																	  GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
-																	  return displayObject;
-																  })
-																 .Where(displayObject => displayObject)) {
-					displayObject.GetComponent<Toggle>().isOn = false;
-				}
-			}
+		UlEventSystem.GetSubject<UIEventType, TriggerEventData>(UIEventType.UpdateModuleTxtWidth)
+					 .SampleFrame(1)
+					 .DelayFrame(1)
+					 .Subscribe(_ => {
+						  RectTransform rt = moduleNameText.GetComponent<RectTransform>();
+						  RectTransform rt2 = selectedDisplayObjectText.GetComponent<RectTransform>();
+						  rt2.anchoredPosition = new Vector2(rt.anchoredPosition.x + rt.sizeDelta.x + 30, rt2.anchoredPosition.y);
+					  });
+		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
+					 .Subscribe(eventData => {
+						  if(eventData == null || string.IsNullOrWhiteSpace(eventData.ModuleName)
+											   || ! eventData.ModuleName.Equals(GlobalData.CurrentModule)) return;
+						  if(eventData.RemoveElements != null) {
+							  foreach(Transform displayObject in eventData.RemoveElements
+																		  .Select(elementName => {
+																			   GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out Transform displayObject);
+																			   return displayObject;
+																		   })
+																		  .Where(displayObject => displayObject)) {
+								  displayObject.GetComponent<Toggle>().isOn = false;
+							  }
+						  }
+						
 
-			if(objects.Length > 0 && objects[0] is List<string>) {
-				List<string> addElements = (List<string>)objects[0];
-				foreach(Transform displayObject in addElements.Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
-															  .Where(displayObject => displayObject)) {
-					displayObject.GetComponent<Toggle>().isOn = true;
-				}
-			}
+						  if(eventData.AddElements != null) {
+							  foreach(Transform displayObject in eventData.AddElements
+																		  .Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
+																		  .Where(displayObject => displayObject)) {
+								  displayObject.GetComponent<Toggle>().isOn = true;
+							  }
+						  }
 
-			if(GlobalData.CurrentSelectDisplayObjectDic.Count < 1) {
-				selectedDisplayObjectText.text = "null";
-				return;
-			}
+						  if(GlobalData.CurrentSelectDisplayObjectDic.Count < 1) {
+							  selectedDisplayObjectText.text = "null";
+							  return;
+						  }
 
-			StringBuilder sb = new StringBuilder();
-			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-				sb.Append($"{pair.Value.name}, ");
-				pair.Value.GetComponent<Toggle>().isOn = true;
-			}
+						  StringBuilder sb = new StringBuilder();
+						  foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
+							  sb.Append($"{pair.Value.name}, ");
+							  pair.Value.GetComponent<Toggle>().isOn = true;
+						  }
 
-			selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
-		});
+						  selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
+					});
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.ModifyDic)
 				  .SampleFrame(1)
-				  .Subscribe(modifyCount => MessageBroker.SendUpdateTitle());
+				  .Subscribe(modifyCount => UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle));
 		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentFilePath)
 				  .SampleFrame(1)
-				  .Subscribe(_ => MessageBroker.SendUpdateTitle());
-		Subject<object[]> updateTitleSubject = MessageBroker.GetSubject(MessageCode.UpdateTitle);
-		updateTitleSubject.SampleFrame(1)
-						  .Subscribe(_ => {
-							   string title = GlobalData.ProductName;
-							   if(! string.IsNullOrWhiteSpace(GlobalData.CurrentFilePath)) title = GlobalData.CurrentFilePath;
-							   Utils.ChangeTitle(GlobalData.ModifyCount != 0 ? $"* {title}" : title);
-						   });
+				  .Subscribe(_ => UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle));
+		UlEventSystem.GetSubject<UIEventType, TriggerEventData>(UIEventType.UpdateTitle)
+					 .SampleFrame(1)
+					 .Subscribe(_ => {
+						  string title = GlobalData.ProductName;
+						  if(! string.IsNullOrWhiteSpace(GlobalData.CurrentFilePath)) title = GlobalData.CurrentFilePath;
+						  Utils.ChangeTitle(GlobalData.ModifyCount != 0 ? $"* {title}" : title);
+					  });
 	}
 
 	public static void RemoveSelectedDisplayObjectOrModules() {

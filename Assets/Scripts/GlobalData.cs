@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using FarPlane;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -60,7 +61,7 @@ public class GlobalData : MonoBehaviour {
 			foreach(string modifyKey in modifyKeys) {
 				ModifyDic[modifyKey] = false;
 			}
-			MessageBroker.SendUpdateTitle();
+			UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle);
 		}
 	}
 
