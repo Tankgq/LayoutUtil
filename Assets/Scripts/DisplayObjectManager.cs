@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FarPlane;
 using UnityEngine;
@@ -50,15 +51,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			}
 
 			List<string> addElements = copies.Select(element => element.name).ToList();
-			List<string> removeElements = null;
-			if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-				removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-				GlobalData.CurrentSelectDisplayObjectDic.Clear();
-			}
-
-			foreach(Transform displayObject in copies) {
-				GlobalData.CurrentSelectDisplayObjectDic.Add(displayObject.name, displayObject);
-			}
+			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 
 			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements, true));
 			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements, true), true);
@@ -78,7 +71,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		DisplayObjectUtil.UpdateElementPosition(selfRect, _selfElement, pos);
 		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
 		_alignInfo = DisplayObjectUtil.GetAlignLine(_selfElement, _alignInfo);
-		if(_alignInfo != null && _alignInfo.HorizontalAlignLine != null) {
+		if(_alignInfo?.HorizontalAlignLine != null) {
 			Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
 			print($"_alignInfo.HorizontalAlignType: {_alignInfo.HorizontalAlignType}, isCenter: {_alignInfo.HorizontalAlignType == AlignType.HorizontalCenter}");
 			_horizontalAlignLine.SetActive(true);
@@ -91,7 +84,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		} else
 			_horizontalAlignLine.SetActive(false);
 
-		if(_alignInfo != null && _alignInfo.VerticalAlignLine != null) {
+		if(_alignInfo?.VerticalAlignLine != null) {
 			Rectangle verticalAlignRect = _alignInfo.VerticalAlignLine;
 			print($"_alignInfo.VerticalAlignType: {_alignInfo.VerticalAlignType}, isCenter: {_alignInfo.VerticalAlignType == AlignType.VerticalCenter}");
 			_verticalAlignLine.SetActive(true);
@@ -175,8 +168,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		}
 
 		Vector2 mousePos = eventData.position;
-		Vector2 offset;
-		bool isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(selfRect, mousePos, eventData.enterEventCamera, out offset);
+		bool isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(selfRect, mousePos, eventData.enterEventCamera, out Vector2 offset);
 		if(isRect) _offset = offset;
 		if(_selfElement == null) _selfElement = GlobalData.GetElement(self.name);
 	}
@@ -189,6 +181,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 
 	public void OnPointerUp(PointerEventData eventData) {
 		if(_isDrag || KeyboardEventManager.GetShift() || KeyboardEventManager.GetControl() || GlobalData.CurrentSelectDisplayObjectDic.Count <= 1) return;
+		if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(transform.name)) return;
 		List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic
 												.Where(pair => ! pair.Key.Equals(transform.name))
 												.Select(pair => pair.Key)

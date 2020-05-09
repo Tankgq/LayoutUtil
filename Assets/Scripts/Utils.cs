@@ -142,4 +142,12 @@ public static class Utils {
 		texture2D.LoadImage(bytes);
 		return texture2D;
 	}
+
+	public static Sprite LoadSpriteByIO(string imageUrl) {
+		byte[] bytes = Utils.ReadFile(imageUrl);
+		Texture2D texture2D = new Texture2D((int)GlobalData.DefaultSize.x, (int)GlobalData.DefaultSize.y);
+		texture2D.wrapMode = TextureWrapMode.Clamp;
+		texture2D.LoadImage(bytes);
+		return Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
+	}
 }
