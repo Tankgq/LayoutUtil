@@ -119,6 +119,7 @@ public static class BehaviorFactory {
 																List<string> addElements             = null,
 																List<string> removeElements          = null,
 																bool         combineWithNextBehavior = false) {
+		Debug.Log($"add: {addElements?.Count}, remove: {removeElements?.Count}");
 		return new Behavior(isReDo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, addElements, removeElements),
 							isReUndo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, removeElements, addElements),
 							BehaviorType.UpdateSelectedDisplayObjectDic,
