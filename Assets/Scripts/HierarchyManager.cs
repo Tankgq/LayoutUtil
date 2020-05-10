@@ -26,8 +26,8 @@ public class HierarchyManager : MonoBehaviour {
 				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
-				   .SampleFrame(1)
-				   .Subscribe(_ => RefreshModuleItem());
+//					 .SampleFrame(1)
+					 .Subscribe(_ => RefreshModuleItem());
 		UlEventSystem.GetTriggerSubject<UIEventType>(UIEventType.UpdateHierarchy)
 					 .Sample(TimeSpan.FromMilliseconds(100))
 					 .Subscribe(_ => RefreshDisplayObjectItem());
@@ -36,7 +36,8 @@ public class HierarchyManager : MonoBehaviour {
 						.Where(txt => ! txt.Equals(_searchText))
 						.Sample(TimeSpan.FromMilliseconds(500))
 						.Subscribe(txt => {
-							 if(_isGlobalSearchFlag) GlobalData.CurrentModule = null;
+							 if(_isGlobalSearchFlag)
+								 UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(null));
 							 _searchText = txt;
 							 RefreshModuleItem();
 						 });

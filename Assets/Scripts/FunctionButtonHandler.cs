@@ -23,11 +23,9 @@ public class FunctionButtonHandler : MonoBehaviour {
 	}
 
 	public void OnDownButtonClick() {
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) {
-			HistoryManager.Do(BehaviorFactory.GetMoveDisplayObjectsDownBehavior(GlobalData.CurrentModule, GlobalData.CurrentSelectDisplayObjectDic.KeyList()));
-		} else {
-			HistoryManager.Do(BehaviorFactory.GetMoveModuleDownBehavior(GlobalData.CurrentModule));
-		}
+		HistoryManager.Do(GlobalData.CurrentSelectDisplayObjectDic.Count > 0
+								  ? BehaviorFactory.GetMoveDisplayObjectsDownBehavior(GlobalData.CurrentModule, GlobalData.CurrentSelectDisplayObjectDic.KeyList())
+								  : BehaviorFactory.GetMoveModuleDownBehavior(GlobalData.CurrentModule));
 	}
 
 	public void OnCopyButtonClick() {

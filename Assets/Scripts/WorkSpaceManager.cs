@@ -13,7 +13,7 @@ public class WorkSpaceManager : MonoBehaviour, IPointerDownHandler {
 	private static void OnMouseLeftButtonDown() {
 		if(KeyboardEventManager.GetControl() || KeyboardEventManager.GetShift()) return;
 		List<string> removeElements = null;
-		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+		if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 		if(removeElements != null) HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, null, removeElements));
 	}
 

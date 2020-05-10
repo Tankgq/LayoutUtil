@@ -19,8 +19,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 		if(HierarchyManager.InSearchMode()) {
 			string module = HierarchyManager.GetModuleName(transform.GetSiblingIndex());
 			if(string.IsNullOrEmpty(module)) return;
-			GlobalData.CurrentModule = module;
-			HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(module, true));
+			HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(module, CombineType.Next));
 			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(module, new List<string>{elementName}));
 			return;
 		}
@@ -39,8 +38,8 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 				removeElements = new List<string> {elementName};
 			}
 		} else {
-			if(! KeyboardEventManager.GetShift() && GlobalData.CurrentSelectDisplayObjectDic.Count > 0)
-				removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+			if(! KeyboardEventManager.GetShift())
+				removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 			addElements = new List<string> {elementName};
 		}
 		if(addElements != null || removeElements != null)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -72,8 +73,11 @@ public class KeyboardEventManager : MonoBehaviour {
 
 		if(Input.GetKeyDown(KeyCode.Delete) && ! isFocusOnInputText) functionButtonHandler.OnRemoveButtonClick();
 
-		if(Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! isFocusOnInputText)
-			GlobalData.CurrentSelectDisplayObjectDic.Clear();
+		if(Input.GetKeyDown(KeyCode.Escape) && GlobalData.CurrentSelectDisplayObjectDic.Count != 0 && ! isFocusOnInputText) {
+			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
+			if(removeElements != null)
+				HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, null, removeElements));
+		}
 
 		if(isControlDown && ! isFocusOnInputText) {
 			if(Input.GetKeyDown(KeyCode.C))
@@ -105,6 +109,7 @@ public class KeyboardEventManager : MonoBehaviour {
 
 	private void UpdateContainer() {
 		bool isControlDown = GetControl();
+		bool isShiftDown = GetShift();
 		float mouseScrollValue = Input.GetAxis("Mouse ScrollWheel");
 		if(isControlDown && Math.Abs(mouseScrollValue) > 0.001f) {
 			Vector2 prevPos = Utils.GetAnchoredPositionInContainer(Input.mousePosition);
@@ -128,13 +133,19 @@ public class KeyboardEventManager : MonoBehaviour {
 				containerRect.anchoredPosition3D = Input.mousePosition + _containerOffset;
 			}
 		} else {
-			bool isShiftDown = GetShift();
 			containerScrollRect.horizontal = isShiftDown;
 			containerScrollRect.vertical = ! isShiftDown;
 			containerScrollRect.scrollSensitivity = Math.Abs(containerScrollRect.scrollSensitivity) * (isShiftDown ? -1 : 1);
 		}
 
 		if(isControlDown || ! Input.anyKey) return;
+		if(GetAlt()) {
+			Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.OnlyValue();
+			if(! displayObject) return;
+			if(Input.GetKeyDown(KeyCode.UpArrow)) DisplayObjectUtil.SelectDisplayObjectByOffset(displayObject, -1, isShiftDown);
+			else if(Input.GetKeyDown(KeyCode.DownArrow)) DisplayObjectUtil.SelectDisplayObjectByOffset(displayObject, 1, isShiftDown);
+			return;
+		}
 		Vector2 delta = Vector2.zero;
 		if(Input.GetKey(KeyCode.UpArrow)) {
 			delta += Vector2.up * containerKeyMoveSensitivity;

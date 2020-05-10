@@ -57,20 +57,22 @@ public static class BehaviorFactory {
 							false);
 	}
 
-	public static Behavior GetOpenModuleBehavior(string moduleName, bool combineWithNextBehavior = false) {
+	public static Behavior GetOpenModuleBehavior(string moduleName, CombineType combineType = CombineType.Independent) {
 		string previousModuleName = GlobalData.CurrentModule;
-		return new Behavior(isRedo => GlobalData.CurrentModule = moduleName,
-							isReUndo => GlobalData.CurrentModule = previousModuleName,
+		return new Behavior(isRedo => UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName)),
+							isReUndo => UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule,
+																									 new ChangeModuleEventData(previousModuleName)),
 							BehaviorType.OpenModule,
-							combineWithNextBehavior);
+							false,
+							combineType);
 	}
 
-	public static Behavior GetAddDisplayObjectBehavior(string  moduleName,
-													   string  elementName,
-													   string  imageUrl,
+	public static Behavior GetAddDisplayObjectBehavior(string moduleName,
+													   string elementName,
+													   string imageUrl,
 													   Vector2 pos,
 													   Vector2 size,
-													   bool    combineWithNextBehavior = false) {
+													   CombineType combineType = CombineType.Independent) {
 		Element element = new Element {
 			Name = elementName,
 			X = Element.ConvertX(pos.x),
@@ -81,13 +83,15 @@ public static class BehaviorFactory {
 		};
 		return new Behavior(isRedo => DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl),
 							isReUndo => DisplayObjectUtil.RemoveDisplayObjectBehavior(moduleName, element.Name),
-							BehaviorType.AddDisplayObject, combineWithNextBehavior);
+							BehaviorType.AddDisplayObject,
+							true,
+							combineType);
 	}
 
 	public static Behavior GetLoadImageToDisplayObjectBehavior(string moduleName,
 															   string elementName,
 															   string imageUrl,
-															   bool   isModify = true) {
+															   bool isModify = true) {
 		return new Behavior(isReDo => DisplayObjectUtil.LoadImageBehavior(moduleName, elementName, imageUrl),
 							isReUndo => DisplayObjectUtil.RemoveImageBehavior(moduleName, elementName),
 							BehaviorType.LoadImageToDisplayObject,
@@ -95,10 +99,7 @@ public static class BehaviorFactory {
 	}
 
 	public static Behavior GetRemoveSelectedDisplayObjectBehavior(string moduleName) {
-		List<Element> elements = GlobalData
-								.CurrentSelectDisplayObjectDic
-								.Select(pair => GlobalData.GetElement(pair.Key))
-								.ToList();
+		List<Element> elements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => GlobalData.GetElement(pair.Key)).ToList();
 		int length = elements.Count;
 		List<string> elementNames = new List<string>();
 		for(int idx = 0; idx < length; ++ idx) elementNames.Add(elements[idx].Name);
@@ -109,22 +110,22 @@ public static class BehaviorFactory {
 									Transform displayObject = GlobalData.CurrentDisplayObjectDic[elementName];
 									GlobalData.CurrentSelectDisplayObjectDic.Add(elementName, displayObject);
 								}
-								UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange, new SelectedChangeData(moduleName, elementNames));
+								UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange,
+																						  new SelectedChangeData(moduleName, elementNames));
 //								MessageBroker.SendUpdateSelectDisplayObjectDic(elementNames);
 							},
 							BehaviorType.RemoveSelectedDisplayObject);
 	}
 
-	public static Behavior GetUpdateSelectDisplayObjectBehavior(string       moduleName,
-																List<string> addElements             = null,
-																List<string> removeElements          = null,
-																bool         combineWithNextBehavior = false) {
-		Debug.Log($"add: {addElements?.Count}, remove: {removeElements?.Count}");
+	public static Behavior GetUpdateSelectDisplayObjectBehavior(string moduleName,
+																List<string> addElements = null,
+																List<string> removeElements = null,
+																CombineType combineType = CombineType.Independent) {
 		return new Behavior(isReDo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, addElements, removeElements),
 							isReUndo => DisplayObjectUtil.UpdateSelectDisplayObjectDicBehavior(moduleName, removeElements, addElements),
 							BehaviorType.UpdateSelectedDisplayObjectDic,
 							false,
-							combineWithNextBehavior);
+							combineType);
 	}
 
 	public static Behavior GetUpdateDisplayObjectsPosBehavior(string moduleName, IReadOnlyList<string> elementNames, Vector2 originPos, Vector2 targetPos) {
@@ -134,8 +135,10 @@ public static class BehaviorFactory {
 	}
 
 	public static Behavior GetUpdateSwapImageBehavior(string moduleName, string elementName, bool isSwap) {
-		return new Behavior(isReDo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage, new SwapImageEventData(moduleName, elementName, isSwap)),
-							isReUndo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage, new SwapImageEventData(moduleName, elementName, ! isSwap)),
+		return new Behavior(isReDo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage,
+																							  new SwapImageEventData(moduleName, elementName, isSwap)),
+							isReUndo => UlEventSystem.Dispatch<UIEventType, SwapImageEventData>(UIEventType.SwapImage,
+																								new SwapImageEventData(moduleName, elementName, ! isSwap)),
 							BehaviorType.UpdateSwapImage);
 	}
 
@@ -203,12 +206,12 @@ public static class BehaviorFactory {
 							BehaviorType.MoveSelectDisplayObjectsDown);
 	}
 
-	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames, bool combineWithNextBehavior = false) {
+	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames, CombineType combineType = CombineType.Independent) {
 		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
 							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
 							BehaviorType.CopyDisplayObjects,
 							true,
-							combineWithNextBehavior);
+							combineType);
 	}
 
 	public static Behavior UpdateFrameVisible(bool isShow) {

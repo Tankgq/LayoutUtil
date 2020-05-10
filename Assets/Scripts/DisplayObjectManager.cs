@@ -53,8 +53,8 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			List<string> addElements = copies.Select(element => element.name).ToList();
 			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 
-			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements, true));
-			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements, true), true);
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements, CombineType.Next));
+			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements, CombineType.Next), true);
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
 			eventData.pointerDrag = copies[0].gameObject;
 			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -160,10 +160,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 			}
 		} else {
 			List<string> removeElements = null;
-			if(! KeyboardEventManager.GetShift()) {
-				if(GlobalData.CurrentSelectDisplayObjectDic.Count > 0) removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-			}
-
+			if(! KeyboardEventManager.GetShift()) removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string> {self.name}, removeElements));
 		}
 

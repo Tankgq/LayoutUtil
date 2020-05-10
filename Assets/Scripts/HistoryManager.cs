@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FarPlane;
 using UnityEngine;
@@ -33,7 +34,7 @@ public static class HistoryManager {
 				break;
 			}
 
-			Debug.Log($"[INFO] [HistoryManager] {(behavior.IsDone ? "ReDo" : "Do")}() - behavior: {behavior}, behavior.Type: {behavior.Type}");
+			Debug.Log($"[INFO] [HistoryManager] {(behavior.IsDone ? "ReDo" : "Do")}() - behavior: {behavior}, behavior.Type: {behavior.Type}, behavior.CombineType: {behavior.CombineType}");
 			string key = $"{behavior.Type}_{behavior.CreateFrameCount}";
 			if(GlobalData.ModifyDic.ContainsKey(key) && GlobalData.ModifyDic[key]) {
 				Debug.Log($"[WARN] [HistoryManager] {(behavior.IsDone ? "ReDo" : "Do")}() - key: {key}, behavior.Type: {behavior.Type}");
@@ -41,10 +42,22 @@ public static class HistoryManager {
 
 			GlobalData.ModifyDic[key] = behavior.IsModify;
 			if(behavior.IsModify) UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateTitle);
-			if(! justAdd) behavior.Do(behavior.IsDone);
-			behavior.IsDone = true;
+			// 避免 behavior.Do 内添加 behavior 导致 _currentIndex 没来的及更新
 			++ _currentIndex;
-			if(behavior.IsCombineWithNextBehavior) continue;
+			if(! justAdd) {
+				try {
+					behavior.Do(behavior.IsDone);
+				} catch(Exception e) {
+//					Console.WriteLine(e);
+					Debug.Log(e);
+					throw;
+				}
+			}
+			behavior.IsDone = true;
+			if(behavior.CombineType == CombineType.Next) continue;
+			if(_currentIndex >= _currentCount) return;
+			behavior = Behaviors[_currentCount];
+			if(behavior.CombineType == CombineType.Previous) continue;
 			break;
 		}
 	}
@@ -71,8 +84,9 @@ public static class HistoryManager {
 			behavior.IsUndone = true;
 			-- _currentIndex;
 			if(_currentIndex < 1) return;
+			if(behavior.CombineType == CombineType.Previous) continue;
 			behavior = Behaviors[_currentIndex - 1];
-			if(behavior.IsCombineWithNextBehavior) continue;
+			if(behavior.CombineType == CombineType.Next) continue;
 			break;
 		}
 	}

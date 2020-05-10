@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using FarPlane;
 using Newtonsoft.Json;
 using UniRx;
 using UnityEngine;
@@ -14,7 +15,7 @@ public static class ModuleUtil {
 		if(elements == null) elements = new List<Element>();
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);
-		if(selectModule) GlobalData.CurrentModule = moduleName;
+		if(selectModule) UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName));
 		return true;
 	}
 
@@ -25,7 +26,8 @@ public static class ModuleUtil {
 		GlobalData.CacheModuleDic[moduleName] = GlobalData.ModuleDic[moduleName];
 		GlobalData.Modules.Remove(moduleName);
 		GlobalData.ModuleDic.Remove(moduleName);
-		if(moduleName.Equals(GlobalData.CurrentModule)) GlobalData.CurrentModule = targetModule;
+		if(moduleName.Equals(GlobalData.CurrentModule))
+			UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(targetModule));
 		return true;
 	}
 
@@ -173,7 +175,7 @@ public static class ModuleUtil {
 					   }
 				   });
 	}
-
+	
 	public static void OpenModule(string moduleName) {
 		HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(moduleName));
 	}

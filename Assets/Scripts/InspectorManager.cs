@@ -32,13 +32,12 @@ public class InspectorManager : MonoBehaviour {
 							   nameInputField.text = originName;
 							   return;
 						   }
-
 						   HistoryManager.Do(BehaviorFactory.GetChangeNameBehavior(GlobalData.CurrentModule, originName, newName));
 					   });
 		xInputField.ObserveEveryValueChanged(element => element.isFocused)
 				   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(xInputField.text))
-				   .Select(_ => CalculateSimpleExpression(xInputField.text))
-				   .Where(x => x > GlobalData.MinFloat)
+				   .Select(_ => (float)xInputField.text.Calculate())
+				   .Where(x => ! float.IsNaN(x))
 				   .Subscribe(x => {
 						int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
 						if(_displayObject && length == 1) {
@@ -49,15 +48,15 @@ public class InspectorManager : MonoBehaviour {
 						}
 
 						if(Utils.IsEqual(x, 0.0f) || length < 2) return;
-						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 						HistoryManager.Do(BehaviorFactory.GetChangeXBehavior(GlobalData.CurrentModule, elementNames, -x, x, true));
 						xInputField.text = "0";
 					});
 
 		yInputField.ObserveEveryValueChanged(element => element.isFocused)
 				   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(yInputField.text))
-				   .Select(_ => CalculateSimpleExpression(yInputField.text))
-				   .Where(y => y > GlobalData.MinFloat)
+				   .Select(_ => (float)yInputField.text.Calculate())
+				   .Where(y => ! float.IsNaN(y))
 				   .Subscribe(y => {
 						int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
 						if(_displayObject && length == 1) {
@@ -68,15 +67,15 @@ public class InspectorManager : MonoBehaviour {
 						}
 
 						if(Utils.IsEqual(y, 0.0f) || length < 2) return;
-						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+						List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 						HistoryManager.Do(BehaviorFactory.GetChangeYBehavior(GlobalData.CurrentModule, elementNames, y, -y, true));
 						yInputField.text = "0";
 					});
 
 		widthInputField.ObserveEveryValueChanged(element => element.isFocused)
 					   .Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(widthInputField.text))
-					   .Select(_ => CalculateSimpleExpression(widthInputField.text))
-					   .Where(width => width > GlobalData.MinFloat)
+					   .Select(_ => (float)widthInputField.text.Calculate())
+					   .Where(width => ! float.IsNaN(width))
 					   .Subscribe(width => {
 							int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
 							if(_displayObject && length == 1) {
@@ -90,14 +89,14 @@ public class InspectorManager : MonoBehaviour {
 							}
 
 							if(Utils.IsEqual(width, 0.0f) || length < 2) return;
-							List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+							List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 							HistoryManager.Do(BehaviorFactory.GetChangeWidthBehavior(GlobalData.CurrentModule, elementNames, -width, width, true));
 							widthInputField.text = "0";
 						});
 		heightInputField.ObserveEveryValueChanged(element => element.isFocused)
 						.Where(isFocused => ! isFocused && ! string.IsNullOrEmpty(heightInputField.text))
-						.Select(_ => CalculateSimpleExpression(heightInputField.text))
-						.Where(height => height > GlobalData.MinFloat)
+						.Select(_ => (float)heightInputField.text.Calculate())
+						.Where(height => ! float.IsNaN(height))
 						.Subscribe(height => {
 							 int length = GlobalData.CurrentSelectDisplayObjectDic.Count;
 							 if(_displayObject && length == 1) {
@@ -111,7 +110,7 @@ public class InspectorManager : MonoBehaviour {
 							 }
 
 							 if(Utils.IsEqual(height, 0.0f) || length < 2) return;
-							 List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
+							 List<string> elementNames = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
 							 HistoryManager.Do(BehaviorFactory.GetChangeHeightBehavior(GlobalData.CurrentModule, elementNames, -height, height, true));
 							 heightInputField.text = "0";
 						 });
@@ -133,7 +132,7 @@ public class InspectorManager : MonoBehaviour {
 						   EventSystem.current.SetSelectedGameObject(nameInputField.gameObject);
 				   });
 		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
-					 .SampleFrame(1)
+//					 .SampleFrame(1)
 					 .Subscribe(_ => {
 						  Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.OnlyValue();
 						  UpdateState(displayObject);
@@ -144,34 +143,42 @@ public class InspectorManager : MonoBehaviour {
 	}
 
 	private static float ParseFloat(string txt) {
-		float result;
-		bool bSucceed = float.TryParse(txt, NumberStyles.Float, NumberFormatInfo.CurrentInfo, out result);
+		bool bSucceed = float.TryParse(txt, NumberStyles.Float, NumberFormatInfo.CurrentInfo, out float result);
 		return bSucceed ? result : GlobalData.MinFloat;
 	}
 
 	private void UpdateState(Transform displayObject) {
 		_displayObject = displayObject;
 		if(_displayObject == null) {
-			nameInputField.text = "null";
+			nameInputField.text = string.IsNullOrWhiteSpace(GlobalData.CurrentModule) ? "null" : GlobalData.CurrentModule;
 			xInputField.text = "0";
+			xInputField.enabled = false;
 			yInputField.text = "0";
+			yInputField.enabled = false;
 			widthInputField.text = "0";
+			widthInputField.enabled = false;
 			heightInputField.text = "0";
+			heightInputField.enabled = false;
 			return;
 		}
 
 		Element element = Element.ConvertTo(_displayObject);
 		nameInputField.text = element.Name;
+		xInputField.enabled = true;
 		xInputField.text = $"{element.X:F1}";
+		yInputField.enabled = true;
 		yInputField.text = $"{element.Y:F1}";
+		widthInputField.enabled = true;
 		widthInputField.text = $"{element.Width:F1}";
+		heightInputField.enabled = true;
 		heightInputField.text = $"{element.Height:F1}";
+
 	}
 
 	/**
 	 * 简单计算一个只有加减法的表达式, 不考虑括号
 	 */
-	private float CalculateSimpleExpression(string expression) {
+	private static float CalculateSimpleExpression(string expression) {
 		expression = expression.Trim();
 		if(expression.Length == 0) return GlobalData.MinFloat;
 		Queue<char> operatorCharQueue = new Queue<char>();
@@ -207,10 +214,8 @@ public class InspectorManager : MonoBehaviour {
 			float number = numberQueue.Dequeue();
 			char operatorChar = operatorCharQueue.Dequeue();
 			if(operatorChar == '+') result += number;
-			else if(operatorChar == '-')
-				result -= number;
-			else
-				return GlobalData.MinFloat;
+			else if(operatorChar == '-') result -= number;
+			else return GlobalData.MinFloat;
 		}
 		return operatorCharQueue.Count != 0 ? GlobalData.MinFloat : result;
 	}

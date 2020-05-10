@@ -34,7 +34,7 @@ public static class DisplayObjectUtil {
 		GlobalData.CurrentDisplayObjects.Clear();
 		GlobalData.CurrentDisplayObjectDic.Clear();
 		GlobalData.CurrentCopyDisplayObjects.Clear();
-		GlobalData.CurrentSelectDisplayObjectDic.Clear();
+//		GlobalData.CurrentSelectDisplayObjectDic.Clear();
 	}
 
 	public static void AddAllDisplayObjectBehavior() {
@@ -189,10 +189,10 @@ public static class DisplayObjectUtil {
 		string elementName = GetCanUseElementName(sourceElementName, imageUrl);
 		pos = Element.ConvertTo(pos);
 
-		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size, needSelect));
+		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
 		if(needSelect) {
-			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.Select(pair => pair.Key).ToList();
-			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{elementName}, removeElements));
+			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{elementName}, removeElements, CombineType.Previous));
 		}
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
 		return displayObject;
@@ -228,7 +228,7 @@ public static class DisplayObjectUtil {
 			elements[elementIdx] = elements[elementIdx - 1];
 			elements[elementIdx - 1] = tmpElement;
 			int siblingIndex = displayObjects[elementIdx].GetSiblingIndex();
-			tmp.SetSiblingIndex(siblingIndex - 1);
+			tmp.SetSiblingIndex(siblingIndex);
 		}
 
 		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateHierarchy);
@@ -469,7 +469,7 @@ public static class DisplayObjectUtil {
 	}
 
 	public static void UpdateSelectDisplayObjectDicBehavior(string moduleName, List<string> addElements = null, List<string> removeElements = null) {
-		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
 		if(addElements?.Count > 0) {
 			foreach(string elementName in addElements) {
 				GlobalData.CurrentSelectDisplayObjectDic[elementName] = GlobalData.CurrentDisplayObjectDic[elementName];
@@ -482,8 +482,7 @@ public static class DisplayObjectUtil {
 			}
 		}
 
-		UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange,
-																new SelectedChangeData(moduleName, addElements, removeElements));
+		UlEventSystem.Dispatch<DataEventType, SelectedChangeData>(DataEventType.SelectedChange, new SelectedChangeData(moduleName, addElements, removeElements));
 //		MessageBroker.SendUpdateSelectDisplayObjectDic(addElements, removeElements);
 	}
 
@@ -531,5 +530,20 @@ public static class DisplayObjectUtil {
 				pos.x -= 1000000;
 			rt.anchoredPosition = pos;
 		}
+	}
+
+	public static void SelectDisplayObjectByOffset(Transform displayObject, int offset, bool selectAll = false) {
+		int idx = GlobalData.CurrentDisplayObjects.FindIndex(element => element.name.Equals(displayObject.name));
+		if(idx == -1) return;
+		int targetIdx = idx + offset;
+		if(targetIdx < 0 || targetIdx >= GlobalData.CurrentDisplayObjects.Count) return;
+		List<string> addElements = new List<string>();
+		int startIdx = Math.Min(targetIdx, selectAll ? idx : targetIdx);
+		int endIdx = Math.Max(targetIdx, selectAll ? idx : targetIdx);
+		for(int idx2 = startIdx; idx2 <= endIdx; ++ idx2)
+			addElements.Add(GlobalData.CurrentDisplayObjects[idx2].name);
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule,
+																			   addElements,
+																			   selectAll ? null : new List<string> {displayObject.name}));
 	}
 }

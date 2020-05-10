@@ -27,6 +27,21 @@ public enum BehaviorType {
 	UpdateFrameVisible,
 }
 
+public enum CombineType {
+	/// <summary>
+	/// 与其它 behavior 相互独立
+	/// </summary>
+	Independent,
+	/// <summary>
+	/// 与上一个 behavior 合并
+	/// </summary>
+	Previous,
+	/// <summary>
+	/// 与下一个 behavior 合并
+	/// </summary>
+	Next
+}
+
 public class Behavior {
 	
 	// 参数为 isRedo
@@ -36,23 +51,24 @@ public class Behavior {
 	// 参数为 isReUndo
 	public readonly Action<bool> Undo;
 	public bool IsUndone;
-
-	// 是否要和下一个 behavior 合并
-	public readonly bool IsCombineWithNextBehavior;
-
+	
+	public readonly CombineType CombineType;
+	
 	public readonly int CreateFrameCount;
 	public readonly BehaviorType Type;
-
-	// 当前的行为是否会修改数据
+	
+	/// <summary>
+	/// 当前的行为是否会修改数据
+	/// </summary>
 	public readonly bool IsModify;
 
-	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, BehaviorType type, bool isModify = true, bool combineWithNextBehavior = false) {
+	public Behavior(Action<bool> doBehavior, Action<bool> undoBehavior, BehaviorType type, bool isModify = true, CombineType combineType = CombineType.Independent) {
 		Do = doBehavior;
 		Undo = undoBehavior;
 		IsDone = IsUndone = false;
 		Type = type;
 		IsModify = isModify;
-		IsCombineWithNextBehavior = combineWithNextBehavior;
+		CombineType = combineType;
 		CreateFrameCount = Time.frameCount;
 	}
 }

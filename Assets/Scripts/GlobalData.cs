@@ -14,8 +14,7 @@ public class GlobalData : MonoBehaviour {
 	public const string GlobalObservable = "Observable";
 	public static int UniqueId = 0;
 
-	public static readonly SortedDictionary<string, Transform> CurrentSelectDisplayObjectDic =
-			new SortedDictionary<string, Transform>();
+	public static readonly SortedDictionary<string, Transform> CurrentSelectDisplayObjectDic = new SortedDictionary<string, Transform>();
 
 	public static readonly List<Element> CurrentCopyDisplayObjects = new List<Element>();
 

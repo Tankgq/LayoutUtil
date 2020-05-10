@@ -4,6 +4,7 @@ using System.Text;
 using FarPlane;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 
 public class ContainerManager : MonoBehaviour {
@@ -13,22 +14,39 @@ public class ContainerManager : MonoBehaviour {
 	public Slider scaleSlider;
 
 	private void Start() {
-		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
-				  .SampleFrame(1)
-				  .Subscribe(module => {
-					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
-					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
-					   UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateModuleTxtWidth);
-					   if(string.IsNullOrEmpty(module)) {
-						   moduleNameText.text = "null";
-						   return;
-					   }
-
-					   moduleNameText.text = module;
-					   GlobalData.CurrentSelectDisplayObjectDic.Clear();
-					   scaleSlider.value = 10f;
-					   GetComponent<RectTransform>().localPosition = Vector2.zero;
-				   });
+		UlEventSystem.GetSubject<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule)
+					 .Subscribe(eventData => {
+						  if(eventData == null) return;
+						  string module = eventData.Module;
+						  if(string.IsNullOrWhiteSpace(module)) module = null;
+						  if(GlobalData.CurrentModule == module) return;
+						  List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
+						  if(removeElements != null)
+							  HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, null, removeElements, CombineType.Previous));
+						  GlobalData.CurrentModule = module;
+						  DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
+						  DisplayObjectUtil.AddAllDisplayObjectBehavior();
+						  UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateModuleTxtWidth);
+						  moduleNameText.text = module ?? "null";
+						  GetComponent<RectTransform>().localPosition = Vector2.zero;
+						  scaleSlider.value = 10f;
+					  });
+//		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
+//				  .SampleFrame(1)
+//				  .Subscribe(module => {
+//					   DisplayObjectUtil.RemoveAllDisplayObjectBehavior();
+//					   DisplayObjectUtil.AddAllDisplayObjectBehavior();
+//					   UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateModuleTxtWidth);
+//					   if(string.IsNullOrEmpty(module)) {
+//						   moduleNameText.text = "null";
+//						   return;
+//					   }
+//
+//					   moduleNameText.text = module;
+//					   GlobalData.CurrentSelectDisplayObjectDic.Clear();
+//					   scaleSlider.value = 10f;
+//					   GetComponent<RectTransform>().localPosition = Vector2.zero;
+//				   });
 		UlEventSystem.GetSubject<UIEventType, TriggerEventData>(UIEventType.UpdateModuleTxtWidth)
 					 .SampleFrame(1)
 					 .DelayFrame(1)
