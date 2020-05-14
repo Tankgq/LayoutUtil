@@ -148,29 +148,27 @@ public class InspectorManager : MonoBehaviour {
 	}
 
 	private void UpdateState(Transform displayObject) {
+		bool enabled = GlobalData.CurrentSelectDisplayObjectDic.Count > 0;
 		_displayObject = displayObject;
+		nameInputField.enabled = ! string.IsNullOrWhiteSpace(GlobalData.CurrentModule);
+		xInputField.enabled = enabled;
+		yInputField.enabled = enabled;
+		widthInputField.enabled = enabled;
+		heightInputField.enabled = enabled;
 		if(_displayObject == null) {
 			nameInputField.text = string.IsNullOrWhiteSpace(GlobalData.CurrentModule) ? "null" : GlobalData.CurrentModule;
 			xInputField.text = "0";
-			xInputField.enabled = false;
 			yInputField.text = "0";
-			yInputField.enabled = false;
 			widthInputField.text = "0";
-			widthInputField.enabled = false;
 			heightInputField.text = "0";
-			heightInputField.enabled = false;
 			return;
 		}
 
 		Element element = Element.ConvertTo(_displayObject);
 		nameInputField.text = element.Name;
-		xInputField.enabled = true;
 		xInputField.text = $"{element.X:F1}";
-		yInputField.enabled = true;
 		yInputField.text = $"{element.Y:F1}";
-		widthInputField.enabled = true;
 		widthInputField.text = $"{element.Width:F1}";
-		heightInputField.enabled = true;
 		heightInputField.text = $"{element.Height:F1}";
 
 	}

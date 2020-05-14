@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 public static class StringExtension {
 	private static readonly List<char> SymbolList = new List<char> {
@@ -114,5 +115,14 @@ public static class StringExtension {
 			}
 		}
 		return numberStack.Count < 1 ? double.NaN : numberStack.Pop();
+	}
+	
+	public static string CancelHighlight(this string text) {
+		return string.IsNullOrEmpty(text) ? text : Regex.Replace(text, @"<color=[a-zA-Z]+><size=\d+><b>(?<str>.*?)</b></size></color>", @"${str}");
+	}
+
+	public static string HighlightText(this string text, string needHighlight) {
+		if(string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(needHighlight)) return text;
+		return text.Replace(needHighlight, "<color=yellow><size=25><b>" + needHighlight + "</b></size></color>");
 	}
 }

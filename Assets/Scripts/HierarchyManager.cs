@@ -108,8 +108,7 @@ public class HierarchyManager : MonoBehaviour {
 		int count = GlobalData.Modules.Count;
 		for(int idx = 0; idx < count; ++ idx) {
 			if(_isGlobalSearchFlag && ModuleItems[idx].name.IndexOf(_searchText, StringComparison.Ordinal) != -1)
-				ModuleItems[idx].GetComponentInChildren<Text>().text =
-						Utils.GetHighlight(ModuleItems[idx].name, _searchText);
+				ModuleItems[idx].GetComponentInChildren<Text>().text = ModuleItems[idx].name.HighlightText(_searchText);
 			if(! _isGlobalSearchFlag && ! GlobalData.Modules[idx].Equals(GlobalData.CurrentModule)) continue;
 			int siblingIndex = ModuleItems[idx].GetSiblingIndex();
 			List<Element> displayObjects = GlobalData.ModuleDic[GlobalData.Modules[idx]];
@@ -123,7 +122,7 @@ public class HierarchyManager : MonoBehaviour {
 				DisplayObjectItems.Add(displayObjectItem);
 				displayObjectItem.SetParent(GlobalData.HierarchyContainer.transform);
 				displayObjectItem.SetSiblingIndex(++ siblingIndex);
-				displayObjectItem.name = Utils.GetHighlight(displayObject.Name, _searchText);
+				displayObjectItem.name = displayObject.Name.HighlightText(_searchText);
 				displayObjectItem.GetComponentInChildren<Text>().text = displayObjectItem.name;
 			}
 

@@ -61,16 +61,7 @@ public static class Utils {
 		string fileDirectory = groups[1].Value;
 		return Directory.Exists(fileDirectory);
 	}
-
-	public static string CancelHighlight(string text) {
-		return string.IsNullOrEmpty(text) ? text : Regex.Replace(text, @"<color=[a-zA-Z]+><size=\d+><b>(?<str>.*?)</b></size></color>", @"${str}");
-	}
-
-	public static string GetHighlight(string text, string needHighlight) {
-		if(string.IsNullOrEmpty(text) || string.IsNullOrEmpty(needHighlight)) return text;
-		return text.Replace(needHighlight, "<color=yellow><size=25><b>" + needHighlight + "</b></size></color>");
-	}
-
+	
 	private static readonly Regex RegGetDisplayName = new Regex(@"_([^_]*)$");
 
 	public static string GetDisplayObjectName(string displayObjectKey) {
@@ -145,8 +136,7 @@ public static class Utils {
 
 	public static Sprite LoadSpriteByIO(string imageUrl) {
 		byte[] bytes = Utils.ReadFile(imageUrl);
-		Texture2D texture2D = new Texture2D((int)GlobalData.DefaultSize.x, (int)GlobalData.DefaultSize.y);
-		texture2D.wrapMode = TextureWrapMode.Clamp;
+		Texture2D texture2D = new Texture2D((int)GlobalData.DefaultSize.x, (int)GlobalData.DefaultSize.y) {wrapMode = TextureWrapMode.Clamp};
 		texture2D.LoadImage(bytes);
 		return Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
 	}

@@ -10,17 +10,19 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	private bool _isDrag;
 	private Vector2 _offset;
 	private AlignInfo _alignInfo;
-	private static GameObject _horizontalAlignLine;
-	private static GameObject _verticalAlignLine;
+	private static AlignLineManager _horizontalAlignLineManager;
+	private static AlignLineManager _verticalAlignLineManager;
 
 	public RectTransform selfRect;
 	private Element _selfElement;
 
 	private void Start() {
-		if(_horizontalAlignLine == null) _horizontalAlignLine = Instantiate(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
-		if(_verticalAlignLine == null) _verticalAlignLine = Instantiate(GlobalData.LinePrefab, GlobalData.DisplayObjectContainer.transform);
-		_horizontalAlignLine.SetActive(false);
-		_verticalAlignLine.SetActive(false);
+		if(_horizontalAlignLineManager == null)
+			_horizontalAlignLineManager = Instantiate(GlobalData.AlignLinePrefab, GlobalData.DisplayObjectContainer.transform).GetComponent<AlignLineManager>();
+		if(_verticalAlignLineManager == null)
+			_verticalAlignLineManager = Instantiate(GlobalData.AlignLinePrefab, GlobalData.DisplayObjectContainer.transform).GetComponent<AlignLineManager>();
+		_horizontalAlignLineManager.gameObject.SetActive(false);
+		_verticalAlignLineManager.gameObject.SetActive(false);
 	}
 
 	private static string _copying;
@@ -74,28 +76,38 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		if(_alignInfo?.HorizontalAlignLine != null) {
 			Rectangle horizontalAlignRect = _alignInfo.HorizontalAlignLine;
 			print($"_alignInfo.HorizontalAlignType: {_alignInfo.HorizontalAlignType}, isCenter: {_alignInfo.HorizontalAlignType == AlignType.HorizontalCenter}");
-			_horizontalAlignLine.SetActive(true);
-			_horizontalAlignLine.transform.SetAsLastSibling();
-			RectTransform rt = _horizontalAlignLine.GetComponent<RectTransform>();
-			rt.anchoredPosition = Element.InvConvertTo(new Vector2(horizontalAlignRect.X - GlobalData.AlignExtensionValue, horizontalAlignRect.Y));
-			rt.sizeDelta = new Vector2(horizontalAlignRect.Width + (GlobalData.AlignExtensionValue << 1), horizontalAlignRect.Height);
-			Image image = _horizontalAlignLine.GetComponent<Image>();
-			image.color = (_alignInfo.OtherHorizontalAlignType == AlignType.HorizontalCenter ? Color.magenta : Color.cyan);
+			_horizontalAlignLineManager.gameObject.SetActive(true);
+			_horizontalAlignLineManager.transform.SetAsLastSibling();
+			AlignType leftType = _alignInfo.HorizontalAlignType;
+			AlignType rightType = _alignInfo.OtherHorizontalAlignType;
+			if(Math.Abs(_alignInfo.HorizontalAlignLine.Right - _selfElement.Right) < Math.Abs(_alignInfo.HorizontalAlignLine.Left - _selfElement.Left)) {
+				leftType = _alignInfo.OtherHorizontalAlignType;
+				rightType = _alignInfo.HorizontalAlignType;
+			}
+			_horizontalAlignLineManager.UpdateHorizontal(leftType,
+														 rightType,
+														 Element.InvConvertTo(new Vector2(horizontalAlignRect.X - GlobalData.AlignExtensionValue, horizontalAlignRect.Y)),
+														 new Vector2(horizontalAlignRect.Width + (GlobalData.AlignExtensionValue << 1), horizontalAlignRect.Height));
 		} else
-			_horizontalAlignLine.SetActive(false);
+			_horizontalAlignLineManager.gameObject.SetActive(false);
 
 		if(_alignInfo?.VerticalAlignLine != null) {
 			Rectangle verticalAlignRect = _alignInfo.VerticalAlignLine;
 			print($"_alignInfo.VerticalAlignType: {_alignInfo.VerticalAlignType}, isCenter: {_alignInfo.VerticalAlignType == AlignType.VerticalCenter}");
-			_verticalAlignLine.SetActive(true);
-			_verticalAlignLine.transform.SetAsLastSibling();
-			RectTransform rt = _verticalAlignLine.GetComponent<RectTransform>();
-			rt.anchoredPosition = Element.InvConvertTo(new Vector2(verticalAlignRect.X, verticalAlignRect.Y - GlobalData.AlignExtensionValue));
-			rt.sizeDelta = new Vector2(verticalAlignRect.Width, verticalAlignRect.Height + (GlobalData.AlignExtensionValue << 1));
-			Image image = _verticalAlignLine.GetComponent<Image>();
-			image.color = (_alignInfo.OtherVerticalAlignType == AlignType.VerticalCenter ? Color.magenta : Color.cyan);
+			_verticalAlignLineManager.gameObject.SetActive(true);
+			_verticalAlignLineManager.transform.SetAsLastSibling();
+			AlignType upType = _alignInfo.VerticalAlignType;
+			AlignType downType = _alignInfo.OtherVerticalAlignType;
+			if(Math.Abs(_alignInfo.VerticalAlignLine.Top - _selfElement.Top) < Math.Abs(_alignInfo.VerticalAlignLine.Bottom - _selfElement.Bottom)) {
+				upType = _alignInfo.OtherVerticalAlignType;
+				downType = _alignInfo.VerticalAlignType;
+			}
+			_verticalAlignLineManager.UpdateVertical(upType,
+													 downType,
+													 Element.InvConvertTo(new Vector2(verticalAlignRect.X, verticalAlignRect.Y - GlobalData.AlignExtensionValue)),
+													 new Vector2(verticalAlignRect.Width, verticalAlignRect.Height + (GlobalData.AlignExtensionValue << 1)));
 		} else
-			_verticalAlignLine.SetActive(false);
+			_verticalAlignLineManager.gameObject.SetActive(false);
 
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count == 1) return;
 		foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
@@ -109,14 +121,14 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 		_isDrag = false;
 		if(transform.name.Equals(_copying)) _copying = null;
 		if(_alignInfo == null || KeyboardEventManager.GetControl()) {
-			_horizontalAlignLine.SetActive(false);
-			_verticalAlignLine.SetActive(false);
+			_horizontalAlignLineManager.gameObject.SetActive(false);
+			_verticalAlignLineManager.gameObject.SetActive(false);
 			return;
 		}
 
 		Vector2 pos = selfRect.anchoredPosition;
 		Vector2 size = selfRect.sizeDelta;
-		if(_verticalAlignLine.activeSelf && _alignInfo.VerticalAlignLine != null) {
+		if(_verticalAlignLineManager.gameObject.activeSelf && _alignInfo.VerticalAlignLine != null) {
 			pos.x = _alignInfo.VerticalAlignLine.Left;
 			switch(_alignInfo.VerticalAlignType) {
 				case AlignType.Right:
@@ -127,10 +139,10 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 					break;
 			}
 			pos.x = Element.InvConvertX(pos.x);
-			_verticalAlignLine.SetActive(false);
+			_verticalAlignLineManager.gameObject.SetActive(false);
 		}
 
-		if(_horizontalAlignLine.activeSelf && _alignInfo.HorizontalAlignLine != null) {
+		if(_horizontalAlignLineManager.gameObject.activeSelf && _alignInfo.HorizontalAlignLine != null) {
 			pos.y = _alignInfo.HorizontalAlignLine.Top;
 			switch(_alignInfo.HorizontalAlignType) {
 				case AlignType.Bottom:
@@ -141,7 +153,7 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 					break;
 			}
 			pos.y = Element.InvConvertY(pos.y);
-			_horizontalAlignLine.SetActive(false);
+			_horizontalAlignLineManager.gameObject.SetActive(false);
 		}
 
 		List<string> selectedDisplayObjects = new List<string> {transform.name};

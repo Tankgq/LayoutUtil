@@ -74,7 +74,7 @@ public class GlobalData : MonoBehaviour {
 	public static GameObject DialogPrefab;
 	public static GameObject TipPrefab;
 	public static GameObject SelectPrefab;
-	public static GameObject LinePrefab;
+	public static GameObject AlignLinePrefab;
 	public static GameObject QuickTipPrefab;
 
 	public static GameObject RootCanvas;
@@ -100,7 +100,7 @@ public class GlobalData : MonoBehaviour {
 		DialogPrefab = Resources.Load<GameObject>("Prefabs/Dialog");
 		TipPrefab = Resources.Load<GameObject>("Prefabs/Tip");
 		SelectPrefab = Resources.Load<GameObject>("Prefabs/Select-Rect");
-		LinePrefab = Resources.Load<GameObject>("Prefabs/Line");
+		AlignLinePrefab = Resources.Load<GameObject>("Prefabs/AlignLine");
 		QuickTipPrefab = Resources.Load<GameObject>("Prefabs/Quick-Tip");
 		RootCanvas = GameObject.FindGameObjectWithTag("RootCanvas");
 		DisplayObjectContainer = GameObject.FindGameObjectWithTag("DisplayObjectContainer");

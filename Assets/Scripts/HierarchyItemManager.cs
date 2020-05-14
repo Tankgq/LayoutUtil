@@ -7,7 +7,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 	public int itemType;
 
 	public void OnPointerDown(PointerEventData eventData) {
-		string elementName = Utils.CancelHighlight(transform.name);
+		string elementName = transform.name.CancelHighlight();
 		if(itemType == 1) {
 			ContainerManager.UpdateCurrentDisplayObjectData();
 			string moduleName = elementName;
@@ -32,10 +32,13 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			return;
 		}
 		bool isSelect = GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(elementName);
-		List<string> addElements = null, removeElements = null; 
+		List<string> addElements = null, removeElements = null;
 		if(isSelect) {
 			if(KeyboardEventManager.GetControl()) {
 				removeElements = new List<string> {elementName};
+			} else if(GlobalData.CurrentSelectDisplayObjectDic.Count > 1) {
+				removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
+				removeElements.Remove(elementName);
 			}
 		} else {
 			if(! KeyboardEventManager.GetShift())
