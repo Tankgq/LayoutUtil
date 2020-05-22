@@ -1,7 +1,8 @@
-#if UNITY_EDITOR || UNITY_EDITOR_64
 
+
+using UnityEditor.Callbacks;
+#if UNITY_EDITOR || UNITY_EDITOR_64
 using System;
-using UniRx;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -15,7 +16,7 @@ public class CompilerOptionEditor {
 
 	static CompilerOptionEditor() {
 		_compiling = EditorPrefs.GetBool(CompilingKey, false);
-		Observable.EveryUpdate().Subscribe(_ => OnEditorUpdate());
+		EditorApplication.update += OnEditorUpdate;
 	}
 
 	private static bool _waitingForCompile;
@@ -23,17 +24,31 @@ public class CompilerOptionEditor {
 	private static void OnEditorUpdate() {
 		if(_waitingForCompile) return;
 		bool isCompiling = EditorApplication.isCompiling;
-		if(! isCompiling && _compiling) {
-			DateTime startCompilingTime = new DateTime(long.Parse(EditorPrefs.GetString(CompileStartTimeKey, DateTime.Now.Ticks.ToString())));
-			TimeSpan ts = DateTime.Now - startCompilingTime;
-			Debug.Log($"编译结束, 耗时 {ts.TotalMilliseconds:0.000} ms");
-			_compiling = false;
-			EditorPrefs.SetBool(CompilingKey, _compiling);
+		if(EditorApplication.isPlaying) Debug.Log(true);
+		if(isCompiling && EditorApplication.isPlaying) {
+			StopCompile();
+			return;
 		}
 		if(! isCompiling || _compiling) return;
+		StopCompile();
+	}
+
+	private static void StopCompile() {
 		EditorApplication.LockReloadAssemblies();
 		_waitingForCompile = true;
 		Debug.Log("等待编译");
+	}
+
+	[DidReloadScripts]
+	private static void OnCompileEnd() {
+		string compileStartTime = EditorPrefs.GetString(CompileStartTimeKey, null);
+		if(string.IsNullOrWhiteSpace(compileStartTime)) return;
+		EditorPrefs.SetString(CompileStartTimeKey, null);
+		DateTime startCompilingTime = new DateTime(long.Parse(compileStartTime));
+		TimeSpan ts = DateTime.Now - startCompilingTime;
+		Debug.Log($"编译结束, 耗时 {ts.TotalMilliseconds:0.000} ms");
+		_compiling = false;
+		EditorPrefs.SetBool(CompilingKey, _compiling);
 	}
 
 	[MenuItem("Custom/StartCompile #F10", true)]

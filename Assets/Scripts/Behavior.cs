@@ -25,6 +25,7 @@ public enum BehaviorType {
 	MoveSelectDisplayObjectsDown,
 	CopyDisplayObjects,
 	UpdateFrameVisible,
+	ChangeModuleName,
 }
 
 public enum CombineType {

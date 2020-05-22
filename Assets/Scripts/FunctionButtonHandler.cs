@@ -45,7 +45,7 @@ public class FunctionButtonHandler : MonoBehaviour {
 			GlobalData.FrameToggleModifyByUndo = false;
 			return;
 		}
-		HistoryManager.Do(BehaviorFactory.UpdateFrameVisible(isOn));
+		HistoryManager.Do(BehaviorFactory.GetUpdateFrameVisibleBehavior(isOn));
 	}
 
 	public void OnHelpButtonClick() {

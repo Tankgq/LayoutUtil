@@ -26,7 +26,7 @@ public class HierarchyManager : MonoBehaviour {
 				  .ObserveEveryValueChanged(displayObjects => displayObjects.Count)
 				  .Subscribe(_ => RefreshDisplayObjectItem());
 		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
-//					 .SampleFrame(1)
+					 .SampleFrame(1)
 					 .Subscribe(_ => RefreshModuleItem());
 		UlEventSystem.GetTriggerSubject<UIEventType>(UIEventType.UpdateHierarchy)
 					 .Sample(TimeSpan.FromMilliseconds(100))
@@ -42,12 +42,11 @@ public class HierarchyManager : MonoBehaviour {
 							 RefreshModuleItem();
 						 });
 
-		GlobalData.GlobalObservable.ObserveEveryValueChanged(_ => GlobalData.CurrentModule)
-				  .Sample(TimeSpan.FromMilliseconds(100))
-				  .Subscribe(_ => RefreshModuleItem());
-		GlobalData.Modules.ObserveEveryValueChanged(moduleNames => moduleNames.Count)
-				  .Sample(TimeSpan.FromMilliseconds(100))
-				  .Subscribe(_ => RefreshModuleItem());
+		UlEventSystem.GetTriggerSubject<DataEventType>(DataEventType.ChangeModule)
+					 .Sample(TimeSpan.FromMilliseconds(100))
+					 .Subscribe(_ => RefreshModuleItem());
+		UlEventSystem.GetTriggerSubject<UIEventType>(UIEventType.RefreshModuleItem)
+					 .Subscribe(_ => RefreshModuleItem());
 		StartObserveSwapImage();
 	}
 

@@ -12,7 +12,7 @@ public class HierarchyItemManager : MonoBehaviour, IPointerDownHandler {
 			ContainerManager.UpdateCurrentDisplayObjectData();
 			string moduleName = elementName;
 			if(moduleName.Equals(GlobalData.CurrentModule)) moduleName = null;
-			ModuleUtil.OpenModule(moduleName);
+			HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(moduleName));
 			return;
 		}
 		if(itemType != 2) return;

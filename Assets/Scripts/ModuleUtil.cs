@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Resources;
 using System.Text;
 using FarPlane;
 using Newtonsoft.Json;
 using UniRx;
+using UnityEditorInternal;
 using UnityEngine;
 
 public static class ModuleUtil {
@@ -16,6 +18,8 @@ public static class ModuleUtil {
 		GlobalData.ModuleDic[moduleName] = elements;
 		GlobalData.Modules.Add(moduleName);
 		if(selectModule) UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName));
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.RefreshModuleItem);
 		return true;
 	}
 
@@ -28,6 +32,8 @@ public static class ModuleUtil {
 		GlobalData.ModuleDic.Remove(moduleName);
 		if(moduleName.Equals(GlobalData.CurrentModule))
 			UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(targetModule));
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.RefreshModuleItem);
 		return true;
 	}
 
@@ -177,6 +183,23 @@ public static class ModuleUtil {
 	}
 	
 	public static void OpenModule(string moduleName) {
-		HistoryManager.Do(BehaviorFactory.GetOpenModuleBehavior(moduleName));
+		UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName));
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.RefreshModuleItem);
+	}
+
+	public static void ChangeModuleName(string moduleName, string newModuleName) {
+		if(string.IsNullOrWhiteSpace(moduleName) || ! moduleName.Equals(GlobalData.CurrentModule)) return;
+		// 正常确保了可以修改才调用该方法
+		if(GlobalData.ModuleDic.ContainsKey(newModuleName)) return;
+		int idx = GlobalData.Modules.FindIndex(module => module.Equals(moduleName));
+		if(idx == -1) return;
+		GlobalData.CurrentModule = newModuleName;
+		GlobalData.Modules[idx] = newModuleName;
+		List<Element> elements = GlobalData.ModuleDic[moduleName];
+		GlobalData.ModuleDic.Remove(moduleName);
+		GlobalData.ModuleDic[newModuleName] = elements;
+		UlEventSystem.DispatchTrigger<DataEventType>(DataEventType.CurrentModuleNameChanged);
+		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.RefreshModuleItem);
 	}
 }

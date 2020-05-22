@@ -59,9 +59,8 @@ public static class BehaviorFactory {
 
 	public static Behavior GetOpenModuleBehavior(string moduleName, CombineType combineType = CombineType.Independent) {
 		string previousModuleName = GlobalData.CurrentModule;
-		return new Behavior(isRedo => UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName)),
-							isReUndo => UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule,
-																									 new ChangeModuleEventData(previousModuleName)),
+		return new Behavior(isRedo => ModuleUtil.OpenModule(moduleName),
+							isReUndo => ModuleUtil.OpenModule(previousModuleName),
 							BehaviorType.OpenModule,
 							false,
 							combineType);
@@ -214,9 +213,16 @@ public static class BehaviorFactory {
 							combineType);
 	}
 
-	public static Behavior UpdateFrameVisible(bool isShow) {
+	public static Behavior GetUpdateFrameVisibleBehavior(bool isShow) {
 		return new Behavior(isReDo => DisplayObjectUtil.UpdateFrameVisible(isShow),
 							isReUndo => DisplayObjectUtil.UpdateFrameVisible(! isShow),
-							BehaviorType.UpdateFrameVisible);
+							BehaviorType.UpdateFrameVisible,
+							false);
+	}
+
+	public static Behavior GetChangeModuleNameBehavior(string moduleName, string newModuleName) {
+		return new Behavior(isRedo => ModuleUtil.ChangeModuleName(moduleName, newModuleName),
+							isReUndo => ModuleUtil.ChangeModuleName(newModuleName, moduleName),
+							BehaviorType.ChangeModuleName);
 	}
 }

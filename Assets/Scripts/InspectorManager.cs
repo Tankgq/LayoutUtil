@@ -16,15 +16,32 @@ public class InspectorManager : MonoBehaviour {
 	public InputField widthInputField;
 	public InputField heightInputField;
 
+	private bool ChangeModule = false;
+
 	private void Start() {
 		// EventSystem.current.SetSelectedGameObject(NameInputField.gameObject);
+		UlEventSystem.GetSubject<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule)
+					 .Subscribe(_ => ChangeModule = true);
 		nameInputField.ObserveEveryValueChanged(element => element.isFocused)
 					  .Where(isFocus => ! string.IsNullOrWhiteSpace(GlobalData.CurrentModule)
-									 && _displayObject
+									 // && _displayObject
 									 && ! isFocus
-									 && ! string.IsNullOrEmpty(nameInputField.text))
+									 && ! string.IsNullOrWhiteSpace(nameInputField.text))
 					  .Subscribe(_ => {
 						   string newName = nameInputField.text.Trim();
+						   if(_displayObject == null) {
+							   if(newName.Equals(GlobalData.CurrentModule)) return;
+							   print($"35: {Time.frameCount}");
+							   if(! ChangeModule && GlobalData.ModuleDic.ContainsKey(newName)) {
+								   DialogManager.ShowError("该 Module 名称已存在", 0, 0);
+								   nameInputField.text = GlobalData.CurrentModule;
+								   return;
+							   }
+
+							   ChangeModule = false;
+							   HistoryManager.Do(BehaviorFactory.GetChangeModuleNameBehavior(GlobalData.CurrentModule, newName));
+							   return;
+						   }
 						   string originName = _displayObject.name;
 						   if(newName.Equals(originName)) return;
 						   if(GlobalData.CurrentDisplayObjectDic.ContainsKey(newName)) {
@@ -132,7 +149,7 @@ public class InspectorManager : MonoBehaviour {
 						   EventSystem.current.SetSelectedGameObject(nameInputField.gameObject);
 				   });
 		UlEventSystem.GetSubject<DataEventType, SelectedChangeData>(DataEventType.SelectedChange)
-//					 .SampleFrame(1)
+					 .SampleFrame(1)
 					 .Subscribe(_ => {
 						  Transform displayObject = GlobalData.CurrentSelectDisplayObjectDic.OnlyValue();
 						  UpdateState(displayObject);
@@ -148,13 +165,13 @@ public class InspectorManager : MonoBehaviour {
 	}
 
 	private void UpdateState(Transform displayObject) {
-		bool enabled = GlobalData.CurrentSelectDisplayObjectDic.Count > 0;
+		bool inputTextFieldEnabled = GlobalData.CurrentSelectDisplayObjectDic.Count > 0;
 		_displayObject = displayObject;
 		nameInputField.enabled = ! string.IsNullOrWhiteSpace(GlobalData.CurrentModule);
-		xInputField.enabled = enabled;
-		yInputField.enabled = enabled;
-		widthInputField.enabled = enabled;
-		heightInputField.enabled = enabled;
+		xInputField.enabled = inputTextFieldEnabled;
+		yInputField.enabled = inputTextFieldEnabled;
+		widthInputField.enabled = inputTextFieldEnabled;
+		heightInputField.enabled = inputTextFieldEnabled;
 		if(_displayObject == null) {
 			nameInputField.text = string.IsNullOrWhiteSpace(GlobalData.CurrentModule) ? "null" : GlobalData.CurrentModule;
 			xInputField.text = "0";
