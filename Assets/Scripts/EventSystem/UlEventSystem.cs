@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UniRx;
 
 namespace FarPlane {
-	
 	/// <summary>
 	/// 基于 UniRx 的事件系统, 使用的时候需要先定义好实现 IEventType 接口的事件类型 TEventType, <br />
 	/// 和实现 IEventData 接口的事件数据的 TEventData, <br />
 	/// 每个事件会被划分到相应的 TEventType 内, 然后让 TEventType 对应的 EventManager 来处理事件的具体逻辑
 	/// </summary>
 	public static class UlEventSystem {
-		
 		/// <summary>
 		/// 存储 事件管理者 的字典
 		/// </summary>
@@ -30,7 +28,7 @@ namespace FarPlane {
 			EventManagers[key] = eventManager = new EventManager();
 			return eventManager;
 		}
-		
+
 		/// <summary>
 		/// 根据 TEventType, TEventData 以及 eventType 来获取相应的 Subject,<br />
 		/// 每个 Subject 只能订阅一次, 每次调用都会获取到一个新的 Subject
@@ -44,7 +42,7 @@ namespace FarPlane {
 			EventManager eventManager = GetEventManager<TEventType>();
 			return eventManager.GetSubject<TEventData>(eventType);
 		}
-		
+
 		/// <summary>
 		/// 根据 TEventType, TriggerEventData 以及 eventType 来获取相应的 Subject,<br />
 		/// 每个 Subject 只能订阅一次, 每次调用都会获取到一个新的 Subject
@@ -55,7 +53,7 @@ namespace FarPlane {
 		public static Subject<TriggerEventData> GetTriggerSubject<TEventType>(int eventType) where TEventType: IEventType {
 			return GetSubject<TEventType, TriggerEventData>(eventType);
 		}
-		
+
 		/// <summary>
 		/// 根据 TEventType, TEventData 以及 eventType 来获取第一个订阅该事件的 Subject, 如果没有订阅者, 则返回 null
 		/// 可用于判断该 事件具体类型 是否有订阅者
@@ -69,7 +67,7 @@ namespace FarPlane {
 			EventManager eventManager = GetEventManager<TEventType>(false);
 			return eventManager?.TryToGetSubject<TEventData>(eventType);
 		}
-		
+
 		/// <summary>
 		/// 给订阅 eventType 的订阅者发送事件数据
 		/// </summary>
@@ -91,7 +89,7 @@ namespace FarPlane {
 		public static void DispatchTrigger<TEventType>(int eventType) where TEventType: IEventType {
 			Dispatch<TEventType, TriggerEventData>(eventType, TriggerEventData.Default);
 		}
-		
+
 		/// <summary>
 		/// 给 TEventType 下的所有事件的订阅者发送事件数据
 		/// </summary>
@@ -103,7 +101,7 @@ namespace FarPlane {
 			EventManager eventManager = GetEventManager<TEventType>(false);
 			eventManager?.DispatchAll(eventData);
 		}
-		
+
 		/// <summary>
 		/// 结束 eventType 事件的订阅者的订阅
 		/// </summary>
@@ -113,7 +111,7 @@ namespace FarPlane {
 			EventManager eventManager = GetEventManager<TEventType>(false);
 			eventManager?.OnCompleted(eventType);
 		}
-		
+
 		/// <summary>
 		/// 结束属于 TEventType 的所有事件的订阅者的订阅
 		/// </summary>
@@ -138,7 +136,7 @@ namespace FarPlane {
 			EventManager eventManager = GetEventManager<TEventType>(false);
 			return eventManager != null && eventManager.Dispose(eventType, subject);
 		}
-		
+
 		/// <summary>
 		/// 去除订阅属于 TEventType 的所有事件的订阅者
 		/// </summary>

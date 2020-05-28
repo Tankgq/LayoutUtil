@@ -181,7 +181,7 @@ public static class ModuleUtil {
 					   }
 				   });
 	}
-	
+
 	public static void OpenModule(string moduleName) {
 		UlEventSystem.Dispatch<DataEventType, ChangeModuleEventData>(DataEventType.ChangeModule, new ChangeModuleEventData(moduleName));
 		UlEventSystem.DispatchTrigger<UIEventType>(UIEventType.UpdateInspectorInfo);

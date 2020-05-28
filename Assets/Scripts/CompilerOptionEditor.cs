@@ -1,30 +1,28 @@
-
-
-using UnityEditor.Callbacks;
 #if UNITY_EDITOR || UNITY_EDITOR_64
+
 using System;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 [InitializeOnLoad]
 public class CompilerOptionEditor {
-	
 	private const string CompileStartTimeKey = "CompileStartTime";
 	private const string CompilingKey = "Compiling";
+	private static bool _waitingForCompile;
 	private static bool _compiling;
 
 	static CompilerOptionEditor() {
 		_compiling = EditorPrefs.GetBool(CompilingKey, false);
 		EditorApplication.update += OnEditorUpdate;
+		// 在 update 没能拦截到编译的情况下强行将编译拦截掉
+		CompilationPipeline.compilationStarted += OnStartCompilation;
+		CompilationPipeline.compilationFinished += OnFinishCompilation;
 	}
-
-	private static bool _waitingForCompile;
 
 	private static void OnEditorUpdate() {
 		if(_waitingForCompile) return;
 		bool isCompiling = EditorApplication.isCompiling;
-		if(EditorApplication.isPlaying) Debug.Log(true);
 		if(isCompiling && EditorApplication.isPlaying) {
 			StopCompile();
 			return;
@@ -33,14 +31,24 @@ public class CompilerOptionEditor {
 		StopCompile();
 	}
 
-	private static void StopCompile() {
-		EditorApplication.LockReloadAssemblies();
-		_waitingForCompile = true;
-		Debug.Log("等待编译");
+	private static void OnStartCompilation(object obj) {
+		if(_compiling) return;
+		StopCompile(true);
 	}
 
-	[DidReloadScripts]
-	private static void OnCompileEnd() {
+	private static void OnFinishCompilation(object obj) {
+		if(_compiling) return;
+		Debug.Log("强行拦截编译结束");
+	}
+
+	private static void StopCompile(bool forceStop = false) {
+		EditorApplication.LockReloadAssemblies();
+		_waitingForCompile = true;
+		Debug.Log(forceStop ? "强行拦截编译中" : "等待编译");
+	}
+
+	[UnityEditor.Callbacks.DidReloadScripts]
+	private static void OnFinishCompilation() {
 		string compileStartTime = EditorPrefs.GetString(CompileStartTimeKey, null);
 		if(string.IsNullOrWhiteSpace(compileStartTime)) return;
 		EditorPrefs.SetString(CompileStartTimeKey, null);
@@ -51,12 +59,12 @@ public class CompilerOptionEditor {
 		EditorPrefs.SetBool(CompilingKey, _compiling);
 	}
 
-	[MenuItem("Custom/StartCompile #F10", true)]
+	[MenuItem("Util/StartCompile #F10", true)]
 	public static bool NeedShowStartCompile() {
 		return _waitingForCompile;
 	}
-	
-	[MenuItem("Custom/StartCompile #F10", false)]
+
+	[MenuItem("Util/StartCompile #F10", false)]
 	public static void StartCompile() {
 		if(! _waitingForCompile) return;
 		EditorApplication.UnlockReloadAssemblies();
@@ -64,7 +72,6 @@ public class CompilerOptionEditor {
 		_compiling = true;
 		EditorPrefs.SetBool(CompilingKey, true);
 		EditorPrefs.SetString(CompileStartTimeKey, DateTime.Now.Ticks.ToString());
-		Assert.IsTrue(EditorApplication.isCompiling);
 		Debug.Log("开始编译");
 	}
 }
