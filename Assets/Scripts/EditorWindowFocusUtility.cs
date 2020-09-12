@@ -1,3 +1,5 @@
+#if UNITY_EDITOR || UNITY_EDITOR_64
+
 using System;
 using UnityEditor;
 using UnityEditorInternal;
@@ -22,3 +24,5 @@ public class EditorWindowFocusUtility {
 		}
 	}
 }
+
+#endif

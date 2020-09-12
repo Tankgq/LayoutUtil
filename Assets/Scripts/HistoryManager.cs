@@ -71,6 +71,7 @@ public static class HistoryManager {
 			behavior.IsUndone = true;
 			UnDoneBehaviors.Push(behavior);
 			if(behavior.CombineType == CombineType.Previous) continue;
+			if(Behaviors.Count == 0) break;
 			behavior = Behaviors.Peek();
 			if(behavior == null || behavior.Type == BehaviorType.Null) break;
 			if(behavior.CombineType == CombineType.Next) continue;

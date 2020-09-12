@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Resources;
 using System.Text;
 using FarPlane;
 using Newtonsoft.Json;
 using UniRx;
-using UnityEditorInternal;
 using UnityEngine;
 
 public static class ModuleUtil {

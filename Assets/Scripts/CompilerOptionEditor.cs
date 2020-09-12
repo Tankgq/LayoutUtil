@@ -14,10 +14,10 @@ public class CompilerOptionEditor {
 
 	static CompilerOptionEditor() {
 		_compiling = EditorPrefs.GetBool(CompilingKey, false);
-		EditorApplication.update += OnEditorUpdate;
+		// EditorApplication.update += OnEditorUpdate;
 		// 在 update 没能拦截到编译的情况下强行将编译拦截掉
-		CompilationPipeline.compilationStarted += OnStartCompilation;
-		CompilationPipeline.compilationFinished += OnFinishCompilation;
+		// CompilationPipeline.compilationStarted += OnStartCompilation;
+		// CompilationPipeline.compilationFinished += OnFinishCompilation;
 	}
 
 	private static void OnEditorUpdate() {

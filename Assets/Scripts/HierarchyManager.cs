@@ -179,6 +179,7 @@ public class HierarchyManager : MonoBehaviour {
 			ModuleItems.Add(moduleItem);
 			moduleItem.SetParent(GlobalData.HierarchyContainer.transform);
 			moduleItem.name = GlobalData.Modules[idx];
+			moduleItem.position = Vector3.zero;
 			moduleItem.GetComponentInChildren<Text>().text = GlobalData.Modules[idx];
 		}
 
