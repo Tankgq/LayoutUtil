@@ -205,9 +205,9 @@ public static class BehaviorFactory {
 							BehaviorType.MoveSelectDisplayObjectsDown);
 	}
 
-	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<string> elementNames, CombineType combineType = CombineType.Independent) {
-		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, elementNames),
-							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, elementNames),
+	public static Behavior GetCopyDisplayObjectsBehavior(string moduleName, List<Element> copiedElements, bool needSelect = true, CombineType combineType = CombineType.Independent) {
+		return new Behavior(isReDo => DisplayObjectUtil.CopySelectDisplayObjectsBehavior(moduleName, copiedElements, needSelect),
+							isReUndo => DisplayObjectUtil.RemoveDisplayObjectsBehavior(moduleName, copiedElements),
 							BehaviorType.CopyDisplayObjects,
 							true,
 							combineType);

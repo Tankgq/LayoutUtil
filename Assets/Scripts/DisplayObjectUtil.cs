@@ -23,7 +23,7 @@ public static class DisplayObjectUtil {
 	private static void RecycleDisplayObject(Transform displayObject) {
 		if(! displayObject) return;
 		DisplayObjectManager.DeSelectDisplayObject(displayObject);
-		displayObject.GetComponentInChildren<Toggle>().isOn = false;
+		displayObject.GetComponentInChildren<FrameManager>().IsSelect = false;
 		displayObject.SetParent(null);
 		DisplayObjectPool.Add(displayObject);
 	}
@@ -33,7 +33,7 @@ public static class DisplayObjectUtil {
 		for(int idx = 0; idx < count; ++ idx) RecycleDisplayObject(GlobalData.CurrentDisplayObjects[idx]);
 		GlobalData.CurrentDisplayObjects.Clear();
 		GlobalData.CurrentDisplayObjectDic.Clear();
-		GlobalData.CurrentCopyDisplayObjects.Clear();
+		// GlobalData.CurrentCopyDisplayObjects.Clear();
 //		GlobalData.CurrentSelectDisplayObjectDic.Clear();
 	}
 
@@ -139,7 +139,12 @@ public static class DisplayObjectUtil {
 		return elementName;
 	}
 
-	public static Transform AddDisplayObject(string imageUrl, Vector2 pos, Vector2 size, string sourceElementName = null, bool needSelect = false) {
+	public static Transform AddDisplayObject(string imageUrl,
+											 Vector2 pos,
+											 Vector2 size,
+											 string sourceElementName = null,
+											 bool needSelect = false,
+											 bool needAddToHistory = true) {
 		if(string.IsNullOrEmpty(GlobalData.CurrentModule)) {
 			if(GlobalData.ModuleDic.Count == 0) {
 				DialogManager.ShowInfo("请先创建一个 module", KeyCode.Return, 320);
@@ -151,8 +156,7 @@ public static class DisplayObjectUtil {
 		}
 
 		if(! string.IsNullOrWhiteSpace(imageUrl)) {
-			Material material;
-			MaterialDic.TryGetValue(imageUrl, out material);
+			MaterialDic.TryGetValue(imageUrl, out Material material);
 			if(material == null) {
 				Texture2D texture = Utils.LoadTexture2DbyIo(imageUrl);
 				material = new Material(GlobalData.DefaultShader) {mainTexture = texture};
@@ -189,10 +193,28 @@ public static class DisplayObjectUtil {
 		string elementName = GetCanUseElementName(sourceElementName, imageUrl);
 		pos = Element.ConvertTo(pos);
 
-		HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule, elementName, imageUrl, pos, size));
-		if(needSelect) {
+		if(needAddToHistory)
+			HistoryManager.Do(BehaviorFactory.GetAddDisplayObjectBehavior(GlobalData.CurrentModule,
+																		  elementName,
+																		  imageUrl,
+																		  pos,
+																		  size));
+		else
+			AddDisplayObjectBehavior(GlobalData.CurrentModule, new Element {
+										Name = elementName,
+										X = Element.ConvertX(pos.x),
+										Y = Element.ConvertY(pos.y),
+										Width = size.x,
+										Height = size.y,
+										Visible = true
+									}, imageUrl);
+			
+		if(needSelect && needAddToHistory) {
 			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
-			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, new List<string>{elementName}, removeElements, CombineType.Previous));
+			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule,
+																				   new List<string>{elementName},
+																				   removeElements,
+																				   CombineType.Previous));
 		}
 		GlobalData.CurrentDisplayObjectDic.TryGetValue(elementName, out displayObject);
 		return displayObject;
@@ -296,12 +318,13 @@ public static class DisplayObjectUtil {
 	public static void CopySelectDisplayObjects() {
 		if(GlobalData.CurrentSelectDisplayObjectDic.Count == 0) return;
 		GlobalData.CurrentCopyDisplayObjects.Clear();
-		int count = GlobalData.CurrentDisplayObjects.Count;
+		List<Element> selectedElements = GlobalData.ModuleDic[GlobalData.CurrentModule]
+												   .Where(element => GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(element.Name))
+												   .ToList();
+		if(selectedElements.Count == 0) return;
+		int count = selectedElements.Count;
 		for(int idx = 0; idx < count; ++ idx) {
-			Transform displayObject = GlobalData.CurrentDisplayObjects[idx];
-			if(displayObject == null) continue;
-			if(! GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(displayObject.name)) continue;
-			Element element = GlobalData.GetElement(displayObject.name);
+			Element element = selectedElements[idx];
 			GlobalData.CurrentCopyDisplayObjects.Add(new Element {
 				Name = element.Name,
 				X = element.X,
@@ -486,13 +509,15 @@ public static class DisplayObjectUtil {
 //		MessageBroker.SendUpdateSelectDisplayObjectDic(addElements, removeElements);
 	}
 
-	public static void CopySelectDisplayObjectsBehavior(string moduleName, List<string> elementNames) {
+	public static void CopySelectDisplayObjectsBehavior(string moduleName, List<Element> copiedElements, bool needSelect = true) {
 		if(string.IsNullOrWhiteSpace(moduleName) || ! GlobalData.CurrentModule.Equals(moduleName)) return;
-		if(elementNames == null || elementNames.Count == 0) return;
-		List<Element> elements = elementNames.Select(GlobalData.GetElement).ToList();
-		AddDisplayObjectsBehavior(moduleName, elements);
+		if(copiedElements == null || copiedElements.Count == 0) return;
+		AddDisplayObjectsBehavior(moduleName, copiedElements);
+		if(!needSelect) return;
 		List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
-		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(moduleName, elementNames, removeElements));
+		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(moduleName,
+																			   copiedElements.Select(element => element.Name).ToList(),
+																			   removeElements));
 	}
 
 	public static void UpdateFrameVisible(bool isShow) {

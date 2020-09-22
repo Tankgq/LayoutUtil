@@ -80,8 +80,7 @@ public class KeyboardEventManager : MonoBehaviour {
 		}
 
 		if(isControlDown && ! isFocusOnInputText) {
-			if(Input.GetKeyDown(KeyCode.C))
-				DisplayObjectUtil.CopySelectDisplayObjects();
+			if(Input.GetKeyDown(KeyCode.C)) DisplayObjectUtil.CopySelectDisplayObjects();
 			else if(Input.GetKeyDown(KeyCode.V)) containerManager.PasteDisplayObjects();
 		}
 

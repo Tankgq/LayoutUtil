@@ -58,7 +58,7 @@ public class ContainerManager : MonoBehaviour {
 																			   return displayObject;
 																		   })
 																		  .Where(displayObject => displayObject)) {
-								  displayObject.GetComponent<Toggle>().isOn = false;
+								  displayObject.GetComponent<FrameManager>().IsSelect = false;
 							  }
 						  }
 
@@ -66,7 +66,7 @@ public class ContainerManager : MonoBehaviour {
 							  foreach(Transform displayObject in eventData.AddElements
 																		  .Select(elementName => GlobalData.CurrentDisplayObjectDic[elementName])
 																		  .Where(displayObject => displayObject)) {
-								  displayObject.GetComponent<Toggle>().isOn = true;
+								  displayObject.GetComponent<FrameManager>().IsSelect = true;
 							  }
 						  }
 
@@ -78,7 +78,7 @@ public class ContainerManager : MonoBehaviour {
 						  StringBuilder sb = new StringBuilder();
 						  foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
 							  sb.Append($"{pair.Value.name}, ");
-							  pair.Value.GetComponent<Toggle>().isOn = true;
+							  pair.Value.GetComponent<FrameManager>().IsSelect = true;
 						  }
 
 						  selectedDisplayObjectText.text = sb.ToString(0, sb.Length - 2);
@@ -109,16 +109,15 @@ public class ContainerManager : MonoBehaviour {
 		if(string.IsNullOrWhiteSpace(GlobalData.CurrentModule)) return;
 		bool isControlDown = KeyboardEventManager.GetControl();
 		List<string> addElements = null, removeElements = null;
-		if(isControlDown)
-			removeElements = new List<string>();
-		else
-			addElements = new List<string>();
+		if(isControlDown) removeElements = new List<string>();
+		else addElements = new List<string>();
 		List<Element> elements = GlobalData.ModuleDic[GlobalData.CurrentModule];
-		foreach(Element element in elements.Where(rect => rect.IsCrossing(selectRect)))
-			if(isControlDown)
-				removeElements.Add(element.Name);
-			else
-				addElements.Add(element.Name);
+		foreach(Element element in elements.Where(rect => rect.IsCrossing(selectRect))) {
+			if(isControlDown) removeElements.Add(element.Name);
+			else addElements.Add(element.Name);
+		}
+		if(isControlDown && removeElements.Count == 0) return;
+		if(! isControlDown && addElements.Count == 0) return;
 		HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements));
 	}
 
@@ -131,7 +130,7 @@ public class ContainerManager : MonoBehaviour {
 		Vector2 delta = mousePos - leftTop;
 		int count = sourceList.Count;
 		string moduleName = GlobalData.CurrentModule;
-		List<string> copyNames = new List<string>();
+		List<Element> copiedElements = new List<Element>();
 		for(int idx = 0; idx < count; ++ idx) {
 			Element sourceElement = sourceList[idx];
 			string imageUrl = DisplayObjectUtil.GetImageUrl(moduleName, sourceElement.Name);
@@ -147,10 +146,10 @@ public class ContainerManager : MonoBehaviour {
 				Visible = true
 			};
 			DisplayObjectUtil.AddDisplayObjectBehavior(moduleName, element, imageUrl);
-			copyNames.Add(elementName);
+			copiedElements.Add(element);
 		}
 
-		HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(moduleName, copyNames), true);
+		HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(moduleName, copiedElements), true);
 	}
 
 	public static bool CheckPointOnAnyDisplayObject() {

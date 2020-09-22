@@ -4,7 +4,6 @@ using System.Linq;
 using FarPlane;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler {
 	private bool _isDrag;
@@ -31,35 +30,47 @@ public class DisplayObjectManager : MonoBehaviour, IBeginDragHandler, IDragHandl
 	void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
 		_isDrag = true;
 		if(KeyboardEventManager.GetAlt() && _copying == null) {
-			string imageUrl = DisplayObjectUtil.GetImageUrl(GlobalData.CurrentModule, transform.name);
-			Vector2 pos = Element.InvConvertTo(selfRect.anchoredPosition);
-			Transform copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl, pos, selfRect.sizeDelta, transform.name + "_copy");
-			if(copyDisplayObject == null) return;
-			DisplayObjectManager dom = copyDisplayObject.GetComponent<DisplayObjectManager>();
-			if(dom) dom._offset = _offset;
-			List<Transform> copies = new List<Transform> {copyDisplayObject};
-			_copying = copyDisplayObject.name;
-			foreach(var pair in GlobalData.CurrentSelectDisplayObjectDic) {
-				if(pair.Value == transform) continue;
-				Element element = GlobalData.GetElement(pair.Key);
-				if(element == null) continue;
-				string key = $"{GlobalData.CurrentModule}_{pair.Key}";
-				if(GlobalData.DisplayObjectPathDic.ContainsKey(pair.Key)) imageUrl = GlobalData.DisplayObjectPathDic[key];
-				copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl,
-																	   new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint),
-																	   new Vector2(element.Width, element.Height),
-																	   pair.Key + "_copy");
-				copies.Add(copyDisplayObject);
-			}
-
-			List<string> addElements = copies.Select(element => element.name).ToList();
 			List<string> removeElements = GlobalData.CurrentSelectDisplayObjectDic.KeyList();
-
+			List<Element> copiedElements = new List<Element>();
+			List<string> addElements = new List<string>();
+			List<Element> selectedElements = GlobalData.ModuleDic[GlobalData.CurrentModule]
+													   .Where(element => GlobalData.CurrentSelectDisplayObjectDic.ContainsKey(element.Name))
+													   .ToList();
+			GameObject selfReplisome = null;
+			int count = selectedElements.Count;
+			for(int idx = 0; idx < count; ++ idx) {
+				Element element = selectedElements[idx];
+				if(element == null) continue;
+				string key = $"{GlobalData.CurrentModule}_{element.Name}";
+				string imageUrl = GlobalData.DisplayObjectPathDic.ContainsKey(element.Name) ? imageUrl = GlobalData.DisplayObjectPathDic[key] : null;
+				Vector2 pos = new Vector2(element.X, element.Y) + Element.InvConvertTo(GlobalData.OriginPoint);
+				Vector2 size = new Vector2(element.Width, element.Height);
+				Transform copyDisplayObject = DisplayObjectUtil.AddDisplayObject(imageUrl,
+																				 pos,
+																				 size,
+																				 element.Name + "_copy",
+																				 false,
+																				 false);
+				if(copyDisplayObject == null) continue;
+				copiedElements.Add(new Element {
+					Name = copyDisplayObject.name,
+					X = pos.x,
+					Y = pos.y,
+					Width = size.x,
+					Height = size.y,
+					Visible = true
+				});
+				addElements.Add(copyDisplayObject.name);
+				if(! element.Name.Equals(transform.name)) continue;
+				selfReplisome = copyDisplayObject.gameObject;
+				DisplayObjectManager dom = copyDisplayObject.GetComponent<DisplayObjectManager>();
+				if(dom) dom._offset = _offset;
+			}
+			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, copiedElements, false, CombineType.Next), true);
 			HistoryManager.Do(BehaviorFactory.GetUpdateSelectDisplayObjectBehavior(GlobalData.CurrentModule, addElements, removeElements, CombineType.Next));
-			HistoryManager.Do(BehaviorFactory.GetCopyDisplayObjectsBehavior(GlobalData.CurrentModule, addElements, CombineType.Next), true);
 			ExecuteEvents.Execute(gameObject, eventData, ExecuteEvents.endDragHandler);
-			eventData.pointerDrag = copies[0].gameObject;
-			ExecuteEvents.Execute(copyDisplayObject.gameObject, eventData, ExecuteEvents.beginDragHandler);
+			if(selfReplisome == null) return;
+			eventData.pointerDrag = selfReplisome;
 		} else {
 			_startPos = selfRect.anchoredPosition;
 		}
